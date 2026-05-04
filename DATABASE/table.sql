@@ -161,6 +161,45 @@ create table CHITIETBANVATTU(
    constraint PK_CTBVT primary key(Ma_BanVatTu, Ma_VatTuPhuTung)
 );
 
+CREATE TABLE CHUCVU (
+    MaChucVu CHAR(10) PRIMARY KEY,
+    TenChucVu NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE QUYENHAN (
+    MaQuyenHan CHAR(10) PRIMARY KEY,
+    TenQuyenHan NVARCHAR(50) NOT NULL,
+    NoiDungQuyenHan NVARCHAR(255)
+);
+
+CREATE TABLE CHITIETCHUCVU (
+    MaChiTietChucVu CHAR(10) PRIMARY KEY,
+    Ma_ChucVu CHAR(10),
+    Ma_QuyenHan CHAR(10),
+    FOREIGN KEY (Ma_ChucVu) REFERENCES CHUCVU(MaChucVu),
+    FOREIGN KEY (Ma_QuyenHan) REFERENCES QUYENHAN(MaQuyenHan)
+);
+
+CREATE TABLE NGUOIDUNG (
+    MaNguoiDung CHAR(10) PRIMARY KEY,
+    TenTaiKhoan VARCHAR(50) UNIQUE NOT NULL,
+    MatKhau VARCHAR(100) NOT NULL,
+    Ma_ChucVu CHAR(10),
+    FOREIGN KEY (Ma_ChucVu) REFERENCES CHUCVU(MaChucVu)
+);
+
+CREATE TABLE THONGTINNGUOIDUNG (
+    MaThongTinNguoiDung CHAR(10) PRIMARY KEY,
+    Ma_NguoiDung CHAR(10) UNIQUE, -- Một người dùng chỉ có 1 bộ thông tin
+    HoVaTen NVARCHAR(100),
+    Email VARCHAR(50),
+    DiaChi NVARCHAR(200),
+    Ngaysinh DATE,
+    SoDienThoai VARCHAR(20),
+    FOREIGN KEY (Ma_NguoiDung) REFERENCES NGUOIDUNG(MaNguoiDung)
+);
+
+
 
 
 

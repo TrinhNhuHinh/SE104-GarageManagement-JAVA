@@ -163,6 +163,34 @@ INSERT INTO CHITIETBAOCAOTON (Ma_BaoCaoTon, Ma_VatTuPhuTung, TonDau, TonCuoi, Ph
 ('BCT04', 'VT05', 30, 35, 10);
 GO
 
+-- 19. Thêm chức vụ
+INSERT INTO CHUCVU (MaChucVu, TenChucVu) VALUES ('CV01', N'Quản trị viên (Admin)'), ('CV02', N'Nhân viên (Staff)');
+GO
+
+-- 20. Thêm quyền hạn 
+INSERT INTO QUYENHAN (MaQuyenHan, TenQuyenHan, NoiDungQuyenHan) VALUES 
+('QH01', N'Toàn quyền', N'Được làm mọi thứ'),
+('QH02', N'Tiếp nhận xe', N'Chỉ được lập phiếu tiếp nhận');
+GO
+
+-- 21. Phân quyền cho chức vụ
+INSERT INTO CHITIETCHUCVU (MaChiTietChucVu, Ma_ChucVu, Ma_QuyenHan) VALUES 
+('CTCV01', 'CV01', 'QH01'),
+('CTCV02', 'CV02', 'QH02');
+GO
+
+-- 22. Thêm tài khoản test (Pass test = 123456)
+INSERT INTO NGUOIDUNG (MaNguoiDung, TenTaiKhoan, MatKhau, Ma_ChucVu) VALUES 
+('ND01', 'admin', '123456', 'CV01'),
+('ND02', 'staff1', '123456', 'CV02');
+GO
+
+-- Thêm thông tin cho tài khoản
+INSERT INTO THONGTINNGUOIDUNG (MaThongTinNguoiDung, Ma_NguoiDung, HoVaTen, Email, SoDienThoai) VALUES 
+('TT01', 'ND01', N'Sếp Tổng', 'admin@garage.com', '0999999999'),
+('TT02', 'ND02', N'Nhân Viên Quèn', 'staff1@garage.com', '0888888888');
+GO
+
 -- Kiểm tra dữ liệu sau khi insert
 SELECT * FROM HIEUXE;
 SELECT * FROM KHACHHANG;
@@ -182,4 +210,9 @@ SELECT * FROM BAOCAODOANHSO;
 SELECT * FROM CHITIETBAOCAODOANHSO;
 SELECT * FROM BAOCAOTON;
 SELECT * FROM CHITIETBAOCAOTON;
+SELECT * FROM NGUOIDUNG;
+SELECT * FROM CHUCVU;
+SELECT * FROM QUYENHAN;
+SElECT * FROM THONGTINNGUOIDUNG;
+SELECT * FROM CHITIETCHUCVU;
 GO
