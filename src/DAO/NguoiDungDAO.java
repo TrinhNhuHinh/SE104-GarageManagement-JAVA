@@ -119,4 +119,54 @@ public class NguoiDungDAO {
         }
         return null; 
     }
+    
+    //Check tồn tại
+    // Hàm kiểm tra xem tên tài khoản đã có ai xài chưa
+    public boolean checkTaiKhoanTonTai(String username) {
+    String sql = "SELECT * FROM NGUOIDUNG WHERE TenTaiKhoan = ?";
+    try (Connection conn = Config.DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        
+        ps.setString(1, username);
+        ResultSet rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            return true; 
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false; 
+}
+    
+    // Hàm tự động sinh mã người dùng mới (ND01, ND02,...)
+    public String getMaNguoiDungTiepTheo() {
+        String sql = "SELECT MaNguoiDung FROM NGUOIDUNG";
+        int maxNumber = 0; 
+
+        try (java.sql.Connection conn = Config.DBConnection.getConnection(); // Ní tự chỉnh lại chỗ lấy Connection cho khớp nha
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql);
+             java.sql.ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String maND = rs.getString("MaNguoiDung");
+                // Kiểm tra xem mã có chữ "ND" ở đầu không
+                if (maND != null && maND.startsWith("ND")) {
+                    maND = maND.trim();
+                    try {
+                        int so = Integer.parseInt(maND.substring(2));
+                        if (so > maxNumber) {
+                            maxNumber = so; 
+                        }
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        maxNumber++;
+
+        return String.format("ND%02d", maxNumber);
+    }
 }

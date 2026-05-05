@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+<AnchorPane id="AnchorPane" prefHeight="522.0" prefWidth="401.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LognRegController">
+    <stylesheets>
+        <URL value="@../Assets/loginmodal.css" />
+    </stylesheets>
+   <children>
+      <Label alignment="CENTER" layoutX="137.0" layoutY="34.0" prefHeight="42.0" prefWidth="126.0" styleClass="titleLabel" text="Đăng Nhập" />
+      <Pane layoutX="37.0" layoutY="93.0" prefHeight="359.0" prefWidth="327.0" styleClass="bodyPane">
+         <children>
+            <Label layoutX="46.0" layoutY="38.0" prefHeight="17.0" prefWidth="66.0" styleClass="userNameLabel" text="Tài khoản" />
+            <TextField fx:id="txtUsername" layoutX="45.0" layoutY="67.0" prefHeight="42.0" prefWidth="235.0" promptText="Your Username..." styleClass="txtUsername" />
+            <Label layoutX="45.0" layoutY="132.0" styleClass="passwordLabel" text="Mật khẩu" />
+            <PasswordField fx:id="txtPassword" layoutX="46.0" layoutY="159.0" prefHeight="42.0" prefWidth="235.0" promptText="***************" styleClass="txtPassword" />
+            <CheckBox layoutX="46.0" layoutY="224.0" mnemonicParsing="false" styleClass="rememberCB" text="Remember me" />
+            <Label id="regisLabel" fx:id="regisBtnLoginModal" layoutX="197.0" layoutY="224.0" onMouseClicked="#switchToRegister" styleClass="regisLabel" text="Tạo toàn khoản" />
+            <Button fx:id="loginBtn" layoutX="89.0" layoutY="273.0" mnemonicParsing="false" onAction="#btnLoginAction" prefHeight="42.0" prefWidth="147.0" styleClass="loginBtn" text="Đăng nhập" />
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

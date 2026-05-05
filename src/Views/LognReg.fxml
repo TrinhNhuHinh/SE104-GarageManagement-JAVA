@@ -7,22 +7,23 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
 
-<AnchorPane id="AnchorPane" prefHeight="458.0" prefWidth="660.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LognRegController">
+<AnchorPane id="AnchorPane" prefHeight="450.0" prefWidth="800.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LognRegController">
     <stylesheets>
         <URL value="@../Assets/lognreg.css" />
     </stylesheets>
    <children>
-      <Pane layoutX="10.0" layoutY="76.0" prefHeight="306.0" prefWidth="638.0" styleClass="bodyPane">
+      <Pane layoutX="56.0" layoutY="72.0" prefHeight="306.0" prefWidth="688.0" styleClass="bodyPane">
          <children>
-            <Label layoutX="36.0" layoutY="61.0" prefHeight="66.0" prefWidth="462.0" styleClass="bodyLabel" text="Garage Management" />
-            <Label layoutX="36.0" layoutY="127.0" prefHeight="80.0" prefWidth="341.0" styleClass="bodyLabel2" text="Hệ thống quản lý Garage ô tô thông minh nhất Việt Nam. Tối ưu vận hành, kiểm soát tồn kho và nâng tầm dịch vụ khách hàng." />
-            <Button layoutX="36.0" layoutY="218.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="126.0" styleClass="regisBtn" text="Dùng thử ngay" />
+            <Label layoutX="41.0" layoutY="34.0" prefHeight="0.0" prefWidth="462.0" styleClass="bodyLabel" text="Garage Management" />
+            <Label layoutX="41.0" layoutY="113.0" prefHeight="80.0" prefWidth="239.0" styleClass="bodyLabel2" text="Hệ thống quản lý Garage ô tô thông minh nhất Việt Nam. Tối ưu vận hành, kiểm soát tồn kho và nâng tầm dịch vụ khách hàng." />
+            <Button fx:id="regisBtn" layoutX="41.0" layoutY="215.0" mnemonicParsing="false" onAction="#openRegisterModal" prefHeight="28.0" prefWidth="126.0" styleClass="regisBtn" text="Dùng thử ngay" />
+            <Region layoutX="339.0" layoutY="100.0" prefHeight="164.0" prefWidth="328.0" styleClass="icon-body" />
          </children></Pane>
-      <Button layoutX="431.0" layoutY="14.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="91.0" styleClass="loginBtn" text="Đăng ký" />
-      <Button layoutX="546.0" layoutY="14.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="91.0" styleClass="regisBtn" text="Đăng nhập" />
-      <Button layoutX="582.0" layoutY="390.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="42.0" styleClass="settingBtn">
+      <Button fx:id="regisBtn1" layoutX="584.0" layoutY="14.0" mnemonicParsing="false" onAction="#openRegisterModal" prefHeight="28.0" prefWidth="91.0" styleClass="loginBtn" text="Đăng ký" />
+      <Button fx:id="loginBtn" layoutX="688.0" layoutY="14.0" mnemonicParsing="false" onAction="#openLoginModal" prefHeight="28.0" prefWidth="91.0" styleClass="regisBtn" text="Đăng nhập" />
+      <Button layoutX="734.0" layoutY="390.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="42.0" styleClass="settingBtn">
          <graphic>
-            <Region styleClass="icon-setting" prefHeight="28.0" prefWidth="30.0" />
+            <Region prefHeight="28.0" prefWidth="30.0" styleClass="icon-setting" />
          </graphic></Button>
    </children>
 </AnchorPane>

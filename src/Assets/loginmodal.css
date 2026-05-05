@@ -1,0 +1,53 @@
+/*
+ * Empty Stylesheet file.
+ */
+
+.mainFxmlClass {
+
+}
+
+#AnchorPane{
+    -fx-background-color:#0a1012;
+}
+
+.titleLabel{
+    -fx-font-size: 20px;
+    -fx-text-fill:#08b6d4;
+    -fx-font-weight:bold;
+}
+
+.userNameLabel{
+    -fx-font-size: 14px;
+    -fx-text-fill:#08b6d4;
+    -fx-font-weight: 650;
+}
+
+.bodyPane .txtUsername{
+    -fx-background-radius: 8;
+}
+
+.passwordLabel{
+    -fx-font-size: 14px;
+    -fx-text-fill:#08b6d4;
+    -fx-font-weight: 650;
+}
+
+.bodyPane .txtPassword{
+    -fx-background-radius: 8;
+}
+
+.rememberCB{
+    -fx-font-size: 12px;
+    -fx-text-fill:#08b6d4;
+}
+
+.regisLabel{
+    -fx-font-size: 12px;
+    -fx-text-fill:#08b6d4;
+}
+
+.loginBtn{
+    -fx-background-color:#08b6d4;
+    -fx-text-fill:whitesmoke;
+    -fx-background-radius: 8;
+}
