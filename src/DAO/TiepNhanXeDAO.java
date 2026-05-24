@@ -54,9 +54,9 @@ public class TiepNhanXeDAO {
             while(rs.next()){
                  TiepNhanXe tnx = new TiepNhanXe();
                  tnx.setMaTiepNhanXe(rs.getString("MaTiepNhanXe"));
-                 tnx.setMaKhachHang(rs.getString("MaKhachHang"));
+                 tnx.setMaKhachHang(rs.getString("Ma_KhachHang"));
                  tnx.setBienSoXe(rs.getString("BienSoXe"));
-                 tnx.setMaHieuXe(rs.getString("MaHieuXe"));
+                 tnx.setMaHieuXe(rs.getString("Ma_HieuXe"));
                  tnx.setNgayTiepNhan(rs.getDate("NgayTiepNhan"));
                  tnx.setTienNo(rs.getDouble("TienNo"));
                  list.add(tnx);
@@ -116,7 +116,7 @@ public class TiepNhanXeDAO {
     public boolean delete(String maTiepNhanXe){
         
         //Lệnh sql
-        String sql = "DELETE * FROM TIEPNHANXE WHHERE MATIEPNHANXE = ?";
+        String sql = "DELETE FROM TIEPNHANXE WHERE MATIEPNHANXE = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)){
             
