@@ -1,0 +1,51 @@
+/*
+ * Empty Stylesheet file.
+ */
+
+.mainFxmlClass {
+
+}
+
+#AnchorPane{
+    -fx-background-color:#161d25;
+    -fx-border-color:#06b6d4;
+}
+
+.asideDashboard{
+    -fx-background-color:#161d25;
+    -fx-border-color:#06b6d4;
+    -fx-border-width: 1px 1px 0px 1px;
+}
+
+.asideDashboard .logoIcon{
+    -fx-background-image:url("../picture/logo.png");
+    -fx-background-repeat:no-repeat;
+    -fx-background-position:center;
+    -fx-background-size:150%;
+}
+
+.asideDashboard .asideVbox{
+    -fx-spacing:15px;
+}
+
+.asideVbox Button{
+    -fx-border-color: transparent;
+    -fx-background-color:#161d25;
+    -fx-text-fill:#fff;
+    -fx-font-weight:bold;
+    -fx-font-size:14px;
+}
+
+.asideVbox Button:hover{
+    -fx-background-color:#161d25;
+    -fx-text-fill:#fff;
+    -fx-font-weight:bold;
+    -fx-border-color:#06b6d4;
+    -fx-border-width: 2px;
+}
+
+.asideVbox Button.activeBtn{
+    -fx-background-color:#06b6d4;
+    -fx-text-fill:black;
+    -fx-font-weight:bold;
+}

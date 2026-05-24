@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1280.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController">
+    <stylesheets>
+        <URL value="@../Assets/css/home.css" />
+    </stylesheets>
+   <children>
+      <BorderPane prefHeight="800.0" prefWidth="1280.0">
+         <left>
+            <AnchorPane prefHeight="800.0" prefWidth="232.0" styleClass="asideDashboard" BorderPane.alignment="CENTER">
+               <children>
+                  <Region fx:id="logoIcon" layoutX="27.0" layoutY="32.0" prefHeight="178.0" prefWidth="182.0" styleClass="logoIcon" />
+                  <VBox layoutX="26.0" layoutY="217.0" prefHeight="406.0" prefWidth="182.0" styleClass="asideVbox">
+                     <children>
+                        <Button fx:id="btnIntake" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Intake Service" />
+                        <Button fx:id="btnRepairOrders" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Repair Orders" />
+                        <Button fx:id="btnBilling" layoutX="10.0" layoutY="64.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Billing &amp; Collections" />
+                        <Button fx:id="btnQuickLookup" layoutX="10.0" layoutY="119.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Quick Lookup" />
+                        <Button fx:id="btnReports" layoutX="10.0" layoutY="173.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Statistical Reports" />
+                        <Button fx:id="btnParts" layoutX="10.0" layoutY="228.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Parts Management" />
+                        <Button fx:id="btnProfile" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Profile" />
+                     </children></VBox>
+               </children></AnchorPane>
+         </left>
+         <center>
+            <AnchorPane fx:id="mainContent" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" styleClass="mainContent"/>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

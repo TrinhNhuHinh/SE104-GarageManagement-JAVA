@@ -1,0 +1,50 @@
+.mainFxmlClass {}
+
+#AnchorPane {
+    -fx-background-color: #161d25;
+}
+
+.wcLabel {
+    -fx-text-fill: #fff;
+    -fx-font-size: 24px;
+}
+
+.dateLabel {
+    -fx-text-fill: #fff;
+    -fx-font-size: 16px;
+}
+
+.statCardPink   { 
+    -fx-background-color: #E91E8C;
+    -fx-padding: 15;
+    -fx-alignment: center;
+    -fx-background-radius: 12;
+    -fx-spacing: 10;
+    -fx-background-insets: 0;
+}
+.statCardPurple { 
+    -fx-background-color: #7B5EA7;
+    -fx-padding: 15;
+    -fx-alignment: center;
+    -fx-background-radius: 12;
+    -fx-spacing: 10;
+    -fx-background-insets: 0;
+}
+.statCardBlue { 
+    -fx-background-color: #29B6CC;
+    -fx-padding: 15;
+    -fx-alignment: center;
+    -fx-background-radius: 12;
+    -fx-spacing: 10;
+    -fx-background-insets: 0;
+}
+
+.card-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.card-value {
+    -fx-text-fill: white;
+    -fx-font: bold 32px System;
+}

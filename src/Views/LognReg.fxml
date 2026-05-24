@@ -9,7 +9,7 @@
 
 <AnchorPane id="AnchorPane" prefHeight="450.0" prefWidth="800.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LognRegController">
     <stylesheets>
-        <URL value="@../Assets/lognreg.css" />
+        <URL value="@../Assets/css/lognreg.css" />
     </stylesheets>
    <children>
       <Pane layoutX="56.0" layoutY="72.0" prefHeight="306.0" prefWidth="688.0" styleClass="bodyPane">
