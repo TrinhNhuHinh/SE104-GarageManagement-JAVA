@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1048.0"
+            styleClass="pageRoot"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1">
+
+    <stylesheets>
+        <URL value="@../Assets/css/pages.css" />
+    </stylesheets>
+
+    <children>
+        <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
+            <Label text="Statistical Reports" styleClass="pageTitle" />
+            <Label text="View revenue, repair performance, vehicle brands and inventory statistics." styleClass="pageSubtitle" />
+        </VBox>
+
+        <HBox layoutX="35.0" layoutY="100.0" spacing="18.0">
+            <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Monthly Revenue" styleClass="cardLabel" />
+                <Label fx:id="lblMonthlyRevenue" text="0đ" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Repair Orders" styleClass="cardLabel" />
+                <Label fx:id="lblReportRepairOrders" text="0" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Cars Received" styleClass="cardLabel" />
+                <Label fx:id="lblReportCarsReceived" text="0" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Low Stock Parts" styleClass="cardLabel" />
+                <Label fx:id="lblLowStockParts" text="0" styleClass="cardValue" />
+            </VBox>
+        </HBox>
+
+        <VBox layoutX="35.0" layoutY="235.0" prefWidth="975.0" prefHeight="120.0" spacing="16.0" styleClass="card">
+            <Label text="Report Filter" styleClass="sectionTitle" />
+
+            <HBox spacing="12.0">
+                <ComboBox fx:id="cbbReportType" promptText="Report type" styleClass="comboBox" prefWidth="230.0" />
+                <ComboBox fx:id="cbbMonth" promptText="Month" styleClass="comboBox" prefWidth="150.0" />
+                <ComboBox fx:id="cbbYear" promptText="Year" styleClass="comboBox" prefWidth="150.0" />
+                <Button fx:id="btnViewReport" text="View Report" styleClass="primaryBtn" prefWidth="120.0" />
+                <Button fx:id="btnExportReport" text="Export" styleClass="secondaryBtn" prefWidth="100.0" />
+            </HBox>
+        </VBox>
+
+        <VBox layoutX="35.0" layoutY="385.0" prefWidth="975.0" prefHeight="370.0" spacing="12.0" styleClass="card">
+            <Label text="Report Details" styleClass="sectionTitle" />
+
+            <TableView fx:id="tblReports" prefWidth="935.0" prefHeight="300.0" styleClass="dataTable">
+                <columns>
+                    <TableColumn fx:id="colReportNo" text="No." prefWidth="70.0" />
+                    <TableColumn fx:id="colReportName" text="Report Item" prefWidth="270.0" />
+                    <TableColumn fx:id="colReportQuantity" text="Quantity" prefWidth="150.0" />
+                    <TableColumn fx:id="colReportAmount" text="Amount" prefWidth="190.0" />
+                    <TableColumn fx:id="colReportRate" text="Rate" prefWidth="130.0" />
+                    <TableColumn fx:id="colReportNote" text="Note" prefWidth="120.0" />
+                </columns>
+            </TableView>
+        </VBox>
+    </children>
+</AnchorPane>

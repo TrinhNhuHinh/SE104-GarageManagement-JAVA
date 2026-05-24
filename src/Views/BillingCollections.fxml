@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1048.0"
+            styleClass="pageRoot"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1">
+
+    <stylesheets>
+        <URL value="@../Assets/css/pages.css" />
+    </stylesheets>
+
+    <children>
+        <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
+            <Label text="Billing &amp; Collections" styleClass="pageTitle" />
+            <Label text="Create payment receipts and manage customer debt." styleClass="pageSubtitle" />
+        </VBox>
+
+        <HBox layoutX="35.0" layoutY="100.0" spacing="18.0">
+            <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Current Debt" styleClass="cardLabel" />
+                <Label fx:id="lblCurrentDebt" text="0đ" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Amount Paid" styleClass="cardLabel" />
+                <Label fx:id="lblAmountPaid" text="0đ" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
+                <Label text="Remaining Debt" styleClass="cardLabel" />
+                <Label fx:id="lblRemainingDebt" text="0đ" styleClass="cardValue" />
+            </VBox>
+        </HBox>
+
+        <VBox layoutX="35.0" layoutY="230.0" prefWidth="975.0" prefHeight="220.0" spacing="14.0" styleClass="card">
+            <Label text="Payment Receipt Form" styleClass="sectionTitle" />
+
+            <GridPane hgap="18.0" vgap="12.0">
+                <Label text="Receipt ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="txtMaPhieuThu" promptText="PT001" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Customer" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                <ComboBox fx:id="cbbMaKhachHang" promptText="Choose customer" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                <Label text="Payment Date" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <DatePicker fx:id="dpNgayThuTien" styleClass="datePicker" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Amount" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <TextField fx:id="txtSoTienThu" promptText="0" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            </GridPane>
+
+            <HBox spacing="12.0">
+                <Button fx:id="btnCreateReceipt" text="Create Receipt" styleClass="primaryBtn" prefWidth="135.0" />
+                <Button fx:id="btnUpdateReceipt" text="Update" styleClass="secondaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnDeleteReceipt" text="Delete" styleClass="dangerBtn" prefWidth="100.0" />
+                <Button fx:id="btnClearReceipt" text="Clear" styleClass="secondaryBtn" prefWidth="100.0" />
+            </HBox>
+        </VBox>
+
+        <VBox layoutX="35.0" layoutY="480.0" prefWidth="975.0" prefHeight="275.0" spacing="12.0" styleClass="card">
+            <HBox spacing="12.0">
+                <TextField fx:id="txtSearchReceipt" promptText="Search receipt ID, customer ID, customer name..." styleClass="inputField" prefWidth="735.0" />
+                <Button fx:id="btnSearchReceipt" text="Search" styleClass="primaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnRefreshReceipt" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
+            </HBox>
+
+            <TableView fx:id="tblReceipts" prefWidth="935.0" prefHeight="200.0" styleClass="dataTable">
+                <columns>
+                    <TableColumn fx:id="colMaPhieuThu" text="Receipt ID" prefWidth="130.0" />
+                    <TableColumn fx:id="colMaKhachHang" text="Customer ID" prefWidth="140.0" />
+                    <TableColumn fx:id="colTenKhachHang" text="Customer Name" prefWidth="220.0" />
+                    <TableColumn fx:id="colNgayThuTien" text="Date" prefWidth="150.0" />
+                    <TableColumn fx:id="colSoTienThu" text="Amount" prefWidth="150.0" />
+                    <TableColumn fx:id="colConNo" text="Debt After" prefWidth="140.0" />
+                </columns>
+            </TableView>
+        </VBox>
+    </children>
+</AnchorPane>

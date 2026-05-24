@@ -1,31 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane 
-    prefHeight="800.0" 
-    prefWidth="1048.0" 
-    xmlns="http://javafx.com/javafx/26" 
-    xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="Controllers.IntakeServiceController">
+<AnchorPane prefHeight="800.0" prefWidth="1048.0"
+            styleClass="pageRoot"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1">
 
     <stylesheets>
-        <URL value="@../Assets/css/intakeservice.css" />
+        <URL value="@../Assets/css/pages.css" />
     </stylesheets>
 
     <children>
-        <VBox layoutX="40.0" layoutY="40.0" spacing="20.0">
-            <Label text="Profile" styleClass="pageTitle"/>
-            <Label text="Tên tài khoản:" />
-            <TextField fx:id="txtUsername" promptText="Nhập tên..." />
-            <Label text="Email:" />
-            <TextField fx:id="txtEmail" promptText="Nhập email..." />
-            <Button text="Lưu thay đổi" fx:id="btnSave" />
+        <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
+            <Label text="Intake Service" styleClass="pageTitle" />
+            <Label text="Receive customer vehicles and manage intake records." styleClass="pageSubtitle" />
+        </VBox>
+
+        <VBox layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="245.0" spacing="14.0" styleClass="card">
+            <Label text="Vehicle Intake Form" styleClass="sectionTitle" />
+
+            <GridPane hgap="18.0" vgap="12.0">
+                <Label text="Intake ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="txtMaTiepNhanXe" promptText="TNX001" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Customer ID" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                <TextField fx:id="txtMaKhachHang" promptText="KH001" styleClass="inputField" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                <Label text="License Plate" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="txtBienSoXe" promptText="51A-12345" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Brand" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <ComboBox fx:id="cbbMaHieuXe" promptText="Choose brand" styleClass="comboBox" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                <Label text="Intake Date" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <DatePicker fx:id="dpNgayTiepNhan" styleClass="datePicker" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Debt" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <TextField fx:id="txtTienNo" promptText="0" styleClass="inputField" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            </GridPane>
+
+            <HBox spacing="12.0">
+                <Button fx:id="btnAdd" text="Add" styleClass="primaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnUpdate" text="Update" styleClass="secondaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnDelete" text="Delete" styleClass="dangerBtn" prefWidth="100.0" />
+                <Button fx:id="btnClear" text="Clear" styleClass="secondaryBtn" prefWidth="100.0" />
+            </HBox>
+        </VBox>
+
+        <VBox layoutX="35.0" layoutY="375.0" prefWidth="975.0" prefHeight="380.0" spacing="12.0" styleClass="card">
+            <HBox spacing="12.0">
+                <TextField fx:id="txtSearch" promptText="Search intake ID, customer ID, license plate..." styleClass="inputField" prefWidth="735.0" />
+                <Button fx:id="btnSearch" text="Search" styleClass="primaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnRefresh" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
+            </HBox>
+
+            <TableView fx:id="tblTiepNhanXe" prefWidth="935.0" prefHeight="305.0" styleClass="dataTable">
+                <columns>
+                    <TableColumn fx:id="colMaTiepNhanXe" text="Intake ID" prefWidth="130.0" />
+                    <TableColumn fx:id="colMaKhachHang" text="Customer ID" prefWidth="150.0" />
+                    <TableColumn fx:id="colBienSoXe" text="License Plate" prefWidth="160.0" />
+                    <TableColumn fx:id="colMaHieuXe" text="Brand" prefWidth="150.0" />
+                    <TableColumn fx:id="colNgayTiepNhan" text="Date" prefWidth="160.0" />
+                    <TableColumn fx:id="colTienNo" text="Debt" prefWidth="175.0" />
+                </columns>
+            </TableView>
         </VBox>
     </children>
-
 </AnchorPane>

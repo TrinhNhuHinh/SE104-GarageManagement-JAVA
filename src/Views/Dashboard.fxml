@@ -1,39 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
-<?import javafx.scene.chart.BarChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1048.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
+<AnchorPane prefHeight="800.0" prefWidth="1048.0"
+            styleClass="pageRoot"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1">
+
     <stylesheets>
-        <URL value="@../Assets/css/dashboard.css" />
+        <URL value="@../Assets/css/pages.css" />
     </stylesheets>
-   <children>
-      <Label fx:id="wcLabel" layoutX="40.0" layoutY="36.0" prefHeight="66.0" prefWidth="242.0" styleClass="wcLabel" text="Welcome, ..." />
-      <Label layoutX="40.0" layoutY="100.0" prefHeight="42.0" prefWidth="264.0" styleClass="dateLabel" text="Monday, May 18, 2026" />
-      <VBox layoutX="100.0" layoutY="165.0" prefHeight="88.0" prefWidth="250.0" styleClass="statCardPink">
-                  <Label styleClass="card-title" text="Doanh thu trong tháng" />
-                  <Label fx:id="lblDoanhThu" styleClass="card-value" text="0đ" />
-      </VBox>
-      <VBox layoutX="400.0" layoutY="165.0" prefHeight="88.0" prefWidth="250.0" styleClass="statCardPurple">
-          <Label styleClass="card-title" text="Số xe tiếp nhận trong tháng" />
-          <Label fx:id="lblSoXe" styleClass="card-value" text="0" />
-      </VBox>
-      <VBox layoutX="700.0" layoutY="165.0" prefHeight="88.0" prefWidth="250.0" styleClass="statCardBlue">
-          <Label styleClass="card-title" text="Số xe tiếp nhận hôm nay" />
-          <Label fx:id="lblXeHomNay" styleClass="card-value" text="0/30" />
-      </VBox>
-      <BarChart layoutX="94.0" layoutY="371.0" prefHeight="400.0" prefWidth="862.0">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </BarChart>
-   </children>
+
+    <children>
+        <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
+            <Label text="Dashboard" styleClass="pageTitle" />
+            <Label text="Overview of garage performance and recent activities." styleClass="pageSubtitle" />
+        </VBox>
+
+        <HBox layoutX="35.0" layoutY="105.0" spacing="18.0">
+            <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
+                <Label text="Customers" styleClass="cardLabel" />
+                <Label fx:id="lblTotalCustomers" text="0" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
+                <Label text="Cars Received" styleClass="cardLabel" />
+                <Label fx:id="lblCarsReceived" text="0" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
+                <Label text="Repair Orders" styleClass="cardLabel" />
+                <Label fx:id="lblRepairOrders" text="0" styleClass="cardValue" />
+            </VBox>
+
+            <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
+                <Label text="Revenue" styleClass="cardLabel" />
+                <Label fx:id="lblRevenue" text="0đ" styleClass="cardValue" />
+            </VBox>
+        </HBox>
+
+        <VBox layoutX="35.0" layoutY="250.0" prefWidth="455.0" prefHeight="215.0" spacing="12.0" styleClass="card">
+            <Label text="Today Summary" styleClass="sectionTitle" />
+            <Label text="Vehicles received today: 0" styleClass="noteText" />
+            <Label text="Repair orders created today: 0" styleClass="noteText" />
+            <Label text="Receipts created today: 0" styleClass="noteText" />
+            <Label text="Low stock parts: 0" styleClass="noteText" />
+        </VBox>
+
+        <VBox layoutX="515.0" layoutY="250.0" prefWidth="495.0" prefHeight="215.0" spacing="12.0" styleClass="card">
+            <Label text="Quick Status" styleClass="sectionTitle" />
+            <Label text="System ready" styleClass="statusGood" />
+            <Label text="Database connection will be checked after backend is connected." styleClass="noteText" />
+            <Label text="Use sidebar to manage intake service, repairs, billing and parts." styleClass="noteText" />
+        </VBox>
+
+        <VBox layoutX="35.0" layoutY="495.0" prefWidth="975.0" prefHeight="260.0" spacing="12.0" styleClass="card">
+            <Label text="Recent Activities" styleClass="sectionTitle" />
+
+            <TableView fx:id="tblRecentActivities" prefWidth="935.0" prefHeight="195.0" styleClass="dataTable">
+                <columns>
+                    <TableColumn fx:id="colActivityTime" text="Time" prefWidth="150.0" />
+                    <TableColumn fx:id="colActivityType" text="Type" prefWidth="180.0" />
+                    <TableColumn fx:id="colActivityContent" text="Content" prefWidth="420.0" />
+                    <TableColumn fx:id="colActivityStatus" text="Status" prefWidth="180.0" />
+                </columns>
+            </TableView>
+        </VBox>
+    </children>
 </AnchorPane>
