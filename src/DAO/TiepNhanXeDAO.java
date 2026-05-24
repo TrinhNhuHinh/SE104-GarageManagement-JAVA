@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
 import Config.DBConnection;
@@ -13,121 +9,179 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.ResultSet;
 
-/**
- *
- * @author hinh
- */
 public class TiepNhanXeDAO {
-    //insert
-    public boolean insert(TiepNhanXe tnx){
-        
-        //Lệnh sql
-        String sql = "INSERT INTO TIEPNHANXE VALUES (?, ?, ?, ?, ?, ?)";
+
+    public boolean insert(TiepNhanXe tnx) {
+        String sql = """
+            INSERT INTO TIEPNHANXE 
+            (MaTiepNhanXe, Ma_KhachHang, BienSoXe, Ma_HieuXe, NgayTiepNhan, TienNo)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)){
-            
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, tnx.getMaTiepNhanXe());
             ps.setString(2, tnx.getMaKhachHang());
             ps.setString(3, tnx.getBienSoXe());
             ps.setString(4, tnx.getMaHieuXe());
             ps.setDate(5, tnx.getNgayTiepNhan());
             ps.setDouble(6, tnx.getTienNo());
-            
-            //Thực thi
+
             return ps.executeUpdate() > 0;
-        }catch(SQLException e){
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return false;
     }
-    
-    //getALL
-    public List<TiepNhanXe>getALL(){
+
+    public List<TiepNhanXe> getALL() {
         List<TiepNhanXe> list = new ArrayList<>();
-        
-        //lệnh sql
+
         String sql = "SELECT * FROM TIEPNHANXE";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)){
-            
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
-                 TiepNhanXe tnx = new TiepNhanXe();
-                 tnx.setMaTiepNhanXe(rs.getString("MaTiepNhanXe"));
-                 tnx.setMaKhachHang(rs.getString("Ma_KhachHang"));
-                 tnx.setBienSoXe(rs.getString("BienSoXe"));
-                 tnx.setMaHieuXe(rs.getString("Ma_HieuXe"));
-                 tnx.setNgayTiepNhan(rs.getDate("NgayTiepNhan"));
-                 tnx.setTienNo(rs.getDouble("TienNo"));
-                 list.add(tnx);
-             }
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-        return list;
-    }
-    
-    //getById
-    public TiepNhanXe getById(String maTiepNhanXe){
-        
-        //Lệnh sql
-        String sql = "SELECT * FROM TIEPNHANXE WHERE MATIEPNHANXE = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)){
-            
-            ps.setString(1, maTiepNhanXe);
-            ResultSet rs = ps.executeQuery();
-            if(rs.next()){
+
+            while (rs.next()) {
                 TiepNhanXe tnx = new TiepNhanXe();
+
                 tnx.setMaTiepNhanXe(rs.getString("MaTiepNhanXe"));
-                tnx.setMaKhachHang(rs.getString("MaKhachHang"));
+                tnx.setMaKhachHang(rs.getString("Ma_KhachHang"));
                 tnx.setBienSoXe(rs.getString("BienSoXe"));
-                tnx.setMaHieuXe(rs.getString("MaHieuXe"));
+                tnx.setMaHieuXe(rs.getString("Ma_HieuXe"));
                 tnx.setNgayTiepNhan(rs.getDate("NgayTiepNhan"));
                 tnx.setTienNo(rs.getDouble("TienNo"));
+
+                list.add(tnx);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public TiepNhanXe getById(String maTiepNhanXe) {
+        String sql = "SELECT * FROM TIEPNHANXE WHERE MaTiepNhanXe = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maTiepNhanXe);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                TiepNhanXe tnx = new TiepNhanXe();
+
+                tnx.setMaTiepNhanXe(rs.getString("MaTiepNhanXe"));
+                tnx.setMaKhachHang(rs.getString("Ma_KhachHang"));
+                tnx.setBienSoXe(rs.getString("BienSoXe"));
+                tnx.setMaHieuXe(rs.getString("Ma_HieuXe"));
+                tnx.setNgayTiepNhan(rs.getDate("NgayTiepNhan"));
+                tnx.setTienNo(rs.getDouble("TienNo"));
+
                 return tnx;
             }
-        }catch(SQLException e){
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return null;
     }
-    
-    //Update
-    public boolean update(TiepNhanXe tnx){
-        
-        //Lệnh sql
-        String sql = "UPDATE TIEPNHANXE SET TIENNO = ? WHERE MATIEPNHANXE = ?";
+
+    public boolean update(TiepNhanXe tnx) {
+        String sql = """
+            UPDATE TIEPNHANXE
+            SET Ma_KhachHang = ?,
+                BienSoXe = ?,
+                Ma_HieuXe = ?,
+                NgayTiepNhan = ?,
+                TienNo = ?
+            WHERE MaTiepNhanXe = ?
+        """;
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)){
-            
-            ps.setDouble(1, tnx.getTienNo());
-            ps.setString(2, tnx.getMaTiepNhanXe());
-            
-            //Thực thi
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tnx.getMaKhachHang());
+            ps.setString(2, tnx.getBienSoXe());
+            ps.setString(3, tnx.getMaHieuXe());
+            ps.setDate(4, tnx.getNgayTiepNhan());
+            ps.setDouble(5, tnx.getTienNo());
+            ps.setString(6, tnx.getMaTiepNhanXe());
+
             return ps.executeUpdate() > 0;
-        }catch(SQLException e){
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return false;
     }
-    
-    //Delete
-    public boolean delete(String maTiepNhanXe){
-        
-        //Lệnh sql
-        String sql = "DELETE FROM TIEPNHANXE WHERE MATIEPNHANXE = ?";
+
+    public boolean delete(String maTiepNhanXe) {
+        String sql = "DELETE FROM TIEPNHANXE WHERE MaTiepNhanXe = ?";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)){
-            
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, maTiepNhanXe);
-            
-            //Thực thi 
             return ps.executeUpdate() > 0;
-        }catch(SQLException e){
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return false;
     }
-    
+
+    public List<TiepNhanXe> search(String keyword) {
+        List<TiepNhanXe> list = new ArrayList<>();
+
+        String sql = """
+            SELECT * FROM TIEPNHANXE
+            WHERE MaTiepNhanXe LIKE ?
+               OR Ma_KhachHang LIKE ?
+               OR BienSoXe LIKE ?
+               OR Ma_HieuXe LIKE ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String value = "%" + keyword + "%";
+
+            ps.setString(1, value);
+            ps.setString(2, value);
+            ps.setString(3, value);
+            ps.setString(4, value);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                TiepNhanXe tnx = new TiepNhanXe();
+
+                tnx.setMaTiepNhanXe(rs.getString("MaTiepNhanXe"));
+                tnx.setMaKhachHang(rs.getString("Ma_KhachHang"));
+                tnx.setBienSoXe(rs.getString("BienSoXe"));
+                tnx.setMaHieuXe(rs.getString("Ma_HieuXe"));
+                tnx.setNgayTiepNhan(rs.getDate("NgayTiepNhan"));
+                tnx.setTienNo(rs.getDouble("TienNo"));
+
+                list.add(tnx);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }
