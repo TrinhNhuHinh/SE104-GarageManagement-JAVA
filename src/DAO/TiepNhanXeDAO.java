@@ -31,7 +31,7 @@ public class TiepNhanXeDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            printSqlError(e);
         }
 
         return false;
@@ -61,7 +61,7 @@ public class TiepNhanXeDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            printSqlError(e);
         }
 
         return list;
@@ -90,7 +90,7 @@ public class TiepNhanXeDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            printSqlError(e);
         }
 
         return null;
@@ -120,7 +120,7 @@ public class TiepNhanXeDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            printSqlError(e);
         }
 
         return false;
@@ -136,7 +136,7 @@ public class TiepNhanXeDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            printSqlError(e);
         }
 
         return false;
@@ -179,9 +179,55 @@ public class TiepNhanXeDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            printSqlError(e);
         }
 
         return list;
+    }
+
+    public List<String> getAllIds() {
+        List<String> list = new ArrayList<>();
+
+        String sql = "SELECT MaTiepNhanXe FROM TIEPNHANXE ORDER BY MaTiepNhanXe";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(rs.getString("MaTiepNhanXe").trim());
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+        }
+
+        return list;
+    }
+
+    public boolean updateTienNo(String maTiepNhanXe, double tienNoMoi) {
+        String sql = "UPDATE TIEPNHANXE SET TienNo = ? WHERE MaTiepNhanXe = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDouble(1, tienNoMoi);
+            ps.setString(2, maTiepNhanXe);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            printSqlError(e);
+        }
+
+        return false;
+    }
+
+    private void printSqlError(SQLException e) {
+        System.out.println("SQL ERROR CODE: " + e.getErrorCode());
+        System.out.println("SQL STATE: " + e.getSQLState());
+        System.out.println("SQL MESSAGE: " + e.getMessage());
+        e.printStackTrace();
     }
 }
