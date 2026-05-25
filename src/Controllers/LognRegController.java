@@ -1,7 +1,6 @@
 package Controllers;
 
 import MODEL.NguoiDung;
-import MODEL.SessionManager;
 import Service.AuthService;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -46,8 +45,6 @@ public class LognRegController implements Initializable {
         NguoiDung loggedInUser = authService.login(username, password);
 
         if (loggedInUser != null) {
-            // Lưu user vào session toàn cục
-            SessionManager.setCurrentUser(loggedInUser);
 
             // Đóng hết màn hình cũ
             new java.util.ArrayList<>(Stage.getWindows())
