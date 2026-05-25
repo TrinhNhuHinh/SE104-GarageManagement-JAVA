@@ -17,7 +17,8 @@
 <AnchorPane prefHeight="800.0" prefWidth="1048.0"
             styleClass="pageRoot"
             xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1">
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.RepairOrdersController">
 
     <stylesheets>
         <URL value="@../Assets/css/pages.css" />
@@ -29,12 +30,12 @@
             <Label text="Create and manage repair orders, labor fees and repair details." styleClass="pageSubtitle" />
         </VBox>
 
-        <VBox layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="260.0" spacing="14.0" styleClass="card">
+        <VBox layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="285.0" spacing="14.0" styleClass="card">
             <Label text="Repair Order Form" styleClass="sectionTitle" />
 
             <GridPane hgap="18.0" vgap="12.0">
                 <Label text="Repair ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="txtMaSuaChua" promptText="SC001" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <TextField fx:id="txtMaSuaChua" promptText="SC06" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <Label text="Intake ID" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                 <ComboBox fx:id="cbbMaTiepNhanXe" promptText="Choose intake" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
@@ -42,11 +43,17 @@
                 <Label text="Repair Date" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                 <DatePicker fx:id="dpNgaySuaChua" styleClass="datePicker" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Labor Fee" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                <TextField fx:id="txtTienCong" promptText="0" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                <Label text="Part" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <ComboBox fx:id="cbbMaVatTu" promptText="Choose part" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                <Label text="Description" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextArea fx:id="txtNoiDungSuaChua" promptText="Repair content..." styleClass="textArea" prefWidth="690.0" prefHeight="65.0" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3" />
+                <Label text="Quantity" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="txtSoLuong" promptText="1" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Labor Fee" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <TextField fx:id="txtTienCong" promptText="0" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                <Label text="Description" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <TextArea fx:id="txtNoiDungSuaChua" promptText="Repair content..." styleClass="textArea" prefWidth="690.0" prefHeight="65.0" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" />
             </GridPane>
 
             <HBox spacing="12.0">
@@ -57,21 +64,23 @@
             </HBox>
         </VBox>
 
-        <VBox layoutX="35.0" layoutY="390.0" prefWidth="975.0" prefHeight="365.0" spacing="12.0" styleClass="card">
+        <VBox layoutX="35.0" layoutY="415.0" prefWidth="975.0" prefHeight="340.0" spacing="12.0" styleClass="card">
             <HBox spacing="12.0">
                 <TextField fx:id="txtSearchRepair" promptText="Search repair ID, intake ID, license plate..." styleClass="inputField" prefWidth="735.0" />
                 <Button fx:id="btnSearchRepair" text="Search" styleClass="primaryBtn" prefWidth="100.0" />
                 <Button fx:id="btnRefreshRepair" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
 
-            <TableView fx:id="tblRepairOrders" prefWidth="935.0" prefHeight="290.0" styleClass="dataTable">
+            <TableView fx:id="tblRepairOrders" prefWidth="935.0" prefHeight="265.0" styleClass="dataTable">
                 <columns>
-                    <TableColumn fx:id="colMaSuaChua" text="Repair ID" prefWidth="120.0" />
-                    <TableColumn fx:id="colMaTiepNhanXe" text="Intake ID" prefWidth="130.0" />
-                    <TableColumn fx:id="colBienSoXe" text="License Plate" prefWidth="150.0" />
-                    <TableColumn fx:id="colNgaySuaChua" text="Date" prefWidth="140.0" />
-                    <TableColumn fx:id="colNoiDungSuaChua" text="Description" prefWidth="250.0" />
-                    <TableColumn fx:id="colThanhTien" text="Total" prefWidth="140.0" />
+                    <TableColumn fx:id="colMaSuaChua" text="Repair ID" prefWidth="110.0" />
+                    <TableColumn fx:id="colMaTiepNhanXe" text="Intake ID" prefWidth="120.0" />
+                    <TableColumn fx:id="colBienSoXe" text="License Plate" prefWidth="130.0" />
+                    <TableColumn fx:id="colNgaySuaChua" text="Date" prefWidth="120.0" />
+                    <TableColumn fx:id="colNoiDungSuaChua" text="Description" prefWidth="210.0" />
+                    <TableColumn fx:id="colMaVatTu" text="Part" prefWidth="95.0" />
+                    <TableColumn fx:id="colSoLuong" text="Qty" prefWidth="70.0" />
+                    <TableColumn fx:id="colThanhTien" text="Total" prefWidth="80.0" />
                 </columns>
             </TableView>
         </VBox>
