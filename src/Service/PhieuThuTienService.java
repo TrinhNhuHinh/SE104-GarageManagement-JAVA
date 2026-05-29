@@ -2,25 +2,35 @@ package Service;
 
 import DAO.KhachHangDAO;
 import DAO.PhieuThuTienDAO;
+import DAO.SuaChuaXeDAO;
 import DAO.TiepNhanXeDAO;
 import MODEL.KhachHang;
 import MODEL.PhieuThuTien;
+import MODEL.SuaChuaXe;
 import MODEL.TiepNhanXe;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhieuThuTienService {
 
     private final PhieuThuTienDAO phieuThuDAO = new PhieuThuTienDAO();
     private final TiepNhanXeDAO tiepNhanXeDAO = new TiepNhanXeDAO();
+    private final SuaChuaXeDAO suaChuaXeDAO = new SuaChuaXeDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
     public List<PhieuThuTien> getAll() {
         return phieuThuDAO.getAll();
     }
 
-    public List<String> getAllIntakeIds() {
-        return tiepNhanXeDAO.getAllIds();
+    public List<String> getAllRepairIds() {
+        List<String> ids = new ArrayList<>();
+
+        for (SuaChuaXe sc : suaChuaXeDAO.getAll()) {
+            ids.add(sc.getMaSuaChuaXe().trim());
+        }
+
+        return ids;
     }
 
     public List<PhieuThuTien> search(String keyword) {
@@ -31,12 +41,63 @@ public class PhieuThuTienService {
         return phieuThuDAO.search(keyword.trim());
     }
 
-    public double getCurrentDebt(String maTiepNhanXe) {
-        if (maTiepNhanXe == null || maTiepNhanXe.trim().isEmpty()) {
+    public SuaChuaXe getRepairById(String maSuaChuaXe) {
+        if (maSuaChuaXe == null || maSuaChuaXe.trim().isEmpty()) {
+            return null;
+        }
+
+        return suaChuaXeDAO.getById(maSuaChuaXe.trim());
+    }
+
+    public String getIntakeIdByRepairId(String maSuaChuaXe) {
+        SuaChuaXe sc = getRepairById(maSuaChuaXe);
+
+        if (sc == null) {
+            return "";
+        }
+
+        return sc.getMaTiepNhanXe();
+    }
+
+    public double getRepairTotal(String maSuaChuaXe) {
+        SuaChuaXe sc = getRepairById(maSuaChuaXe);
+
+        if (sc == null) {
             return 0;
         }
 
-        TiepNhanXe tnx = tiepNhanXeDAO.getById(maTiepNhanXe);
+        return sc.getThanhTien();
+    }
+
+    public double getPaidByRepairId(String maSuaChuaXe) {
+        if (maSuaChuaXe == null || maSuaChuaXe.trim().isEmpty()) {
+            return 0;
+        }
+
+        return phieuThuDAO.getTotalPaidByRepairId(maSuaChuaXe.trim());
+    }
+
+    public double getRemainingByRepairId(String maSuaChuaXe) {
+        double repairTotal = getRepairTotal(maSuaChuaXe);
+        double paid = getPaidByRepairId(maSuaChuaXe);
+
+        double remaining = repairTotal - paid;
+
+        if (remaining < 0) {
+            return 0;
+        }
+
+        return remaining;
+    }
+
+    public double getCurrentDebtByRepairId(String maSuaChuaXe) {
+        SuaChuaXe sc = getRepairById(maSuaChuaXe);
+
+        if (sc == null) {
+            return 0;
+        }
+
+        TiepNhanXe tnx = tiepNhanXeDAO.getById(sc.getMaTiepNhanXe());
 
         if (tnx == null) {
             return 0;
@@ -45,8 +106,8 @@ public class PhieuThuTienService {
         return tnx.getTienNo();
     }
 
-    public boolean add(String maPhieuThu, String maTiepNhanXe, Date ngayThuTien, double soTienThu) {
-        if (!isValid(maPhieuThu, maTiepNhanXe, ngayThuTien, soTienThu)) {
+    public boolean add(String maPhieuThu, String maSuaChuaXe, Date ngayThuTien, double soTienThu) {
+        if (!isValid(maPhieuThu, maSuaChuaXe, ngayThuTien, soTienThu)) {
             return false;
         }
 
@@ -54,9 +115,21 @@ public class PhieuThuTienService {
             return false;
         }
 
-        TiepNhanXe tnx = tiepNhanXeDAO.getById(maTiepNhanXe);
+        SuaChuaXe sc = suaChuaXeDAO.getById(maSuaChuaXe);
+
+        if (sc == null) {
+            return false;
+        }
+
+        TiepNhanXe tnx = tiepNhanXeDAO.getById(sc.getMaTiepNhanXe());
 
         if (tnx == null) {
+            return false;
+        }
+
+        double remainingRepair = getRemainingByRepairId(maSuaChuaXe);
+
+        if (soTienThu > remainingRepair) {
             return false;
         }
 
@@ -74,7 +147,8 @@ public class PhieuThuTienService {
 
         PhieuThuTien pt = new PhieuThuTien(
                 maPhieuThu,
-                maTiepNhanXe,
+                tnx.getMaTiepNhanXe(),
+                maSuaChuaXe,
                 ngayThuTien,
                 tnx.getBienSoXe(),
                 "",
@@ -82,13 +156,7 @@ public class PhieuThuTienService {
                 soTienThu
         );
 
-        boolean inserted = phieuThuDAO.insert(pt);
-
-        if (!inserted) {
-            return false;
-        }
-
-        return tiepNhanXeDAO.updateTienNo(maTiepNhanXe, tnx.getTienNo() - soTienThu);
+        return phieuThuDAO.insert(pt);
     }
 
     public boolean update(String maPhieuThu, Date ngayThuTien, double soTienThuMoi) {
@@ -98,21 +166,21 @@ public class PhieuThuTienService {
             return false;
         }
 
-        TiepNhanXe tnx = tiepNhanXeDAO.getById(old.getMaTiepNhanXe());
+        double remainingWithoutOld = getRemainingByRepairId(old.getMaSuaChuaXe()) + old.getSoTienThu();
+        double debtBeforeOld = getCurrentDebtByRepairId(old.getMaSuaChuaXe()) + old.getSoTienThu();
 
-        if (tnx == null) {
+        if (soTienThuMoi > remainingWithoutOld) {
             return false;
         }
 
-        double debtBeforeOldReceipt = tnx.getTienNo() + old.getSoTienThu();
-
-        if (soTienThuMoi > debtBeforeOldReceipt) {
+        if (soTienThuMoi > debtBeforeOld) {
             return false;
         }
 
         PhieuThuTien newPt = new PhieuThuTien(
                 old.getMaPhieuThuTien(),
                 old.getMaTiepNhanXe(),
+                old.getMaSuaChuaXe(),
                 ngayThuTien,
                 old.getBienSoXe(),
                 old.getEmail(),
@@ -120,13 +188,7 @@ public class PhieuThuTienService {
                 soTienThuMoi
         );
 
-        boolean updated = phieuThuDAO.update(newPt);
-
-        if (!updated) {
-            return false;
-        }
-
-        return tiepNhanXeDAO.updateTienNo(old.getMaTiepNhanXe(), debtBeforeOldReceipt - soTienThuMoi);
+        return phieuThuDAO.update(newPt);
     }
 
     public boolean delete(String maPhieuThu) {
@@ -134,33 +196,12 @@ public class PhieuThuTienService {
             return false;
         }
 
-        PhieuThuTien old = phieuThuDAO.getById(maPhieuThu);
-
-        if (old == null) {
-            return false;
-        }
-
-        TiepNhanXe tnx = tiepNhanXeDAO.getById(old.getMaTiepNhanXe());
-
-        if (tnx == null) {
-            return false;
-        }
-
-        boolean restored = tiepNhanXeDAO.updateTienNo(
-                old.getMaTiepNhanXe(),
-                tnx.getTienNo() + old.getSoTienThu()
-        );
-
-        if (!restored) {
-            return false;
-        }
-
-        return phieuThuDAO.delete(maPhieuThu);
+        return phieuThuDAO.delete(maPhieuThu.trim());
     }
 
-    private boolean isValid(String maPhieuThu, String maTiepNhanXe, Date ngayThuTien, double soTienThu) {
+    private boolean isValid(String maPhieuThu, String maSuaChuaXe, Date ngayThuTien, double soTienThu) {
         if (maPhieuThu == null || maPhieuThu.trim().isEmpty()) return false;
-        if (maTiepNhanXe == null || maTiepNhanXe.trim().isEmpty()) return false;
+        if (maSuaChuaXe == null || maSuaChuaXe.trim().isEmpty()) return false;
         if (ngayThuTien == null) return false;
         if (soTienThu <= 0) return false;
 

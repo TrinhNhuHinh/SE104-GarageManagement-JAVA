@@ -3,7 +3,10 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -25,75 +28,197 @@
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
             <Label text="Parts Management" styleClass="pageTitle" />
-            <Label text="Manage parts inventory, import parts, sell parts and monitor stock quantity." styleClass="pageSubtitle" />
+            <Label text="Manage inventory, import invoices and direct part sales." styleClass="pageSubtitle" />
         </VBox>
 
-        <HBox layoutX="35.0" layoutY="100.0" spacing="18.0">
-            <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
+        <HBox layoutX="35.0" layoutY="100.0" spacing="24.0">
+            <VBox prefWidth="305.0" prefHeight="95.0" spacing="8.0" styleClass="smallCard">
                 <Label text="Total Parts" styleClass="cardLabel" />
                 <Label fx:id="lblTotalParts" text="0" styleClass="cardValue" />
             </VBox>
 
-            <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
+            <VBox prefWidth="305.0" prefHeight="95.0" spacing="8.0" styleClass="smallCard">
                 <Label text="Low Stock" styleClass="cardLabel" />
                 <Label fx:id="lblLowStock" text="0" styleClass="cardValue" />
             </VBox>
 
-            <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
+            <VBox prefWidth="305.0" prefHeight="95.0" spacing="8.0" styleClass="smallCard">
                 <Label text="Inventory Value" styleClass="cardLabel" />
                 <Label fx:id="lblInventoryValue" text="0đ" styleClass="cardValue" />
             </VBox>
         </HBox>
 
-        <VBox layoutX="35.0" layoutY="230.0" prefWidth="975.0" prefHeight="245.0" spacing="14.0" styleClass="card">
-            <Label text="Part Information" styleClass="sectionTitle" />
+        <TabPane layoutX="35.0" layoutY="220.0" prefWidth="975.0" prefHeight="540.0"
+         styleClass="partsTabPane"
+         tabClosingPolicy="UNAVAILABLE"
+         tabMinWidth="145.0"
+         tabMaxWidth="145.0"
+         tabMinHeight="36.0"
+         tabMaxHeight="36.0">
+            <tabs>
 
-            <GridPane hgap="18.0" vgap="12.0">
-                <Label text="Part ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="txtMaVatTu" promptText="VT001" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <Tab text="Inventory">
+                    <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
+                        <children>
+                            <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
+                                <Label text="Part Information" styleClass="sectionTitle" />
 
-                <Label text="Part Name" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                <TextField fx:id="txtTenVatTu" promptText="Engine oil, brake pad..." styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                <GridPane hgap="18.0" vgap="12.0">
+                                    <Label text="Part ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtMaVatTu" promptText="VT001" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Unit" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <ComboBox fx:id="cbbDonViTinh" promptText="Choose unit" styleClass="comboBox" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Part Name" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtTenVatTu" promptText="Engine oil, brake pad..." styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                <Label text="Quantity" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                <TextField fx:id="txtSoLuongTon" promptText="0" styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                    <Label text="Unit" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="cbbDonViTinh" promptText="Choose unit" styleClass="comboBox" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Import Price" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextField fx:id="txtGiaNhap" promptText="0" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="Quantity" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <TextField fx:id="txtSoLuongTon" promptText="0" styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                <Label text="Sell Price" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                <TextField fx:id="txtGiaBan" promptText="0" styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-            </GridPane>
+                                    <Label text="Unit Price" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtGiaNhap" promptText="0" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-            <HBox spacing="12.0">
-                <Button fx:id="btnAddPart" text="Add Part" styleClass="primaryBtn" prefWidth="105.0" />
-                <Button fx:id="btnImportPart" text="Import" styleClass="secondaryBtn" prefWidth="95.0" />
-                <Button fx:id="btnSellPart" text="Sell" styleClass="secondaryBtn" prefWidth="95.0" />
-                <Button fx:id="btnUpdatePart" text="Update" styleClass="secondaryBtn" prefWidth="95.0" />
-                <Button fx:id="btnDeletePart" text="Delete" styleClass="dangerBtn" prefWidth="95.0" />
-            </HBox>
-        </VBox>
+                                    <Label text="Display Price" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtGiaBan" promptText="0" styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                </GridPane>
 
-        <VBox layoutX="35.0" layoutY="505.0" prefWidth="975.0" prefHeight="250.0" spacing="12.0" styleClass="card">
-            <HBox spacing="12.0">
-                <TextField fx:id="txtSearchPart" promptText="Search part ID, part name..." styleClass="inputField" prefWidth="735.0" />
-                <Button fx:id="btnSearchPart" text="Search" styleClass="primaryBtn" prefWidth="100.0" />
-                <Button fx:id="btnRefreshPart" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
-            </HBox>
+                                <HBox spacing="12.0">
+                                    <Button fx:id="btnAddPart" text="Add Part" styleClass="primaryBtn" prefWidth="105.0" />
+                                    <Button fx:id="btnUpdatePart" text="Update" styleClass="secondaryBtn" prefWidth="95.0" />
+                                    <Button fx:id="btnDeletePart" text="Delete" styleClass="dangerBtn" prefWidth="95.0" />
+                                </HBox>
+                            </VBox>
 
-            <TableView fx:id="tblParts" prefWidth="935.0" prefHeight="175.0" styleClass="dataTable">
-                <columns>
-                    <TableColumn fx:id="colMaVatTu" text="Part ID" prefWidth="120.0" />
-                    <TableColumn fx:id="colTenVatTu" text="Part Name" prefWidth="250.0" />
-                    <TableColumn fx:id="colDonViTinh" text="Unit" prefWidth="110.0" />
-                    <TableColumn fx:id="colSoLuongTon" text="Quantity" prefWidth="130.0" />
-                    <TableColumn fx:id="colGiaNhap" text="Import Price" prefWidth="160.0" />
-                    <TableColumn fx:id="colGiaBan" text="Sell Price" prefWidth="160.0" />
-                </columns>
-            </TableView>
-        </VBox>
+                            <VBox layoutX="10.0" layoutY="215.0" prefWidth="940.0" prefHeight="285.0" spacing="12.0" styleClass="card">
+                                <HBox spacing="12.0">
+                                    <TextField fx:id="txtSearchPart" promptText="Search part ID, part name..." styleClass="inputField" prefWidth="710.0" />
+                                    <Button fx:id="btnSearchPart" text="Search" styleClass="primaryBtn" prefWidth="100.0" />
+                                    <Button fx:id="btnRefreshPart" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
+                                </HBox>
+
+                                <TableView fx:id="tblParts" prefWidth="900.0" prefHeight="210.0" styleClass="dataTable">
+                                    <columns>
+                                        <TableColumn fx:id="colMaVatTu" text="Part ID" prefWidth="120.0" />
+                                        <TableColumn fx:id="colTenVatTu" text="Part Name" prefWidth="250.0" />
+                                        <TableColumn fx:id="colDonViTinh" text="Unit" prefWidth="110.0" />
+                                        <TableColumn fx:id="colSoLuongTon" text="Quantity" prefWidth="130.0" />
+                                        <TableColumn fx:id="colGiaNhap" text="Unit Price" prefWidth="160.0" />
+                                        <TableColumn fx:id="colGiaBan" text="Display Price" prefWidth="160.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
+                </Tab>
+
+                <Tab text="Import Invoice">
+                    <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
+                        <children>
+                            <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
+                                <Label text="Create Import Invoice" styleClass="sectionTitle" />
+
+                                <GridPane hgap="18.0" vgap="12.0">
+                                    <Label text="Import ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtMaNhapVatTu" promptText="NVT06" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                    <Label text="Supplier" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <ComboBox fx:id="cbbMaNhaCungCap" promptText="Choose supplier" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                                    <Label text="Import Date" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <DatePicker fx:id="dpNgayNhap" styleClass="datePicker" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                    <Label text="Part" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="cbbImportMaVatTu" promptText="Choose part" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                                    <Label text="Quantity" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtImportSoLuong" promptText="10" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                    <Label text="Unit Price" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtImportDonGia" promptText="120000" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                </GridPane>
+
+                                <HBox spacing="12.0">
+                                    <Button fx:id="btnCreateImport" text="Create Import" styleClass="primaryBtn" prefWidth="130.0" />
+                                    <Button fx:id="btnClearImport" text="Clear" styleClass="secondaryBtn" prefWidth="95.0" />
+                                    <Label text="Total:" styleClass="formLabel" />
+                                    <Label fx:id="lblImportTotal" text="0đ" styleClass="cardValue" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox layoutX="10.0" layoutY="215.0" prefWidth="940.0" prefHeight="285.0" spacing="12.0" styleClass="card">
+                                <Label text="Import Invoice Details" styleClass="sectionTitle" />
+
+                                <TableView fx:id="tblImportDetails" prefWidth="900.0" prefHeight="225.0" styleClass="dataTable">
+                                    <columns>
+                                        <TableColumn fx:id="colImportId" text="Import ID" prefWidth="115.0" />
+                                        <TableColumn fx:id="colImportSupplier" text="Supplier" prefWidth="115.0" />
+                                        <TableColumn fx:id="colImportDate" text="Date" prefWidth="120.0" />
+                                        <TableColumn fx:id="colImportPartId" text="Part ID" prefWidth="115.0" />
+                                        <TableColumn fx:id="colImportQuantity" text="Qty" prefWidth="95.0" />
+                                        <TableColumn fx:id="colImportUnitPrice" text="Unit Price" prefWidth="160.0" />
+                                        <TableColumn fx:id="colImportTotal" text="Total" prefWidth="170.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
+                </Tab>
+
+                <Tab text="Sale Invoice">
+                    <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
+                        <children>
+                            <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
+                                <Label text="Create Part Sale Invoice" styleClass="sectionTitle" />
+
+                                <GridPane hgap="18.0" vgap="12.0">
+                                    <Label text="Sale ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtMaBanVatTu" promptText="BVT06" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                    <Label text="Customer" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <ComboBox fx:id="cbbMaKhachHang" promptText="Choose customer" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                                    <Label text="Sale Date" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <DatePicker fx:id="dpNgayBan" styleClass="datePicker" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                    <Label text="Part" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="cbbSaleMaVatTu" promptText="Choose part" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                                    <Label text="Quantity" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtSaleSoLuong" promptText="2" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                    <Label text="Unit Price" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtSaleDonGia" promptText="150000" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                </GridPane>
+
+                                <HBox spacing="12.0">
+                                    <Button fx:id="btnCreateSale" text="Create Sale" styleClass="primaryBtn" prefWidth="130.0" />
+                                    <Button fx:id="btnClearSale" text="Clear" styleClass="secondaryBtn" prefWidth="95.0" />
+                                    <Label text="Total:" styleClass="formLabel" />
+                                    <Label fx:id="lblSaleTotal" text="0đ" styleClass="cardValue" />
+                                </HBox>
+                            </VBox>
+
+                            <VBox layoutX="10.0" layoutY="215.0" prefWidth="940.0" prefHeight="285.0" spacing="12.0" styleClass="card">
+                                <Label text="Sale Invoice Details" styleClass="sectionTitle" />
+
+                                <TableView fx:id="tblSaleDetails" prefWidth="900.0" prefHeight="225.0" styleClass="dataTable">
+                                    <columns>
+                                        <TableColumn fx:id="colSaleId" text="Sale ID" prefWidth="115.0" />
+                                        <TableColumn fx:id="colSaleCustomer" text="Customer" prefWidth="115.0" />
+                                        <TableColumn fx:id="colSaleDate" text="Date" prefWidth="120.0" />
+                                        <TableColumn fx:id="colSalePartId" text="Part ID" prefWidth="115.0" />
+                                        <TableColumn fx:id="colSaleQuantity" text="Qty" prefWidth="95.0" />
+                                        <TableColumn fx:id="colSaleUnitPrice" text="Unit Price" prefWidth="160.0" />
+                                        <TableColumn fx:id="colSaleTotal" text="Total" prefWidth="170.0" />
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
+                </Tab>
+
+            </tabs>
+        </TabPane>
     </children>
 </AnchorPane>

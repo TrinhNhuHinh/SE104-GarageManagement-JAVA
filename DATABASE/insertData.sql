@@ -54,11 +54,11 @@ GO
 
 -- 7. SUACHUAXE (ThanhTien sẽ được trigger cập nhật)
 INSERT INTO SUACHUAXE (MaSuaChuaXe, Ma_TiepNhanXe, NgaySuaChua, ThanhTien) VALUES
-('SC01', 'TN01', '2025-01-02', 0),
-('SC02', 'TN02', '2025-01-03', 0),
-('SC03', 'TN03', '2025-01-04', 0),
-('SC04', 'TN04', '2025-01-05', 0),
-('SC05', 'TN05', '2025-01-06', 0);
+('SC01', 'TN01', '2025-01-02', 200000),
+('SC02', 'TN02', '2025-01-03', 300000),
+('SC03', 'TN03', '2025-01-04', 100000),
+('SC04', 'TN04', '2025-01-05', 100000),
+('SC05', 'TN05', '2025-01-06', 200000);
 GO
 
 -- 8. NHACUNGCAP

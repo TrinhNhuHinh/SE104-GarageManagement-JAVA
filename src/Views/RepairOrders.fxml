@@ -49,8 +49,8 @@
                 <Label text="Quantity" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <TextField fx:id="txtSoLuong" promptText="1" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label text="Labor Fee" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                <TextField fx:id="txtTienCong" promptText="0" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                <Label text="Labor Type" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <ComboBox fx:id="cbbMaTienCong" promptText="Choose labor type" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
                 <Label text="Description" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                 <TextArea fx:id="txtNoiDungSuaChua" promptText="Repair content..." styleClass="textArea" prefWidth="690.0" prefHeight="65.0" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" />

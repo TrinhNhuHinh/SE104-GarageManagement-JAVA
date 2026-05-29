@@ -21,7 +21,8 @@ public class HomeController implements Initializable {
     @FXML private Button btnQuickLookup;
     @FXML private Button btnReports;
     @FXML private Button btnParts;
-    @FXML private Button btnProfile;
+    @FXML private Button btnSettings;
+    @FXML private Button btnRegulations;
 
     private Button currentActive = null;
 
@@ -64,9 +65,14 @@ public class HomeController implements Initializable {
             loadPage("PartsManagement.fxml");
         });
 
-        btnProfile.setOnAction(e -> {
-            setActive(btnProfile);
-            loadPage("Profile.fxml");
+        btnSettings.setOnAction(e -> {
+            setActive(btnSettings);
+            loadPage("Settings.fxml");
+        });
+        
+        btnRegulations.setOnAction(e -> {
+            setActive(btnRegulations);
+            loadPage("Regulations.fxml");
         });
     }
 

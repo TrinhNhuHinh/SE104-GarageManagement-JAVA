@@ -14,7 +14,8 @@
 <AnchorPane prefHeight="800.0" prefWidth="1048.0"
             styleClass="pageRoot"
             xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1">
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.QuickLookupController">
 
     <stylesheets>
         <URL value="@../Assets/css/pages.css" />

@@ -226,3 +226,188 @@
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
+
+.partsTabPane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Toàn vùng đầu tab */
+.partsTabPane .tab-header-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 12 0;
+}
+
+/* Xóa nền trắng mặc định */
+.partsTabPane .tab-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Vùng chứa các tab */
+.partsTabPane .headers-region {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 0;
+}
+
+/* Từng tab */
+.partsTabPane .tab {
+    -fx-background-color: #111820;
+    -fx-border-color: #06b6d4;
+    -fx-border-width: 1px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+
+    /* tạo cảm giác cách nhau */
+    -fx-padding: 8 18 8 18;
+
+    -fx-cursor: hand;
+}
+
+/* Tạo khoảng hở giữa các tab bằng border trong suốt bên phải */
+.partsTabPane .tab {
+    -fx-background-insets: 0 8 0 0;
+    -fx-border-insets: 0 8 0 0;
+}
+
+/* Hover */
+.partsTabPane .tab:hover {
+    -fx-background-color: rgba(6, 182, 212, 0.16);
+    -fx-border-color: #06b6d4;
+}
+
+/* Tab đang chọn */
+.partsTabPane .tab:selected {
+    -fx-background-color: #06b6d4;
+    -fx-border-color: #06b6d4;
+}
+
+/* Chữ trong tab */
+.partsTabPane .tab .tab-label {
+    -fx-text-fill: #c9d6dc;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* Chữ tab đang chọn */
+.partsTabPane .tab:selected .tab-label {
+    -fx-text-fill: #071015;
+}
+
+/* Bỏ viền focus xấu */
+.partsTabPane .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+/* Vùng nội dung phía dưới */
+.partsTabPane .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.reportChart {
+    -fx-background-color: transparent;
+    -fx-padding: 5px;
+}
+
+.reportChart .chart-title {
+    -fx-text-fill: #06b6d4;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.reportChart .chart-plot-background {
+    -fx-background-color: #0b1117;
+}
+
+.reportChart .chart-vertical-grid-lines {
+    -fx-stroke: #22313a;
+}
+
+.reportChart .chart-horizontal-grid-lines {
+    -fx-stroke: #22313a;
+}
+
+.reportChart .axis {
+    -fx-tick-label-fill: #c8d6dc;
+}
+
+.reportChart .axis-label {
+    -fx-text-fill: #c8d6dc;
+    -fx-font-weight: bold;
+}
+
+.reportChart .default-color0.chart-bar {
+    -fx-bar-fill: #06b6d4;
+}
+
+.reportChart .chart-bar:hover {
+    -fx-bar-fill: #ffffff;
+}
+
+.settingsTabPane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.settingsTabPane .tab-header-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 12 0;
+}
+
+.settingsTabPane .tab-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.settingsTabPane .headers-region {
+    -fx-background-color: transparent;
+}
+
+.settingsTabPane .tab {
+    -fx-background-color: #111820;
+    -fx-border-color: #06b6d4;
+    -fx-border-width: 1px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-padding: 8 18 8 18;
+    -fx-cursor: hand;
+    -fx-background-insets: 0 8 0 0;
+    -fx-border-insets: 0 8 0 0;
+}
+
+.settingsTabPane .tab:hover {
+    -fx-background-color: rgba(6, 182, 212, 0.16);
+}
+
+.settingsTabPane .tab:selected {
+    -fx-background-color: #06b6d4;
+    -fx-border-color: #06b6d4;
+}
+
+.settingsTabPane .tab .tab-label {
+    -fx-text-fill: #c9d6dc;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.settingsTabPane .tab:selected .tab-label {
+    -fx-text-fill: #071015;
+}
+
+.settingsTabPane .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+.settingsTabPane .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.summaryText{
+    -fx-text-fill:white;
+}

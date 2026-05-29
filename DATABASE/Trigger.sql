@@ -160,28 +160,6 @@ BEGIN
 END
 GO
 
---Giảm tiền nợ khi thu tiền--
-CREATE TRIGGER trg_GiamTienNo_ThuTien
-ON PHIEUTHUTIEN
-AFTER INSERT
-AS
-BEGIN
-    UPDATE TIEPNHANXE
-    SET TienNo = TienNo - i.SoTienThu
-    FROM TIEPNHANXE tn
-    INNER JOIN inserted i ON tn.MaTiepNhanXe = i.Ma_TiepNhanXe
-    
-    -- Kiểm tra tiền nợ âm
-    IF EXISTS (
-        SELECT 1 FROM TIEPNHANXE WHERE TienNo < 0
-    )
-    BEGIN
-        RAISERROR('So tien thu vuot qua tien no!', 16, 1)
-        ROLLBACK TRANSACTION
-    END
-END
-GO
-
 --Max 30 xe 1 ngày--
 CREATE TRIGGER trg_KiemTraMaxXe_TiepNhan
 ON TIEPNHANXE

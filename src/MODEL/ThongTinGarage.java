@@ -1,33 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package MODEL;
 
-/**
- *
- * @author hinh
- */
 public class ThongTinGarage {
-    //Thuộc tính
+
     private String id;
     private int soLuongXeToiDa;
     private int tongSoHieuXe;
     private double soTienThuSoVoiSoTienNo;
-    
-    //Constructor
+    private int soLuongVatTuToiDa;
+    private int soLuongTienCongToiDa;
 
     public ThongTinGarage() {
     }
 
-    public ThongTinGarage(String id, int soLuongXeToiDa, int tongSoHieuXe, double soTienThuSoVoiSoTienNo) {
+    public ThongTinGarage(String id, int soLuongXeToiDa, int tongSoHieuXe,
+                          double soTienThuSoVoiSoTienNo,
+                          int soLuongVatTuToiDa, int soLuongTienCongToiDa) {
         this.id = id;
         this.soLuongXeToiDa = soLuongXeToiDa;
         this.tongSoHieuXe = tongSoHieuXe;
         this.soTienThuSoVoiSoTienNo = soTienThuSoVoiSoTienNo;
+        this.soLuongVatTuToiDa = soLuongVatTuToiDa;
+        this.soLuongTienCongToiDa = soLuongTienCongToiDa;
     }
-    
-    //getter
 
     public String getId() {
         return id;
@@ -44,8 +38,14 @@ public class ThongTinGarage {
     public double getSoTienThuSoVoiSoTienNo() {
         return soTienThuSoVoiSoTienNo;
     }
-    
-    //Setter
+
+    public int getSoLuongVatTuToiDa() {
+        return soLuongVatTuToiDa;
+    }
+
+    public int getSoLuongTienCongToiDa() {
+        return soLuongTienCongToiDa;
+    }
 
     public void setId(String id) {
         this.id = id;
@@ -62,12 +62,12 @@ public class ThongTinGarage {
     public void setSoTienThuSoVoiSoTienNo(double soTienThuSoVoiSoTienNo) {
         this.soTienThuSoVoiSoTienNo = soTienThuSoVoiSoTienNo;
     }
-    
-    //toString
 
-    @Override
-    public String toString() {
-        return "ThongTinGarage{" + "id=" + id + ", soLuongXeToiDa=" + soLuongXeToiDa + ", tongSoHieuXe=" + tongSoHieuXe + ", soTienThuSoVoiSoTienNo=" + soTienThuSoVoiSoTienNo + '}';
+    public void setSoLuongVatTuToiDa(int soLuongVatTuToiDa) {
+        this.soLuongVatTuToiDa = soLuongVatTuToiDa;
     }
-    
+
+    public void setSoLuongTienCongToiDa(int soLuongTienCongToiDa) {
+        this.soLuongTienCongToiDa = soLuongTienCongToiDa;
+    }
 }

@@ -12,30 +12,15 @@ import java.util.List;
 public class PhieuThuTienDAO {
 
     public boolean insert(PhieuThuTien pt) {
-        String sql = """
-            INSERT INTO PHIEUTHUTIEN
-            (MaPhieuThuTien, Ma_TiepNhanXe, NgayThuTien, BienSoXe, Email, SoDienThoai, SoTienThu)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
+        return insertAndReduceDebt(pt);
+    }
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean update(PhieuThuTien pt) {
+        return updateAndAdjustDebt(pt);
+    }
 
-            ps.setString(1, pt.getMaPhieuThuTien());
-            ps.setString(2, pt.getMaTiepNhanXe());
-            ps.setDate(3, pt.getNgayThuTien());
-            ps.setString(4, pt.getBienSoXe());
-            ps.setString(5, pt.getEmail());
-            ps.setString(6, pt.getSoDienThoai());
-            ps.setDouble(7, pt.getSoTienThu());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            printSqlError(e);
-        }
-
-        return false;
+    public boolean delete(String maPhieuThuTien) {
+        return deleteAndRestoreDebt(maPhieuThuTien);
     }
 
     public List<PhieuThuTien> getAll() {
@@ -66,7 +51,6 @@ public class PhieuThuTienDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maPhieuThuTien);
-
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -80,50 +64,28 @@ public class PhieuThuTienDAO {
         return null;
     }
 
-    public boolean update(PhieuThuTien pt) {
+    public double getTotalPaidByRepairId(String maSuaChuaXe) {
         String sql = """
-            UPDATE PHIEUTHUTIEN
-            SET NgayThuTien = ?,
-                BienSoXe = ?,
-                Email = ?,
-                SoDienThoai = ?,
-                SoTienThu = ?
-            WHERE MaPhieuThuTien = ?
+            SELECT ISNULL(SUM(SoTienThu), 0)
+            FROM PHIEUTHUTIEN
+            WHERE Ma_SuaChuaXe = ?
         """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setDate(1, pt.getNgayThuTien());
-            ps.setString(2, pt.getBienSoXe());
-            ps.setString(3, pt.getEmail());
-            ps.setString(4, pt.getSoDienThoai());
-            ps.setDouble(5, pt.getSoTienThu());
-            ps.setString(6, pt.getMaPhieuThuTien());
+            ps.setString(1, maSuaChuaXe);
+            ResultSet rs = ps.executeQuery();
 
-            return ps.executeUpdate() > 0;
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
 
         } catch (SQLException e) {
             printSqlError(e);
         }
 
-        return false;
-    }
-
-    public boolean delete(String maPhieuThuTien) {
-        String sql = "DELETE FROM PHIEUTHUTIEN WHERE MaPhieuThuTien = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, maPhieuThuTien);
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            printSqlError(e);
-        }
-
-        return false;
+        return 0;
     }
 
     public List<PhieuThuTien> search(String keyword) {
@@ -133,6 +95,7 @@ public class PhieuThuTienDAO {
             SELECT * FROM PHIEUTHUTIEN
             WHERE MaPhieuThuTien LIKE ?
                OR Ma_TiepNhanXe LIKE ?
+               OR Ma_SuaChuaXe LIKE ?
                OR BienSoXe LIKE ?
                OR SoDienThoai LIKE ?
         """;
@@ -146,6 +109,7 @@ public class PhieuThuTienDAO {
             ps.setString(2, value);
             ps.setString(3, value);
             ps.setString(4, value);
+            ps.setString(5, value);
 
             ResultSet rs = ps.executeQuery();
 
@@ -160,11 +124,290 @@ public class PhieuThuTienDAO {
         return list;
     }
 
+    private boolean insertAndReduceDebt(PhieuThuTien pt) {
+        String repairInfoSql = """
+            SELECT sc.MaSuaChuaXe,
+                   sc.Ma_TiepNhanXe,
+                   sc.ThanhTien,
+                   tnx.BienSoXe,
+                   tnx.TienNo
+            FROM SUACHUAXE sc
+            JOIN TIEPNHANXE tnx WITH (UPDLOCK, ROWLOCK)
+                ON sc.Ma_TiepNhanXe = tnx.MaTiepNhanXe
+            WHERE sc.MaSuaChuaXe = ?
+        """;
+
+        String paidSql = """
+            SELECT ISNULL(SUM(SoTienThu), 0)
+            FROM PHIEUTHUTIEN WITH (UPDLOCK, ROWLOCK)
+            WHERE Ma_SuaChuaXe = ?
+        """;
+
+        String insertSql = """
+            INSERT INTO PHIEUTHUTIEN
+            (MaPhieuThuTien, Ma_TiepNhanXe, Ma_SuaChuaXe, NgayThuTien, BienSoXe, Email, SoDienThoai, SoTienThu)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        String updateDebtSql = """
+            UPDATE TIEPNHANXE
+            SET TienNo = TienNo - ?
+            WHERE MaTiepNhanXe = ?
+              AND TienNo >= ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psRepair = conn.prepareStatement(repairInfoSql);
+                 PreparedStatement psPaid = conn.prepareStatement(paidSql);
+                 PreparedStatement psInsert = conn.prepareStatement(insertSql);
+                 PreparedStatement psDebt = conn.prepareStatement(updateDebtSql)) {
+
+                psRepair.setString(1, pt.getMaSuaChuaXe());
+                ResultSet repairRs = psRepair.executeQuery();
+
+                if (!repairRs.next()) {
+                    conn.rollback();
+                    return false;
+                }
+
+                String maTiepNhanXe = repairRs.getString("Ma_TiepNhanXe");
+                String bienSoXe = repairRs.getString("BienSoXe");
+                double repairTotal = repairRs.getDouble("ThanhTien");
+                double currentDebt = repairRs.getDouble("TienNo");
+
+                psPaid.setString(1, pt.getMaSuaChuaXe());
+                ResultSet paidRs = psPaid.executeQuery();
+
+                double alreadyPaid = 0;
+
+                if (paidRs.next()) {
+                    alreadyPaid = paidRs.getDouble(1);
+                }
+
+                double remainingRepairAmount = repairTotal - alreadyPaid;
+
+                if (pt.getSoTienThu() <= 0) {
+                    conn.rollback();
+                    return false;
+                }
+
+                if (pt.getSoTienThu() > remainingRepairAmount) {
+                    conn.rollback();
+                    return false;
+                }
+
+                if (pt.getSoTienThu() > currentDebt) {
+                    conn.rollback();
+                    return false;
+                }
+
+                psInsert.setString(1, pt.getMaPhieuThuTien());
+                psInsert.setString(2, maTiepNhanXe);
+                psInsert.setString(3, pt.getMaSuaChuaXe());
+                psInsert.setDate(4, pt.getNgayThuTien());
+                psInsert.setString(5, bienSoXe);
+                psInsert.setString(6, pt.getEmail());
+                psInsert.setString(7, pt.getSoDienThoai());
+                psInsert.setDouble(8, pt.getSoTienThu());
+                psInsert.executeUpdate();
+
+                psDebt.setDouble(1, pt.getSoTienThu());
+                psDebt.setString(2, maTiepNhanXe);
+                psDebt.setDouble(3, pt.getSoTienThu());
+
+                int affectedRows = psDebt.executeUpdate();
+
+                if (affectedRows == 0) {
+                    conn.rollback();
+                    return false;
+                }
+
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                printSqlError(e);
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+        }
+
+        return false;
+    }
+
+    private boolean updateAndAdjustDebt(PhieuThuTien newPt) {
+        String oldReceiptSql = "SELECT * FROM PHIEUTHUTIEN WHERE MaPhieuThuTien = ?";
+
+        String repairInfoSql = """
+            SELECT sc.ThanhTien,
+                   tnx.TienNo
+            FROM SUACHUAXE sc
+            JOIN TIEPNHANXE tnx WITH (UPDLOCK, ROWLOCK)
+                ON sc.Ma_TiepNhanXe = tnx.MaTiepNhanXe
+            WHERE sc.MaSuaChuaXe = ?
+        """;
+
+        String paidSql = """
+            SELECT ISNULL(SUM(SoTienThu), 0)
+            FROM PHIEUTHUTIEN WITH (UPDLOCK, ROWLOCK)
+            WHERE Ma_SuaChuaXe = ?
+        """;
+
+        String updateReceiptSql = """
+            UPDATE PHIEUTHUTIEN
+            SET NgayThuTien = ?,
+                SoTienThu = ?
+            WHERE MaPhieuThuTien = ?
+        """;
+
+        String updateDebtSql = """
+            UPDATE TIEPNHANXE
+            SET TienNo = ?
+            WHERE MaTiepNhanXe = ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psOld = conn.prepareStatement(oldReceiptSql);
+                 PreparedStatement psRepair = conn.prepareStatement(repairInfoSql);
+                 PreparedStatement psPaid = conn.prepareStatement(paidSql);
+                 PreparedStatement psUpdateReceipt = conn.prepareStatement(updateReceiptSql);
+                 PreparedStatement psUpdateDebt = conn.prepareStatement(updateDebtSql)) {
+
+                psOld.setString(1, newPt.getMaPhieuThuTien());
+                ResultSet oldRs = psOld.executeQuery();
+
+                if (!oldRs.next()) {
+                    conn.rollback();
+                    return false;
+                }
+
+                PhieuThuTien oldPt = mapResultSetToPhieuThu(oldRs);
+
+                psRepair.setString(1, oldPt.getMaSuaChuaXe());
+                ResultSet repairRs = psRepair.executeQuery();
+
+                if (!repairRs.next()) {
+                    conn.rollback();
+                    return false;
+                }
+
+                double repairTotal = repairRs.getDouble("ThanhTien");
+                double currentDebt = repairRs.getDouble("TienNo");
+
+                psPaid.setString(1, oldPt.getMaSuaChuaXe());
+                ResultSet paidRs = psPaid.executeQuery();
+
+                double paidIncludingOld = 0;
+
+                if (paidRs.next()) {
+                    paidIncludingOld = paidRs.getDouble(1);
+                }
+
+                double paidWithoutOld = paidIncludingOld - oldPt.getSoTienThu();
+                double maxCanPayForThisReceipt = repairTotal - paidWithoutOld;
+                double debtBeforeOldReceipt = currentDebt + oldPt.getSoTienThu();
+
+                if (newPt.getSoTienThu() <= 0) {
+                    conn.rollback();
+                    return false;
+                }
+
+                if (newPt.getSoTienThu() > maxCanPayForThisReceipt) {
+                    conn.rollback();
+                    return false;
+                }
+
+                if (newPt.getSoTienThu() > debtBeforeOldReceipt) {
+                    conn.rollback();
+                    return false;
+                }
+
+                psUpdateReceipt.setDate(1, newPt.getNgayThuTien());
+                psUpdateReceipt.setDouble(2, newPt.getSoTienThu());
+                psUpdateReceipt.setString(3, newPt.getMaPhieuThuTien());
+                psUpdateReceipt.executeUpdate();
+
+                double newDebt = debtBeforeOldReceipt - newPt.getSoTienThu();
+
+                psUpdateDebt.setDouble(1, newDebt);
+                psUpdateDebt.setString(2, oldPt.getMaTiepNhanXe());
+                psUpdateDebt.executeUpdate();
+
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                printSqlError(e);
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+        }
+
+        return false;
+    }
+
+    private boolean deleteAndRestoreDebt(String maPhieuThuTien) {
+        String oldReceiptSql = "SELECT * FROM PHIEUTHUTIEN WHERE MaPhieuThuTien = ?";
+        String deleteSql = "DELETE FROM PHIEUTHUTIEN WHERE MaPhieuThuTien = ?";
+        String restoreDebtSql = """
+            UPDATE TIEPNHANXE
+            SET TienNo = TienNo + ?
+            WHERE MaTiepNhanXe = ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psOld = conn.prepareStatement(oldReceiptSql);
+                 PreparedStatement psDelete = conn.prepareStatement(deleteSql);
+                 PreparedStatement psRestore = conn.prepareStatement(restoreDebtSql)) {
+
+                psOld.setString(1, maPhieuThuTien);
+                ResultSet rs = psOld.executeQuery();
+
+                if (!rs.next()) {
+                    conn.rollback();
+                    return false;
+                }
+
+                PhieuThuTien oldPt = mapResultSetToPhieuThu(rs);
+
+                psDelete.setString(1, maPhieuThuTien);
+                psDelete.executeUpdate();
+
+                psRestore.setDouble(1, oldPt.getSoTienThu());
+                psRestore.setString(2, oldPt.getMaTiepNhanXe());
+                psRestore.executeUpdate();
+
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                printSqlError(e);
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+        }
+
+        return false;
+    }
+
     private PhieuThuTien mapResultSetToPhieuThu(ResultSet rs) throws SQLException {
         PhieuThuTien pt = new PhieuThuTien();
 
         pt.setMaPhieuThuTien(rs.getString("MaPhieuThuTien"));
         pt.setMaTiepNhanXe(rs.getString("Ma_TiepNhanXe"));
+        pt.setMaSuaChuaXe(rs.getString("Ma_SuaChuaXe"));
         pt.setNgayThuTien(rs.getDate("NgayThuTien"));
         pt.setBienSoXe(rs.getString("BienSoXe"));
         pt.setEmail(rs.getString("Email"));

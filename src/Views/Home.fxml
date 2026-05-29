@@ -25,7 +25,8 @@
                         <Button fx:id="btnQuickLookup" layoutX="10.0" layoutY="119.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Quick Lookup" />
                         <Button fx:id="btnReports" layoutX="10.0" layoutY="173.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Statistical Reports" />
                         <Button fx:id="btnParts" layoutX="10.0" layoutY="228.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Parts Management" />
-                        <Button fx:id="btnProfile" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Profile" />
+                        <Button fx:id="btnSettings" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Setting" />
+                        <Button fx:id="btnRegulations" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Regulations" />
                      </children></VBox>
                </children></AnchorPane>
          </left>

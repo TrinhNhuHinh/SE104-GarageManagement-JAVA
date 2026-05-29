@@ -2,10 +2,12 @@ package Service;
 
 import DAO.ChiTietSuaChuaXeDAO;
 import DAO.SuaChuaXeDAO;
+import DAO.TienCongDAO;
 import DAO.TiepNhanXeDAO;
 import DAO.VatTuPhuTungDAO;
 import MODEL.ChiTietSuaChuaXe;
 import MODEL.SuaChuaXe;
+import MODEL.TienCong;
 import MODEL.TiepNhanXe;
 import MODEL.VatTuPhuTung;
 import java.sql.Date;
@@ -18,6 +20,7 @@ public class SuaChuaXeService {
     private final ChiTietSuaChuaXeDAO chiTietDAO = new ChiTietSuaChuaXeDAO();
     private final VatTuPhuTungDAO vatTuDAO = new VatTuPhuTungDAO();
     private final TiepNhanXeDAO tiepNhanXeDAO = new TiepNhanXeDAO();
+    private final TienCongDAO tienCongDAO = new TienCongDAO();
 
     public List<SuaChuaXe> getAll() {
         return suaChuaXeDAO.getAll();
@@ -29,6 +32,10 @@ public class SuaChuaXeService {
 
     public List<String> getAllPartIds() {
         return vatTuDAO.getAllIds();
+    }
+
+    public List<String> getAllLaborIds() {
+        return tienCongDAO.getAllIds();
     }
 
     public ChiTietSuaChuaXe getDetailByRepairId(String maSuaChuaXe) {
@@ -71,6 +78,16 @@ public class SuaChuaXeService {
         return ct.getMaVatTuPhuTung();
     }
 
+    public String getMaTienCongByRepairId(String maSuaChuaXe) {
+        ChiTietSuaChuaXe ct = getDetailByRepairId(maSuaChuaXe);
+
+        if (ct == null || ct.getMaTienCong() == null) {
+            return "";
+        }
+
+        return ct.getMaTienCong();
+    }
+
     public int getSoLuongByRepairId(String maSuaChuaXe) {
         ChiTietSuaChuaXe ct = getDetailByRepairId(maSuaChuaXe);
 
@@ -109,9 +126,9 @@ public class SuaChuaXeService {
     }
 
     public boolean add(String maSuaChuaXe, String maTiepNhanXe, Date ngaySuaChua,
-                       String maVatTu, int soLuong, double tienCong, String noiDung) {
+                       String maVatTu, int soLuong, String maTienCong, String noiDung) {
 
-        if (!isValid(maSuaChuaXe, maTiepNhanXe, ngaySuaChua, maVatTu, soLuong, tienCong, noiDung)) {
+        if (!isValid(maSuaChuaXe, maTiepNhanXe, ngaySuaChua, maVatTu, soLuong, maTienCong, noiDung)) {
             return false;
         }
 
@@ -121,8 +138,9 @@ public class SuaChuaXeService {
 
         VatTuPhuTung vt = vatTuDAO.getById(maVatTu);
         TiepNhanXe tnx = tiepNhanXeDAO.getById(maTiepNhanXe);
+        TienCong tc = tienCongDAO.getById(maTienCong);
 
-        if (vt == null || tnx == null) {
+        if (vt == null || tnx == null || tc == null) {
             return false;
         }
 
@@ -131,6 +149,7 @@ public class SuaChuaXeService {
         }
 
         double donGia = vt.getDonGiaVatTuPhuTung();
+        double tienCong = tc.getSoTienCong();
         double thanhTien = donGia * soLuong + tienCong;
 
         SuaChuaXe sc = new SuaChuaXe(maSuaChuaXe, maTiepNhanXe, ngaySuaChua, thanhTien);
@@ -142,7 +161,7 @@ public class SuaChuaXeService {
                 maVatTu,
                 soLuong,
                 donGia,
-                null,
+                maTienCong,
                 thanhTien,
                 tienCong
         );
@@ -167,9 +186,9 @@ public class SuaChuaXeService {
     }
 
     public boolean update(String maSuaChuaXe, String maTiepNhanXe, Date ngaySuaChua,
-                          String maVatTu, int soLuong, double tienCong, String noiDung) {
+                          String maVatTu, int soLuong, String maTienCong, String noiDung) {
 
-        if (!isValid(maSuaChuaXe, maTiepNhanXe, ngaySuaChua, maVatTu, soLuong, tienCong, noiDung)) {
+        if (!isValid(maSuaChuaXe, maTiepNhanXe, ngaySuaChua, maVatTu, soLuong, maTienCong, noiDung)) {
             return false;
         }
 
@@ -184,8 +203,9 @@ public class SuaChuaXeService {
         VatTuPhuTung newVt = vatTuDAO.getById(maVatTu);
         TiepNhanXe oldTnx = tiepNhanXeDAO.getById(oldSc.getMaTiepNhanXe());
         TiepNhanXe newTnx = tiepNhanXeDAO.getById(maTiepNhanXe);
+        TienCong newTc = tienCongDAO.getById(maTienCong);
 
-        if (oldVt == null || newVt == null || oldTnx == null || newTnx == null) {
+        if (oldVt == null || newVt == null || oldTnx == null || newTnx == null || newTc == null) {
             return false;
         }
 
@@ -200,6 +220,7 @@ public class SuaChuaXeService {
         }
 
         double donGia = newVt.getDonGiaVatTuPhuTung();
+        double tienCong = newTc.getSoTienCong();
         double newThanhTien = donGia * soLuong + tienCong;
 
         boolean restoreOldStock = vatTuDAO.updateSoLuong(
@@ -225,7 +246,7 @@ public class SuaChuaXeService {
                 maVatTu,
                 soLuong,
                 donGia,
-                null,
+                maTienCong,
                 newThanhTien,
                 tienCong
         );
@@ -297,14 +318,14 @@ public class SuaChuaXeService {
     }
 
     private boolean isValid(String maSuaChuaXe, String maTiepNhanXe, Date ngaySuaChua,
-                            String maVatTu, int soLuong, double tienCong, String noiDung) {
+                            String maVatTu, int soLuong, String maTienCong, String noiDung) {
 
         if (maSuaChuaXe == null || maSuaChuaXe.trim().isEmpty()) return false;
         if (maTiepNhanXe == null || maTiepNhanXe.trim().isEmpty()) return false;
         if (ngaySuaChua == null) return false;
         if (maVatTu == null || maVatTu.trim().isEmpty()) return false;
+        if (maTienCong == null || maTienCong.trim().isEmpty()) return false;
         if (soLuong <= 0) return false;
-        if (tienCong < 0) return false;
         if (noiDung == null || noiDung.trim().isEmpty()) return false;
 
         return true;

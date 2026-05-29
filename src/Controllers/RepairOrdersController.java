@@ -32,7 +32,7 @@ public class RepairOrdersController implements Initializable {
     @FXML private DatePicker dpNgaySuaChua;
     @FXML private ComboBox<String> cbbMaVatTu;
     @FXML private TextField txtSoLuong;
-    @FXML private TextField txtTienCong;
+    @FXML private ComboBox<String> cbbMaTienCong;
     @FXML private TextArea txtNoiDungSuaChua;
 
     @FXML private Button btnAddRepair;
@@ -98,6 +98,7 @@ public class RepairOrdersController implements Initializable {
     private void loadComboBoxes() {
         cbbMaTiepNhanXe.getItems().setAll(suaChuaService.getAllIntakeIds());
         cbbMaVatTu.getItems().setAll(suaChuaService.getAllPartIds());
+        cbbMaTienCong.getItems().setAll(suaChuaService.getAllLaborIds());
     }
 
     private void loadTableData() {
@@ -130,9 +131,8 @@ public class RepairOrdersController implements Initializable {
     private void handleAdd() {
         Date ngaySuaChua = getRepairDate();
         Integer soLuong = getQuantity();
-        Double tienCong = getLaborFee();
 
-        if (ngaySuaChua == null || soLuong == null || tienCong == null) {
+        if (ngaySuaChua == null || soLuong == null) {
             return;
         }
 
@@ -142,7 +142,7 @@ public class RepairOrdersController implements Initializable {
                 ngaySuaChua,
                 cbbMaVatTu.getValue(),
                 soLuong,
-                tienCong,
+                cbbMaTienCong.getValue(),
                 txtNoiDungSuaChua.getText().trim()
         );
 
@@ -152,7 +152,7 @@ public class RepairOrdersController implements Initializable {
             loadTableData();
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Kiểm tra mã phiếu, tồn kho, mã tiếp nhận hoặc dữ liệu nhập!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Kiểm tra mã phiếu, tồn kho, mã tiếp nhận, mã tiền công hoặc dữ liệu nhập!");
         }
     }
 
@@ -166,9 +166,8 @@ public class RepairOrdersController implements Initializable {
 
         Date ngaySuaChua = getRepairDate();
         Integer soLuong = getQuantity();
-        Double tienCong = getLaborFee();
 
-        if (ngaySuaChua == null || soLuong == null || tienCong == null) {
+        if (ngaySuaChua == null || soLuong == null) {
             return;
         }
 
@@ -178,7 +177,7 @@ public class RepairOrdersController implements Initializable {
                 ngaySuaChua,
                 cbbMaVatTu.getValue(),
                 soLuong,
-                tienCong,
+                cbbMaTienCong.getValue(),
                 txtNoiDungSuaChua.getText().trim()
         );
 
@@ -188,7 +187,7 @@ public class RepairOrdersController implements Initializable {
             loadTableData();
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật. Kiểm tra tồn kho hoặc dữ liệu nhập!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật. Kiểm tra tồn kho, mã tiền công hoặc dữ liệu nhập!");
         }
     }
 
@@ -244,7 +243,7 @@ public class RepairOrdersController implements Initializable {
             txtNoiDungSuaChua.setText(ct.getNoiDung());
             cbbMaVatTu.setValue(ct.getMaVatTuPhuTung());
             txtSoLuong.setText(String.valueOf(ct.getSoLuong()));
-            txtTienCong.setText(String.valueOf(ct.getSoTienCong()));
+            cbbMaTienCong.setValue(ct.getMaTienCong());
         }
     }
 
@@ -255,7 +254,7 @@ public class RepairOrdersController implements Initializable {
         dpNgaySuaChua.setValue(null);
         cbbMaVatTu.setValue(null);
         txtSoLuong.clear();
-        txtTienCong.clear();
+        cbbMaTienCong.setValue(null);
         txtNoiDungSuaChua.clear();
         txtSearchRepair.clear();
 
@@ -286,23 +285,6 @@ public class RepairOrdersController implements Initializable {
 
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số lượng phải là số nguyên!");
-            return null;
-        }
-    }
-
-    private Double getLaborFee() {
-        try {
-            double value = Double.parseDouble(txtTienCong.getText().trim());
-
-            if (value < 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Tiền công không được âm!");
-                return null;
-            }
-
-            return value;
-
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Tiền công phải là số!");
             return null;
         }
     }

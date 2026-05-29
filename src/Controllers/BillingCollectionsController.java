@@ -26,12 +26,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class BillingCollectionsController implements Initializable {
 
-    @FXML private Label lblCurrentDebt;
+    @FXML private Label lblRepairTotal;
     @FXML private Label lblAmountPaid;
     @FXML private Label lblRemainingDebt;
 
     @FXML private TextField txtMaPhieuThu;
-    @FXML private ComboBox<String> cbbMaTiepNhanXe;
+    @FXML private ComboBox<String> cbbMaSuaChuaXe;
+    @FXML private TextField txtMaTiepNhanXe;
     @FXML private DatePicker dpNgayThuTien;
     @FXML private TextField txtSoTienThu;
 
@@ -46,6 +47,7 @@ public class BillingCollectionsController implements Initializable {
 
     @FXML private TableView<PhieuThuTien> tblReceipts;
     @FXML private TableColumn<PhieuThuTien, String> colMaPhieuThu;
+    @FXML private TableColumn<PhieuThuTien, String> colMaSuaChuaXe;
     @FXML private TableColumn<PhieuThuTien, String> colMaTiepNhanXe;
     @FXML private TableColumn<PhieuThuTien, String> colBienSoXe;
     @FXML private TableColumn<PhieuThuTien, Date> colNgayThuTien;
@@ -60,14 +62,21 @@ public class BillingCollectionsController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupTableColumns();
+        setupInitialState();
         loadComboBox();
         loadTableData();
         setupEvents();
-        updateDebtCards();
+        updateRepairCards();
+    }
+
+    private void setupInitialState() {
+        txtMaTiepNhanXe.setDisable(true);
+        txtSoTienThu.setDisable(true);
     }
 
     private void setupTableColumns() {
         colMaPhieuThu.setCellValueFactory(new PropertyValueFactory<>("maPhieuThuTien"));
+        colMaSuaChuaXe.setCellValueFactory(new PropertyValueFactory<>("maSuaChuaXe"));
         colMaTiepNhanXe.setCellValueFactory(new PropertyValueFactory<>("maTiepNhanXe"));
         colBienSoXe.setCellValueFactory(new PropertyValueFactory<>("bienSoXe"));
         colNgayThuTien.setCellValueFactory(new PropertyValueFactory<>("ngayThuTien"));
@@ -76,7 +85,7 @@ public class BillingCollectionsController implements Initializable {
     }
 
     private void loadComboBox() {
-        cbbMaTiepNhanXe.getItems().setAll(phieuThuService.getAllIntakeIds());
+        cbbMaSuaChuaXe.getItems().setAll(phieuThuService.getAllRepairIds());
     }
 
     private void loadTableData() {
@@ -95,12 +104,10 @@ public class BillingCollectionsController implements Initializable {
             txtSearchReceipt.clear();
             loadComboBox();
             loadTableData();
-            updateDebtCards();
+            updateRepairCards();
         });
 
-        cbbMaTiepNhanXe.setOnAction(e -> updateDebtCards());
-
-        txtSoTienThu.textProperty().addListener((obs, oldValue, newValue) -> updateDebtCards());
+        cbbMaSuaChuaXe.setOnAction(e -> updateRepairCards());
 
         tblReceipts.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldValue, selected) -> {
@@ -112,21 +119,47 @@ public class BillingCollectionsController implements Initializable {
     }
 
     private void handleAdd() {
+        String maPhieuThu = txtMaPhieuThu.getText().trim();
+        String maSuaChuaXe = cbbMaSuaChuaXe.getValue();
         LocalDate localDate = dpNgayThuTien.getValue();
-        Double amount = getAmount();
+
+        if (maPhieuThu.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã phiếu thu không được rỗng!");
+            return;
+        }
+
+        if (maSuaChuaXe == null || maSuaChuaXe.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Vui lòng chọn mã sửa chữa!");
+            return;
+        }
 
         if (localDate == null) {
             showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Ngày thu tiền không được rỗng!");
             return;
         }
 
-        if (amount == null) {
+        double amount = phieuThuService.getRemainingByRepairId(maSuaChuaXe);
+        double currentDebt = phieuThuService.getCurrentDebtByRepairId(maSuaChuaXe);
+
+        if (amount <= 0) {
+            showAlert(Alert.AlertType.WARNING, "Không thể thu", "Phiếu sửa chữa này đã được thu đủ tiền!");
+            return;
+        }
+
+        if (amount > currentDebt) {
+            showAlert(
+                    Alert.AlertType.WARNING,
+                    "Dữ liệu nợ không hợp lệ",
+                    "Số tiền còn phải thu của phiếu sửa chữa lớn hơn tiền nợ hiện tại của xe.\n"
+                    + "Còn phải thu: " + formatMoney(amount) + "\n"
+                    + "Tiền nợ hiện tại: " + formatMoney(currentDebt)
+            );
             return;
         }
 
         boolean result = phieuThuService.add(
-                txtMaPhieuThu.getText().trim(),
-                cbbMaTiepNhanXe.getValue(),
+                maPhieuThu,
+                maSuaChuaXe,
                 Date.valueOf(localDate),
                 amount
         );
@@ -137,7 +170,7 @@ public class BillingCollectionsController implements Initializable {
             loadTableData();
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu thu. Kiểm tra mã phiếu, số tiền thu và tiền nợ!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu thu. Kiểm tra mã phiếu, mã sửa chữa hoặc tiền nợ!");
         }
     }
 
@@ -150,16 +183,13 @@ public class BillingCollectionsController implements Initializable {
         }
 
         LocalDate localDate = dpNgayThuTien.getValue();
-        Double amount = getAmount();
 
         if (localDate == null) {
             showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Ngày thu tiền không được rỗng!");
             return;
         }
 
-        if (amount == null) {
-            return;
-        }
+        double amount = selected.getSoTienThu();
 
         boolean result = phieuThuService.update(
                 selected.getMaPhieuThuTien(),
@@ -168,12 +198,12 @@ public class BillingCollectionsController implements Initializable {
         );
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật phiếu thu thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật ngày thu tiền thành công!");
             loadComboBox();
             loadTableData();
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật. Số tiền thu có thể lớn hơn tiền nợ!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật phiếu thu!");
         }
     }
 
@@ -215,8 +245,10 @@ public class BillingCollectionsController implements Initializable {
         txtMaPhieuThu.setText(pt.getMaPhieuThuTien());
         txtMaPhieuThu.setDisable(true);
 
-        cbbMaTiepNhanXe.setValue(pt.getMaTiepNhanXe());
-        cbbMaTiepNhanXe.setDisable(true);
+        cbbMaSuaChuaXe.setValue(pt.getMaSuaChuaXe());
+        cbbMaSuaChuaXe.setDisable(true);
+
+        txtMaTiepNhanXe.setText(pt.getMaTiepNhanXe());
 
         if (pt.getNgayThuTien() != null) {
             dpNgayThuTien.setValue(pt.getNgayThuTien().toLocalDate());
@@ -225,65 +257,50 @@ public class BillingCollectionsController implements Initializable {
         }
 
         txtSoTienThu.setText(String.valueOf(pt.getSoTienThu()));
-        updateDebtCards();
+        updateRepairCards();
     }
 
     private void clearForm() {
         txtMaPhieuThu.setDisable(false);
-        cbbMaTiepNhanXe.setDisable(false);
+        cbbMaSuaChuaXe.setDisable(false);
 
         txtMaPhieuThu.clear();
-        cbbMaTiepNhanXe.setValue(null);
+        cbbMaSuaChuaXe.setValue(null);
+        txtMaTiepNhanXe.clear();
         dpNgayThuTien.setValue(null);
         txtSoTienThu.clear();
         txtSearchReceipt.clear();
 
         tblReceipts.getSelectionModel().clearSelection();
-        updateDebtCards();
+        updateRepairCards();
     }
 
-    private Double getAmount() {
-        try {
-            double amount = Double.parseDouble(txtSoTienThu.getText().trim());
+    private void updateRepairCards() {
+        String maSuaChuaXe = cbbMaSuaChuaXe.getValue();
 
-            if (amount <= 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số tiền thu phải lớn hơn 0!");
-                return null;
-            }
-
-            return amount;
-
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số tiền thu phải là số!");
-            return null;
-        }
-    }
-
-    private void updateDebtCards() {
-        String maTiepNhanXe = cbbMaTiepNhanXe.getValue();
-
-        double currentDebt = 0;
-
-        if (maTiepNhanXe != null && !maTiepNhanXe.trim().isEmpty()) {
-            currentDebt = phieuThuService.getCurrentDebt(maTiepNhanXe);
+        if (maSuaChuaXe == null || maSuaChuaXe.trim().isEmpty()) {
+            lblRepairTotal.setText(formatMoney(0));
+            lblAmountPaid.setText(formatMoney(0));
+            lblRemainingDebt.setText(formatMoney(0));
+            txtMaTiepNhanXe.clear();
+            txtSoTienThu.clear();
+            return;
         }
 
-        double paid = 0;
+        double repairTotal = phieuThuService.getRepairTotal(maSuaChuaXe);
+        double paid = phieuThuService.getPaidByRepairId(maSuaChuaXe);
+        double remaining = phieuThuService.getRemainingByRepairId(maSuaChuaXe);
+        String intakeId = phieuThuService.getIntakeIdByRepairId(maSuaChuaXe);
 
-        try {
-            String text = txtSoTienThu.getText().trim();
-
-            if (!text.isEmpty()) {
-                paid = Double.parseDouble(text);
-            }
-
-        } catch (Exception e) {
-            paid = 0;
-        }
-
-        lblCurrentDebt.setText(formatMoney(currentDebt));
+        lblRepairTotal.setText(formatMoney(repairTotal));
         lblAmountPaid.setText(formatMoney(paid));
-        lblRemainingDebt.setText(formatMoney(currentDebt - paid));
+        lblRemainingDebt.setText(formatMoney(remaining));
+
+        txtMaTiepNhanXe.setText(intakeId);
+
+        if (tblReceipts.getSelectionModel().getSelectedItem() == null) {
+            txtSoTienThu.setText(String.valueOf(remaining));
+        }
     }
 
     private String formatMoney(double value) {

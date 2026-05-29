@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -13,7 +16,8 @@
 <AnchorPane prefHeight="800.0" prefWidth="1048.0"
             styleClass="pageRoot"
             xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1">
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.StatisticalReportsController">
 
     <stylesheets>
         <URL value="@../Assets/css/pages.css" />
@@ -47,7 +51,7 @@
             </VBox>
         </HBox>
 
-        <VBox layoutX="35.0" layoutY="235.0" prefWidth="975.0" prefHeight="120.0" spacing="16.0" styleClass="card">
+        <VBox layoutX="35.0" layoutY="235.0" prefWidth="975.0" prefHeight="115.0" spacing="14.0" styleClass="card">
             <Label text="Report Filter" styleClass="sectionTitle" />
 
             <HBox spacing="12.0">
@@ -59,19 +63,39 @@
             </HBox>
         </VBox>
 
-        <VBox layoutX="35.0" layoutY="385.0" prefWidth="975.0" prefHeight="370.0" spacing="12.0" styleClass="card">
-            <Label text="Report Details" styleClass="sectionTitle" />
+        <HBox layoutX="35.0" layoutY="380.0" prefWidth="975.0" prefHeight="375.0" spacing="18.0">
+            <VBox prefWidth="465.0" prefHeight="375.0" spacing="12.0" styleClass="card">
+                <Label text="Report Chart" styleClass="sectionTitle" />
 
-            <TableView fx:id="tblReports" prefWidth="935.0" prefHeight="300.0" styleClass="dataTable">
-                <columns>
-                    <TableColumn fx:id="colReportNo" text="No." prefWidth="70.0" />
-                    <TableColumn fx:id="colReportName" text="Report Item" prefWidth="270.0" />
-                    <TableColumn fx:id="colReportQuantity" text="Quantity" prefWidth="150.0" />
-                    <TableColumn fx:id="colReportAmount" text="Amount" prefWidth="190.0" />
-                    <TableColumn fx:id="colReportRate" text="Rate" prefWidth="130.0" />
-                    <TableColumn fx:id="colReportNote" text="Note" prefWidth="120.0" />
-                </columns>
-            </TableView>
-        </VBox>
+                <BarChart fx:id="barReportChart"
+                          animated="false"
+                          legendVisible="false"
+                          prefWidth="425.0"
+                          prefHeight="300.0"
+                          styleClass="reportChart">
+                    <xAxis>
+                        <CategoryAxis fx:id="chartXAxis" side="BOTTOM" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="chartYAxis" side="LEFT" />
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <VBox prefWidth="492.0" prefHeight="375.0" spacing="12.0" styleClass="card">
+                <Label text="Report Details" styleClass="sectionTitle" />
+
+                <TableView fx:id="tblReports" prefWidth="452.0" prefHeight="300.0" styleClass="dataTable">
+                    <columns>
+                        <TableColumn fx:id="colReportNo" text="No." prefWidth="45.0" />
+                        <TableColumn fx:id="colReportName" text="Report Item" prefWidth="140.0" />
+                        <TableColumn fx:id="colReportQuantity" text="Qty" prefWidth="60.0" />
+                        <TableColumn fx:id="colReportAmount" text="Amount" prefWidth="110.0" />
+                        <TableColumn fx:id="colReportRate" text="Rate" prefWidth="65.0" />
+                        <TableColumn fx:id="colReportNote" text="Note" prefWidth="95.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </HBox>
     </children>
 </AnchorPane>

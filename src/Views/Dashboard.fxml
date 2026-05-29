@@ -11,7 +11,8 @@
 <AnchorPane prefHeight="800.0" prefWidth="1048.0"
             styleClass="pageRoot"
             xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1">
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.DashboardController">
 
     <stylesheets>
         <URL value="@../Assets/css/pages.css" />
@@ -46,11 +47,10 @@
         </HBox>
 
         <VBox layoutX="35.0" layoutY="250.0" prefWidth="455.0" prefHeight="215.0" spacing="12.0" styleClass="card">
-            <Label text="Today Summary" styleClass="sectionTitle" />
-            <Label text="Vehicles received today: 0" styleClass="noteText" />
-            <Label text="Repair orders created today: 0" styleClass="noteText" />
-            <Label text="Receipts created today: 0" styleClass="noteText" />
-            <Label text="Low stock parts: 0" styleClass="noteText" />
+            <Label fx:id="lblTodayVehicles" text="Total vehicles received: 0" styleClass="summaryText" />
+            <Label fx:id="lblTodayRepairs" text="Total repair orders: 0" styleClass="summaryText" />
+            <Label fx:id="lblTodayReceipts" text="Total receipts: 0" styleClass="summaryText" />
+            <Label fx:id="lblLowStockParts" text="Low stock parts: 0" styleClass="summaryText" />
         </VBox>
 
         <VBox layoutX="515.0" layoutY="250.0" prefWidth="495.0" prefHeight="215.0" spacing="12.0" styleClass="card">

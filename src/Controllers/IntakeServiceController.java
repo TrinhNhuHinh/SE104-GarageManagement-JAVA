@@ -23,6 +23,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import DAO.KhachHangDAO;
+import MODEL.KhachHang;
+import javafx.scene.control.TextInputDialog;
 
 public class IntakeServiceController implements Initializable {
 
@@ -52,6 +55,7 @@ public class IntakeServiceController implements Initializable {
 
     private final TiepNhanXeService tiepNhanXeService = new TiepNhanXeService();
     private final HieuXeDAO hieuXeDAO = new HieuXeDAO();
+    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -115,22 +119,48 @@ public class IntakeServiceController implements Initializable {
     }
 
     private void handleAdd() {
-        TiepNhanXe tnx = getFormData();
+    TiepNhanXe tnx = getFormData();
 
-        if (tnx == null) {
+    if (tnx == null) {
+        return;
+    }
+
+    KhachHang khachHangMoi = null;
+
+    KhachHang khachHangDaCo = khachHangDAO.getById(tnx.getMaKhachHang());
+
+    if (khachHangDaCo == null) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Khách hàng mới");
+        confirm.setHeaderText(null);
+        confirm.setContentText(
+                "Mã khách hàng " + tnx.getMaKhachHang() + " chưa tồn tại.\n"
+                + "Bạn có muốn tạo khách hàng mới không?"
+        );
+
+        Optional<ButtonType> option = confirm.showAndWait();
+
+        if (option.isEmpty() || option.get() != ButtonType.OK) {
             return;
         }
 
-        boolean result = tiepNhanXeService.add(tnx);
+        khachHangMoi = inputNewCustomer(tnx.getMaKhachHang());
 
-        if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm tiếp nhận xe thành công!");
-            loadTableData();
-            clearForm();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Mã tiếp nhận có thể đã tồn tại hoặc dữ liệu không hợp lệ!");
+        if (khachHangMoi == null) {
+            return;
         }
     }
+
+    boolean result = tiepNhanXeService.addWithCustomer(tnx, khachHangMoi);
+
+    if (result) {
+        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm tiếp nhận xe thành công!");
+        loadTableData();
+        clearForm();
+    } else {
+        showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Kiểm tra mã tiếp nhận, khách hàng, hiệu xe hoặc giới hạn tiếp nhận!");
+    }
+}
 
     private void handleUpdate() {
         TiepNhanXe selected = tblTiepNhanXe.getSelectionModel().getSelectedItem();
@@ -291,4 +321,58 @@ public class IntakeServiceController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    
+    private KhachHang inputNewCustomer(String maKhachHang) {
+    String tenKhachHang = askText(
+            "Tạo khách hàng mới",
+            "Nhập tên khách hàng:"
+    );
+
+    if (tenKhachHang == null || tenKhachHang.trim().isEmpty()) {
+        showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Tên khách hàng không được rỗng!");
+        return null;
+    }
+
+    String soDienThoai = askText(
+            "Tạo khách hàng mới",
+            "Nhập số điện thoại khách hàng:"
+    );
+
+    if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
+        showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Số điện thoại không được rỗng!");
+        return null;
+    }
+
+    String diaChi = askText(
+            "Tạo khách hàng mới",
+            "Nhập địa chỉ khách hàng:"
+    );
+
+    if (diaChi == null || diaChi.trim().isEmpty()) {
+        showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Địa chỉ không được rỗng!");
+        return null;
+    }
+
+    return new KhachHang(
+            maKhachHang,
+            tenKhachHang.trim(),
+            diaChi.trim(),
+            soDienThoai.trim()
+    );
+}
+
+private String askText(String title, String content) {
+    TextInputDialog dialog = new TextInputDialog();
+    dialog.setTitle(title);
+    dialog.setHeaderText(null);
+    dialog.setContentText(content);
+
+    Optional<String> result = dialog.showAndWait();
+
+    if (result.isEmpty()) {
+        return null;
+    }
+
+    return result.get();
+}
 }

@@ -71,6 +71,38 @@ create table THONGTINGARAGE(
 	SoTienThuSoVoiSoTienNo money
 );
 
+ALTER TABLE THONGTINGARAGE
+ADD SoLuongVatTuToiDa INT DEFAULT 200,
+    SoLuongTienCongToiDa INT DEFAULT 100;
+
+UPDATE THONGTINGARAGE
+SET SoLuongVatTuToiDa = 200,
+    SoLuongTienCongToiDa = 100
+WHERE Id = 'GARAGE';
+
+IF COL_LENGTH('THONGTINGARAGE', 'SoLuongVatTuToiDa') IS NULL
+BEGIN
+    ALTER TABLE THONGTINGARAGE
+    ADD SoLuongVatTuToiDa INT NULL;
+END
+GO
+
+IF COL_LENGTH('THONGTINGARAGE', 'SoLuongTienCongToiDa') IS NULL
+BEGIN
+    ALTER TABLE THONGTINGARAGE
+    ADD SoLuongTienCongToiDa INT NULL;
+END
+GO
+
+UPDATE THONGTINGARAGE
+SET SoLuongVatTuToiDa = ISNULL(SoLuongVatTuToiDa, 200),
+    SoLuongTienCongToiDa = ISNULL(SoLuongTienCongToiDa, 100)
+WHERE Id = 'GARAGE';
+GO
+
+SELECT *
+FROM THONGTINGARAGE;
+GO
 
 create table BAOCAODOANHSO(
     MaBaoCaoDoanhSo char(10) primary key,
@@ -115,6 +147,32 @@ create table PHIEUTHUTIEN(
 	SoTienThu money,
 	foreign key(Ma_TiepNhanXe) references TIEPNHANXE(MaTiepNhanXe)
 );
+
+IF COL_LENGTH('PHIEUTHUTIEN', 'Ma_SuaChuaXe') IS NULL
+BEGIN
+    ALTER TABLE PHIEUTHUTIEN
+    ADD Ma_SuaChuaXe CHAR(10) NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_PHIEUTHUTIEN_SUACHUAXE'
+)
+BEGIN
+    ALTER TABLE PHIEUTHUTIEN
+    ADD CONSTRAINT FK_PHIEUTHUTIEN_SUACHUAXE
+    FOREIGN KEY (Ma_SuaChuaXe)
+    REFERENCES SUACHUAXE(MaSuaChuaXe);
+END
+GO
+
+IF OBJECT_ID('trg_GiamTienNo_ThuTien', 'TR') IS NOT NULL
+BEGIN
+    DROP TRIGGER trg_GiamTienNo_ThuTien;
+END
+GO
 
 create table NHACUNGCAP(
     MaNhaCungCap char(10) primary key,

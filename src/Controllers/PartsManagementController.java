@@ -1,9 +1,13 @@
 package Controllers;
 
+import MODEL.ChiTietBanVatTu;
+import MODEL.ChiTietNhapVatTu;
 import MODEL.VatTuPhuTung;
 import Service.VatTuPhuTungService;
 import java.net.URL;
+import java.sql.Date;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -17,11 +21,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class PartsManagementController implements Initializable {
@@ -38,8 +42,6 @@ public class PartsManagementController implements Initializable {
     @FXML private TextField txtGiaBan;
 
     @FXML private Button btnAddPart;
-    @FXML private Button btnImportPart;
-    @FXML private Button btnSellPart;
     @FXML private Button btnUpdatePart;
     @FXML private Button btnDeletePart;
 
@@ -55,6 +57,44 @@ public class PartsManagementController implements Initializable {
     @FXML private TableColumn<VatTuPhuTung, String> colGiaNhap;
     @FXML private TableColumn<VatTuPhuTung, String> colGiaBan;
 
+    @FXML private TextField txtMaNhapVatTu;
+    @FXML private ComboBox<String> cbbMaNhaCungCap;
+    @FXML private DatePicker dpNgayNhap;
+    @FXML private ComboBox<String> cbbImportMaVatTu;
+    @FXML private TextField txtImportSoLuong;
+    @FXML private TextField txtImportDonGia;
+    @FXML private Label lblImportTotal;
+    @FXML private Button btnCreateImport;
+    @FXML private Button btnClearImport;
+
+    @FXML private TableView<ChiTietNhapVatTu> tblImportDetails;
+    @FXML private TableColumn<ChiTietNhapVatTu, String> colImportId;
+    @FXML private TableColumn<ChiTietNhapVatTu, String> colImportSupplier;
+    @FXML private TableColumn<ChiTietNhapVatTu, String> colImportDate;
+    @FXML private TableColumn<ChiTietNhapVatTu, String> colImportPartId;
+    @FXML private TableColumn<ChiTietNhapVatTu, Integer> colImportQuantity;
+    @FXML private TableColumn<ChiTietNhapVatTu, String> colImportUnitPrice;
+    @FXML private TableColumn<ChiTietNhapVatTu, String> colImportTotal;
+
+    @FXML private TextField txtMaBanVatTu;
+    @FXML private ComboBox<String> cbbMaKhachHang;
+    @FXML private DatePicker dpNgayBan;
+    @FXML private ComboBox<String> cbbSaleMaVatTu;
+    @FXML private TextField txtSaleSoLuong;
+    @FXML private TextField txtSaleDonGia;
+    @FXML private Label lblSaleTotal;
+    @FXML private Button btnCreateSale;
+    @FXML private Button btnClearSale;
+
+    @FXML private TableView<ChiTietBanVatTu> tblSaleDetails;
+    @FXML private TableColumn<ChiTietBanVatTu, String> colSaleId;
+    @FXML private TableColumn<ChiTietBanVatTu, String> colSaleCustomer;
+    @FXML private TableColumn<ChiTietBanVatTu, String> colSaleDate;
+    @FXML private TableColumn<ChiTietBanVatTu, String> colSalePartId;
+    @FXML private TableColumn<ChiTietBanVatTu, Integer> colSaleQuantity;
+    @FXML private TableColumn<ChiTietBanVatTu, String> colSaleUnitPrice;
+    @FXML private TableColumn<ChiTietBanVatTu, String> colSaleTotal;
+
     private final VatTuPhuTungService vatTuService = new VatTuPhuTungService();
 
     private final NumberFormat currencyFormat =
@@ -62,24 +102,27 @@ public class PartsManagementController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setupComboBox();
+        setupComboBoxes();
         setupTableColumns();
-        loadTableData();
-        loadSummaryCards();
+        loadAllData();
         setupEvents();
+        updateTotalLabels();
     }
 
-    private void setupComboBox() {
-        cbbDonViTinh.getItems().setAll(
-                "Cái",
-                "Bộ",
-                "Chiếc",
-                "Lít",
-                "Hộp",
-                "Chai",
-                "Cặp",
-                "Mét"
-        );
+    private void setupComboBoxes() {
+        cbbDonViTinh.getItems().setAll("Cái", "Bộ", "Chiếc", "Lít", "Hộp", "Chai", "Cặp", "Mét");
+
+        cbbMaNhaCungCap.getItems().setAll(vatTuService.getAllSupplierIds());
+        cbbMaKhachHang.getItems().setAll(vatTuService.getAllCustomerIds());
+
+        loadPartComboBoxes();
+    }
+
+    private void loadPartComboBoxes() {
+        List<String> partIds = vatTuService.getAllPartIds();
+
+        cbbImportMaVatTu.getItems().setAll(partIds);
+        cbbSaleMaVatTu.getItems().setAll(partIds);
     }
 
     private void setupTableColumns() {
@@ -92,9 +135,48 @@ public class PartsManagementController implements Initializable {
                 new SimpleStringProperty(formatMoney(cellData.getValue().getDonGiaVatTuPhuTung()))
         );
 
-        // Database hiện chỉ có 1 đơn giá, nên cột Sell Price hiển thị cùng giá.
         colGiaBan.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getDonGiaVatTuPhuTung()))
+        );
+
+        colImportId.setCellValueFactory(new PropertyValueFactory<>("maNhapVatTu"));
+        colImportPartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
+        colImportQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
+
+        colImportSupplier.setCellValueFactory(cellData ->
+                new SimpleStringProperty(vatTuService.getSupplierByImportId(cellData.getValue().getMaNhapVatTu()))
+        );
+
+        colImportDate.setCellValueFactory(cellData ->
+                new SimpleStringProperty(vatTuService.getImportDateByImportId(cellData.getValue().getMaNhapVatTu()))
+        );
+
+        colImportUnitPrice.setCellValueFactory(cellData ->
+                new SimpleStringProperty(formatMoney(cellData.getValue().getDonGia()))
+        );
+
+        colImportTotal.setCellValueFactory(cellData ->
+                new SimpleStringProperty(formatMoney(cellData.getValue().getThanhTien()))
+        );
+
+        colSaleId.setCellValueFactory(new PropertyValueFactory<>("maBanVatTu"));
+        colSalePartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
+        colSaleQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
+
+        colSaleCustomer.setCellValueFactory(cellData ->
+                new SimpleStringProperty(vatTuService.getCustomerBySaleId(cellData.getValue().getMaBanVatTu()))
+        );
+
+        colSaleDate.setCellValueFactory(cellData ->
+                new SimpleStringProperty(vatTuService.getSaleDateBySaleId(cellData.getValue().getMaBanVatTu()))
+        );
+
+        colSaleUnitPrice.setCellValueFactory(cellData ->
+                new SimpleStringProperty(formatMoney(cellData.getValue().getDonGia()))
+        );
+
+        colSaleTotal.setCellValueFactory(cellData ->
+                new SimpleStringProperty(formatMoney(cellData.getValue().getThanhTien()))
         );
     }
 
@@ -102,14 +184,18 @@ public class PartsManagementController implements Initializable {
         btnAddPart.setOnAction(e -> handleAdd());
         btnUpdatePart.setOnAction(e -> handleUpdate());
         btnDeletePart.setOnAction(e -> handleDelete());
-        btnImportPart.setOnAction(e -> handleImport());
-        btnSellPart.setOnAction(e -> handleSell());
         btnSearchPart.setOnAction(e -> handleSearch());
+
         btnRefreshPart.setOnAction(e -> {
             txtSearchPart.clear();
-            loadTableData();
-            loadSummaryCards();
+            refreshAll();
         });
+
+        btnCreateImport.setOnAction(e -> handleCreateImport());
+        btnClearImport.setOnAction(e -> clearImportForm());
+
+        btnCreateSale.setOnAction(e -> handleCreateSale());
+        btnClearSale.setOnAction(e -> clearSaleForm());
 
         tblParts.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, selectedItem) -> {
@@ -119,21 +205,38 @@ public class PartsManagementController implements Initializable {
                 }
         );
 
-        txtGiaNhap.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Tạm thời đồng bộ Sell Price vì database chỉ có 1 đơn giá.
-            txtGiaBan.setText(newValue);
-        });
+        txtGiaNhap.textProperty().addListener((observable, oldValue, newValue) -> txtGiaBan.setText(newValue));
+
+        cbbImportMaVatTu.setOnAction(e -> fillImportPriceByPart());
+        cbbSaleMaVatTu.setOnAction(e -> fillSalePriceByPart());
+
+        txtImportSoLuong.textProperty().addListener((obs, oldValue, newValue) -> updateImportTotalLabel());
+        txtImportDonGia.textProperty().addListener((obs, oldValue, newValue) -> updateImportTotalLabel());
+
+        txtSaleSoLuong.textProperty().addListener((obs, oldValue, newValue) -> updateSaleTotalLabel());
+        txtSaleDonGia.textProperty().addListener((obs, oldValue, newValue) -> updateSaleTotalLabel());
+    }
+
+    private void loadAllData() {
+        loadTableData();
+        loadImportDetails();
+        loadSaleDetails();
+        loadSummaryCards();
+        loadPartComboBoxes();
     }
 
     private void loadTableData() {
-        try {
-            List<VatTuPhuTung> list = vatTuService.getAll();
-            ObservableList<VatTuPhuTung> data = FXCollections.observableArrayList(list);
-            tblParts.setItems(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể load dữ liệu vật tư!");
-        }
+        List<VatTuPhuTung> list = vatTuService.getAll();
+        ObservableList<VatTuPhuTung> data = FXCollections.observableArrayList(list);
+        tblParts.setItems(data);
+    }
+
+    private void loadImportDetails() {
+        tblImportDetails.setItems(FXCollections.observableArrayList(vatTuService.getAllImportDetails()));
+    }
+
+    private void loadSaleDetails() {
+        tblSaleDetails.setItems(FXCollections.observableArrayList(vatTuService.getAllSaleDetails()));
     }
 
     private void loadSummaryCards() {
@@ -208,71 +311,67 @@ public class PartsManagementController implements Initializable {
                 refreshAll();
                 clearForm();
             } else {
-                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Vật tư có thể đang được dùng trong phiếu sửa chữa, nhập vật tư hoặc bán vật tư!");
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Vật tư có thể đang được dùng trong sửa chữa, nhập hoặc bán!");
             }
         }
     }
 
-    private void handleImport() {
-        VatTuPhuTung selected = tblParts.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn vật tư cần nhập thêm!");
-            return;
-        }
-
-        Integer quantity = askQuantity("Nhập vật tư", "Nhập số lượng cần cộng thêm:");
-
-        if (quantity == null) {
-            return;
-        }
-
-        boolean result = vatTuService.importPart(selected.getMaVatTuPhuTung(), quantity);
-
-        if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Nhập thêm vật tư thành công!");
-            refreshAll();
-            clearForm();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể nhập vật tư. Số lượng phải lớn hơn 0!");
-        }
-    }
-
-    private void handleSell() {
-        VatTuPhuTung selected = tblParts.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn vật tư cần bán!");
-            return;
-        }
-
-        Integer quantity = askQuantity("Bán vật tư", "Nhập số lượng cần bán:");
-
-        if (quantity == null) {
-            return;
-        }
-
-        boolean result = vatTuService.sellPart(selected.getMaVatTuPhuTung(), quantity);
-
-        if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Bán vật tư thành công!");
-            refreshAll();
-            clearForm();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể bán. Số lượng bán phải lớn hơn 0 và không vượt quá tồn kho!");
-        }
-    }
-
     private void handleSearch() {
-        String keyword = txtSearchPart.getText();
+        List<VatTuPhuTung> list = vatTuService.search(txtSearchPart.getText());
+        tblParts.setItems(FXCollections.observableArrayList(list));
+    }
 
-        try {
-            List<VatTuPhuTung> list = vatTuService.search(keyword);
-            ObservableList<VatTuPhuTung> data = FXCollections.observableArrayList(list);
-            tblParts.setItems(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tìm kiếm vật tư!");
+    private void handleCreateImport() {
+        Date ngayNhap = getSqlDate(dpNgayNhap, "Ngày nhập không được rỗng!");
+        Integer soLuong = getPositiveInteger(txtImportSoLuong, "Số lượng nhập phải là số nguyên lớn hơn 0!");
+        Double donGia = getNonNegativeDouble(txtImportDonGia, "Đơn giá nhập phải là số!");
+
+        if (ngayNhap == null || soLuong == null || donGia == null) {
+            return;
+        }
+
+        boolean result = vatTuService.createImportInvoice(
+                txtMaNhapVatTu.getText().trim(),
+                cbbMaNhaCungCap.getValue(),
+                ngayNhap,
+                cbbImportMaVatTu.getValue(),
+                soLuong,
+                donGia
+        );
+
+        if (result) {
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo phiếu nhập vật tư thành công!");
+            refreshAll();
+            clearImportForm();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập. Kiểm tra mã phiếu, nhà cung cấp, vật tư hoặc dữ liệu nhập!");
+        }
+    }
+
+    private void handleCreateSale() {
+        Date ngayBan = getSqlDate(dpNgayBan, "Ngày bán không được rỗng!");
+        Integer soLuong = getPositiveInteger(txtSaleSoLuong, "Số lượng bán phải là số nguyên lớn hơn 0!");
+        Double donGia = getNonNegativeDouble(txtSaleDonGia, "Đơn giá bán phải là số!");
+
+        if (ngayBan == null || soLuong == null || donGia == null) {
+            return;
+        }
+
+        boolean result = vatTuService.createSaleInvoice(
+                txtMaBanVatTu.getText().trim(),
+                cbbMaKhachHang.getValue(),
+                ngayBan,
+                cbbSaleMaVatTu.getValue(),
+                soLuong,
+                donGia
+        );
+
+        if (result) {
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hóa đơn bán vật tư thành công!");
+            refreshAll();
+            clearSaleForm();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán. Kiểm tra mã hóa đơn, khách hàng, tồn kho hoặc dữ liệu nhập!");
         }
     }
 
@@ -280,8 +379,6 @@ public class PartsManagementController implements Initializable {
         String maVatTu = txtMaVatTu.getText().trim();
         String tenVatTu = txtTenVatTu.getText().trim();
         String donViTinh = cbbDonViTinh.getValue();
-        String soLuongText = txtSoLuongTon.getText().trim();
-        String giaText = txtGiaNhap.getText().trim();
 
         if (maVatTu.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã vật tư không được rỗng!");
@@ -298,41 +395,14 @@ public class PartsManagementController implements Initializable {
             return null;
         }
 
-        int soLuong;
+        Integer soLuong = getNonNegativeInteger(txtSoLuongTon, "Số lượng tồn phải là số nguyên không âm!");
+        Double donGia = getNonNegativeDouble(txtGiaNhap, "Đơn giá phải là số không âm!");
 
-        try {
-            soLuong = Integer.parseInt(soLuongText);
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số lượng tồn phải là số nguyên!");
+        if (soLuong == null || donGia == null) {
             return null;
         }
 
-        if (soLuong < 0) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số lượng tồn không được âm!");
-            return null;
-        }
-
-        double donGia;
-
-        try {
-            donGia = Double.parseDouble(giaText);
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Đơn giá phải là số!");
-            return null;
-        }
-
-        if (donGia < 0) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Đơn giá không được âm!");
-            return null;
-        }
-
-        return new VatTuPhuTung(
-                maVatTu,
-                tenVatTu,
-                donGia,
-                soLuong,
-                donViTinh
-        );
+        return new VatTuPhuTung(maVatTu, tenVatTu, donGia, soLuong, donViTinh);
     }
 
     private void fillForm(VatTuPhuTung vt) {
@@ -346,6 +416,26 @@ public class PartsManagementController implements Initializable {
         txtGiaBan.setText(String.valueOf(vt.getDonGiaVatTuPhuTung()));
     }
 
+    private void fillImportPriceByPart() {
+        VatTuPhuTung vt = vatTuService.getPartById(cbbImportMaVatTu.getValue());
+
+        if (vt != null) {
+            txtImportDonGia.setText(String.valueOf(vt.getDonGiaVatTuPhuTung()));
+        }
+
+        updateImportTotalLabel();
+    }
+
+    private void fillSalePriceByPart() {
+        VatTuPhuTung vt = vatTuService.getPartById(cbbSaleMaVatTu.getValue());
+
+        if (vt != null) {
+            txtSaleDonGia.setText(String.valueOf(vt.getDonGiaVatTuPhuTung()));
+        }
+
+        updateSaleTotalLabel();
+    }
+
     private void clearForm() {
         txtMaVatTu.setDisable(false);
         txtMaVatTu.clear();
@@ -354,39 +444,128 @@ public class PartsManagementController implements Initializable {
         txtSoLuongTon.clear();
         txtGiaNhap.clear();
         txtGiaBan.clear();
-
         tblParts.getSelectionModel().clearSelection();
     }
 
-    private void refreshAll() {
-        loadTableData();
-        loadSummaryCards();
+    private void clearImportForm() {
+        txtMaNhapVatTu.clear();
+        cbbMaNhaCungCap.setValue(null);
+        dpNgayNhap.setValue(null);
+        cbbImportMaVatTu.setValue(null);
+        txtImportSoLuong.clear();
+        txtImportDonGia.clear();
+        updateImportTotalLabel();
     }
 
-    private Integer askQuantity(String title, String content) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle(title);
-        dialog.setHeaderText(null);
-        dialog.setContentText(content);
+    private void clearSaleForm() {
+        txtMaBanVatTu.clear();
+        cbbMaKhachHang.setValue(null);
+        dpNgayBan.setValue(null);
+        cbbSaleMaVatTu.setValue(null);
+        txtSaleSoLuong.clear();
+        txtSaleDonGia.clear();
+        updateSaleTotalLabel();
+    }
 
-        Optional<String> result = dialog.showAndWait();
+    private void refreshAll() {
+        loadAllData();
+        updateTotalLabels();
+    }
 
-        if (result.isEmpty()) {
+    private void updateTotalLabels() {
+        updateImportTotalLabel();
+        updateSaleTotalLabel();
+    }
+
+    private void updateImportTotalLabel() {
+        lblImportTotal.setText(formatMoney(calculateTotal(txtImportSoLuong, txtImportDonGia)));
+    }
+
+    private void updateSaleTotalLabel() {
+        lblSaleTotal.setText(formatMoney(calculateTotal(txtSaleSoLuong, txtSaleDonGia)));
+    }
+
+    private double calculateTotal(TextField quantityField, TextField priceField) {
+        try {
+            String quantityText = quantityField.getText().trim();
+            String priceText = priceField.getText().trim();
+
+            if (quantityText.isEmpty() || priceText.isEmpty()) {
+                return 0;
+            }
+
+            int quantity = Integer.parseInt(quantityText);
+            double price = Double.parseDouble(priceText);
+
+            if (quantity <= 0 || price < 0) {
+                return 0;
+            }
+
+            return quantity * price;
+
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private Date getSqlDate(DatePicker picker, String message) {
+        LocalDate localDate = picker.getValue();
+
+        if (localDate == null) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", message);
             return null;
         }
 
-        try {
-            int quantity = Integer.parseInt(result.get().trim());
+        return Date.valueOf(localDate);
+    }
 
-            if (quantity <= 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số lượng phải lớn hơn 0!");
+    private Integer getPositiveInteger(TextField field, String message) {
+        try {
+            int value = Integer.parseInt(field.getText().trim());
+
+            if (value <= 0) {
+                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
                 return null;
             }
 
-            return quantity;
+            return value;
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Số lượng phải là số nguyên!");
+            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+            return null;
+        }
+    }
+
+    private Integer getNonNegativeInteger(TextField field, String message) {
+        try {
+            int value = Integer.parseInt(field.getText().trim());
+
+            if (value < 0) {
+                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+                return null;
+            }
+
+            return value;
+
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+            return null;
+        }
+    }
+
+    private Double getNonNegativeDouble(TextField field, String message) {
+        try {
+            double value = Double.parseDouble(field.getText().trim());
+
+            if (value < 0) {
+                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+                return null;
+            }
+
+            return value;
+
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
             return null;
         }
     }

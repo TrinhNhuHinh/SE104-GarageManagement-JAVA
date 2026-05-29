@@ -230,4 +230,25 @@ public class TiepNhanXeDAO {
         System.out.println("SQL MESSAGE: " + e.getMessage());
         e.printStackTrace();
     }
+    
+    public int countByDate(java.sql.Date ngayTiepNhan) {
+    String sql = "SELECT COUNT(*) FROM TIEPNHANXE WHERE NgayTiepNhan = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setDate(1, ngayTiepNhan);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+
+    } catch (SQLException e) {
+        printSqlError(e);
+    }
+
+    return 0;
+}
 }
