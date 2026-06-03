@@ -25,47 +25,47 @@
 
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
-            <Label text="Statistical Reports" styleClass="pageTitle" />
-            <Label text="View revenue, repair performance, vehicle brands and inventory statistics." styleClass="pageSubtitle" />
+            <Label text="Báo cáo thống kê" styleClass="pageTitle" />
+            <Label text="Xem báo cáo doanh thu theo tháng/năm và báo cáo vật tư tồn." styleClass="pageSubtitle" />
         </VBox>
 
         <HBox layoutX="35.0" layoutY="100.0" spacing="18.0">
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Monthly Revenue" styleClass="cardLabel" />
+                <Label text="Doanh thu kỳ chọn" styleClass="cardLabel" />
                 <Label fx:id="lblMonthlyRevenue" text="0đ" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Repair Orders" styleClass="cardLabel" />
+                <Label text="Số phiếu thu" styleClass="cardLabel" />
                 <Label fx:id="lblReportRepairOrders" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Cars Received" styleClass="cardLabel" />
-                <Label fx:id="lblReportCarsReceived" text="0" styleClass="cardValue" />
+                <Label text="Giá trị tồn kho" styleClass="cardLabel" />
+                <Label fx:id="lblReportCarsReceived" text="0đ" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Low Stock Parts" styleClass="cardLabel" />
+                <Label text="Vật tư cảnh báo" styleClass="cardLabel" />
                 <Label fx:id="lblLowStockParts" text="0" styleClass="cardValue" />
             </VBox>
         </HBox>
 
         <VBox layoutX="35.0" layoutY="235.0" prefWidth="975.0" prefHeight="115.0" spacing="14.0" styleClass="card">
-            <Label text="Report Filter" styleClass="sectionTitle" />
+            <Label text="Bộ lọc báo cáo" styleClass="sectionTitle" />
 
             <HBox spacing="12.0">
-                <ComboBox fx:id="cbbReportType" promptText="Report type" styleClass="comboBox" prefWidth="230.0" />
-                <ComboBox fx:id="cbbMonth" promptText="Month" styleClass="comboBox" prefWidth="150.0" />
-                <ComboBox fx:id="cbbYear" promptText="Year" styleClass="comboBox" prefWidth="150.0" />
-                <Button fx:id="btnViewReport" text="View Report" styleClass="primaryBtn" prefWidth="120.0" />
-                <Button fx:id="btnExportReport" text="Export" styleClass="secondaryBtn" prefWidth="100.0" />
+                <ComboBox fx:id="cbbReportType" promptText="Chọn loại báo cáo" styleClass="comboBox" prefWidth="260.0" />
+                <ComboBox fx:id="cbbMonth" promptText="Tháng" styleClass="comboBox" prefWidth="150.0" />
+                <ComboBox fx:id="cbbYear" promptText="Năm" styleClass="comboBox" prefWidth="150.0" />
+                <Button fx:id="btnViewReport" text="Xem báo cáo" styleClass="primaryBtn" prefWidth="125.0" />
+                <Button fx:id="btnExportReport" text="Xuất file" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
         </VBox>
 
         <HBox layoutX="35.0" layoutY="380.0" prefWidth="975.0" prefHeight="375.0" spacing="18.0">
             <VBox prefWidth="465.0" prefHeight="375.0" spacing="12.0" styleClass="card">
-                <Label text="Report Chart" styleClass="sectionTitle" />
+                <Label text="Biểu đồ báo cáo" styleClass="sectionTitle" />
 
                 <BarChart fx:id="barReportChart"
                           animated="false"
@@ -83,16 +83,16 @@
             </VBox>
 
             <VBox prefWidth="492.0" prefHeight="375.0" spacing="12.0" styleClass="card">
-                <Label text="Report Details" styleClass="sectionTitle" />
+                <Label text="Chi tiết báo cáo" styleClass="sectionTitle" />
 
                 <TableView fx:id="tblReports" prefWidth="452.0" prefHeight="300.0" styleClass="dataTable">
                     <columns>
-                        <TableColumn fx:id="colReportNo" text="No." prefWidth="45.0" />
-                        <TableColumn fx:id="colReportName" text="Report Item" prefWidth="140.0" />
-                        <TableColumn fx:id="colReportQuantity" text="Qty" prefWidth="60.0" />
-                        <TableColumn fx:id="colReportAmount" text="Amount" prefWidth="110.0" />
-                        <TableColumn fx:id="colReportRate" text="Rate" prefWidth="65.0" />
-                        <TableColumn fx:id="colReportNote" text="Note" prefWidth="95.0" />
+                        <TableColumn fx:id="colReportNo" text="STT" prefWidth="45.0" />
+                        <TableColumn fx:id="colReportName" text="Nội dung" prefWidth="145.0" />
+                        <TableColumn fx:id="colReportQuantity" text="SL" prefWidth="60.0" />
+                        <TableColumn fx:id="colReportAmount" text="Giá trị" prefWidth="115.0" />
+                        <TableColumn fx:id="colReportRate" text="Tỷ lệ" prefWidth="65.0" />
+                        <TableColumn fx:id="colReportNote" text="Ghi chú" prefWidth="95.0" />
                     </columns>
                 </TableView>
             </VBox>

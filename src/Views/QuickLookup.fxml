@@ -23,48 +23,48 @@
 
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
-            <Label text="Quick Lookup" styleClass="pageTitle" />
-            <Label text="Quickly search vehicles, customers, repair history and parts inventory." styleClass="pageSubtitle" />
+            <Label text="Tra cứu nhanh" styleClass="pageTitle" />
+            <Label text="Tra cứu xe, khách hàng, lịch sử sửa chữa và tồn kho vật tư." styleClass="pageSubtitle" />
         </VBox>
 
         <VBox layoutX="35.0" layoutY="105.0" prefWidth="975.0" prefHeight="130.0" spacing="16.0" styleClass="card">
-            <Label text="Search Center" styleClass="sectionTitle" />
+            <Label text="Khu vực tìm kiếm" styleClass="sectionTitle" />
 
             <HBox spacing="12.0">
-                <ComboBox fx:id="cbbLookupType" promptText="Lookup type" styleClass="comboBox" prefWidth="185.0" />
-                <TextField fx:id="txtLookupKeyword" promptText="Enter license plate, customer name, phone, part name..." styleClass="inputField" prefWidth="575.0" />
-                <Button fx:id="btnLookup" text="Lookup" styleClass="primaryBtn" prefWidth="100.0" />
-                <Button fx:id="btnResetLookup" text="Reset" styleClass="secondaryBtn" prefWidth="80.0" />
+                <ComboBox fx:id="cbbLookupType" promptText="Loại tra cứu" styleClass="comboBox" prefWidth="185.0" />
+                <TextField fx:id="txtLookupKeyword" promptText="Nhập biển số, tên khách hàng, SĐT, tên vật tư..." styleClass="inputField" prefWidth="575.0" />
+                <Button fx:id="btnLookup" text="Tra cứu" styleClass="primaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnResetLookup" text="Đặt lại" styleClass="secondaryBtn" prefWidth="80.0" />
             </HBox>
         </VBox>
 
         <HBox layoutX="35.0" layoutY="265.0" spacing="18.0">
             <VBox prefWidth="305.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Vehicles Found" styleClass="cardLabel" />
+                <Label text="Xe tìm thấy" styleClass="cardLabel" />
                 <Label fx:id="lblVehiclesFound" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="305.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Parts Found" styleClass="cardLabel" />
+                <Label text="Vật tư tìm thấy" styleClass="cardLabel" />
                 <Label fx:id="lblPartsFound" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="305.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Repair Records" styleClass="cardLabel" />
+                <Label text="Phiếu sửa chữa" styleClass="cardLabel" />
                 <Label fx:id="lblRepairRecordsFound" text="0" styleClass="cardValue" />
             </VBox>
         </HBox>
 
         <VBox layoutX="35.0" layoutY="400.0" prefWidth="975.0" prefHeight="355.0" spacing="12.0" styleClass="card">
-            <Label text="Lookup Results" styleClass="sectionTitle" />
+            <Label text="Kết quả tra cứu" styleClass="sectionTitle" />
 
             <TableView fx:id="tblLookupResults" prefWidth="935.0" prefHeight="285.0" styleClass="dataTable">
                 <columns>
-                    <TableColumn fx:id="colLookupType" text="Type" prefWidth="130.0" />
-                    <TableColumn fx:id="colLookupCode" text="Code" prefWidth="140.0" />
-                    <TableColumn fx:id="colLookupName" text="Name / Vehicle" prefWidth="240.0" />
-                    <TableColumn fx:id="colLookupInfo" text="Information" prefWidth="300.0" />
-                    <TableColumn fx:id="colLookupStatus" text="Status" prefWidth="120.0" />
+                    <TableColumn fx:id="colLookupType" text="Loại" prefWidth="130.0" />
+                    <TableColumn fx:id="colLookupCode" text="Mã" prefWidth="140.0" />
+                    <TableColumn fx:id="colLookupName" text="Tên / Xe" prefWidth="240.0" />
+                    <TableColumn fx:id="colLookupInfo" text="Thông tin" prefWidth="300.0" />
+                    <TableColumn fx:id="colLookupStatus" text="Trạng thái" prefWidth="120.0" />
                 </columns>
             </TableView>
         </VBox>

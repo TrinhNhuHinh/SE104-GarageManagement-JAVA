@@ -14,13 +14,13 @@
    <children>
       <Pane layoutX="56.0" layoutY="72.0" prefHeight="306.0" prefWidth="688.0" styleClass="bodyPane">
          <children>
-            <Label layoutX="41.0" layoutY="34.0" prefHeight="0.0" prefWidth="462.0" styleClass="bodyLabel" text="Garage Management" />
-            <Label layoutX="41.0" layoutY="113.0" prefHeight="80.0" prefWidth="239.0" styleClass="bodyLabel2" text="Hệ thống quản lý Garage ô tô thông minh nhất Việt Nam. Tối ưu vận hành, kiểm soát tồn kho và nâng tầm dịch vụ khách hàng." />
-            <Button fx:id="regisBtn" layoutX="41.0" layoutY="215.0" mnemonicParsing="false" onAction="#openRegisterModal" prefHeight="28.0" prefWidth="126.0" styleClass="regisBtn" text="Dùng thử ngay" />
+            <Label layoutX="41.0" layoutY="34.0" prefHeight="0.0" prefWidth="462.0" styleClass="bodyLabel" text="Quản lý gara ô tô" />
+            <Label layoutX="41.0" layoutY="113.0" prefHeight="92.0" prefWidth="265.0" styleClass="bodyLabel2" text="Hệ thống hỗ trợ tiếp nhận xe, lập phiếu sửa chữa, quản lý vật tư, thu tiền và theo dõi báo cáo hoạt động của gara." wrapText="true" />
+            <Button fx:id="loginBtnMain" layoutX="41.0" layoutY="225.0" mnemonicParsing="false" onAction="#openLoginModal" prefHeight="32.0" prefWidth="150.0" styleClass="regisBtn" text="Đăng nhập ngay" />
             <Region layoutX="339.0" layoutY="100.0" prefHeight="164.0" prefWidth="328.0" styleClass="icon-body" />
          </children></Pane>
-      <Button fx:id="regisBtn1" layoutX="584.0" layoutY="14.0" mnemonicParsing="false" onAction="#openRegisterModal" prefHeight="28.0" prefWidth="91.0" styleClass="loginBtn" text="Đăng ký" />
-      <Button fx:id="loginBtn" layoutX="688.0" layoutY="14.0" mnemonicParsing="false" onAction="#openLoginModal" prefHeight="28.0" prefWidth="91.0" styleClass="regisBtn" text="Đăng nhập" />
+      <Button fx:id="loginBtnTop" layoutX="672.0" layoutY="14.0" mnemonicParsing="false" onAction="#openLoginModal" prefHeight="28.0" prefWidth="107.0" styleClass="regisBtn" text="Đăng nhập" />
+      <Label layoutX="56.0" layoutY="395.0" prefHeight="18.0" prefWidth="360.0" styleClass="bodyLabel2" text="Tài khoản thử nghiệm: admin / 123456 hoặc staff / 123456" />
       <Button layoutX="734.0" layoutY="390.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="42.0" styleClass="settingBtn">
          <graphic>
             <Region prefHeight="28.0" prefWidth="30.0" styleClass="icon-setting" />

@@ -13,17 +13,17 @@
         <URL value="@../Assets/css/regismodal.css" />
     </stylesheets>
    <children>
-      <Label alignment="CENTER" layoutX="119.0" layoutY="36.0" prefHeight="42.0" prefWidth="164.0" styleClass="titleLabel" text="Tạo tài khoản" />
+      <Label alignment="CENTER" layoutX="103.0" layoutY="36.0" prefHeight="42.0" prefWidth="196.0" styleClass="titleLabel" text="Tạo tài khoản" />
       <Pane layoutX="36.0" layoutY="57.0" prefHeight="408.0" prefWidth="327.0" styleClass="bodyPane">
          <children>
-            <Label layoutX="46.0" layoutY="38.0" prefHeight="17.0" prefWidth="66.0" styleClass="userNameLabel" text="Tài khoản" />
-            <TextField fx:id="txtUsernamerg" layoutX="45.0" layoutY="67.0" prefHeight="42.0" prefWidth="235.0" promptText="Your Username..." styleClass="txtUsername" />
+            <Label layoutX="46.0" layoutY="38.0" prefHeight="17.0" prefWidth="90.0" styleClass="userNameLabel" text="Tài khoản" />
+            <TextField fx:id="txtUsernamerg" layoutX="45.0" layoutY="67.0" prefHeight="42.0" prefWidth="235.0" promptText="Nhập tài khoản" styleClass="txtUsername" />
             <Label layoutX="45.0" layoutY="132.0" styleClass="passwordLabel" text="Mật khẩu" />
-            <PasswordField fx:id="txtPasswordrg" layoutX="46.0" layoutY="159.0" prefHeight="42.0" prefWidth="235.0" promptText="***************" styleClass="txtPassword" />
-            <Label fx:id="loginLabelRegisModal" layoutX="50.0" layoutY="303.0" onMouseClicked="#switchToLogin" styleClass="regisLabel" text="Đăng nhập" />
-            <Button fx:id="regisBtn" layoutX="89.0" layoutY="340.0" mnemonicParsing="false" onAction="#btnRegisAction" prefHeight="42.0" prefWidth="147.0" styleClass="loginBtn" text="Đăng ký" />
+            <PasswordField fx:id="txtPasswordrg" layoutX="46.0" layoutY="159.0" prefHeight="42.0" prefWidth="235.0" promptText="Nhập mật khẩu" styleClass="txtPassword" />
             <Label layoutX="44.0" layoutY="216.0" styleClass="passwordLabel" text="Xác nhận mật khẩu" />
-            <PasswordField fx:id="txtPasswordrg1" layoutX="46.0" layoutY="245.0" prefHeight="42.0" prefWidth="235.0" promptText="***************" styleClass="txtPassword" />
+            <PasswordField fx:id="txtPasswordrg1" layoutX="46.0" layoutY="245.0" prefHeight="42.0" prefWidth="235.0" promptText="Nhập lại mật khẩu" styleClass="txtPassword" />
+            <Label fx:id="loginLabelRegisModal" layoutX="50.0" layoutY="303.0" onMouseClicked="#switchToLogin" styleClass="regisLabel" text="Quay lại đăng nhập" />
+            <Button fx:id="regisBtn" layoutX="89.0" layoutY="340.0" mnemonicParsing="false" onAction="#btnRegisAction" prefHeight="42.0" prefWidth="147.0" styleClass="loginBtn" text="Tạo tài khoản" />
          </children>
       </Pane>
    </children>

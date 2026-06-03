@@ -94,6 +94,36 @@
     -fx-text-fill: #ffffff;
 }
 
+.comboBox .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #0b1117;
+    -fx-border-color: #06b6d4;
+    -fx-border-width: 1px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: #0b1117;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 8 10 8 10;
+}
+
+.combo-box-popup .list-view .list-cell:hover,
+.combo-box-popup .list-view .list-cell:filled:hover {
+    -fx-background-color: rgba(6, 182, 212, 0.24);
+    -fx-text-fill: #ffffff;
+}
+
+.combo-box-popup .list-view .list-cell:selected,
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: #06b6d4;
+    -fx-text-fill: #071015;
+}
+
 .datePicker {
     -fx-background-color: #0b1117;
     -fx-border-color: #21424d;

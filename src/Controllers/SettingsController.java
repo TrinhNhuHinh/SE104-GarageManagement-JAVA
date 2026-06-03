@@ -6,6 +6,7 @@ import MODEL.NguoiDung;
 import MODEL.NhaCungCap;
 import MODEL.TienCong;
 import Service.AuthService;
+import Service.AuthorizationService;
 import Service.HieuXeService;
 import Service.NhaCungCapService;
 import Service.TienCongService;
@@ -24,6 +25,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -38,6 +41,10 @@ public class SettingsController implements Initializable {
     @FXML private Button btnUpdateProfile;
     @FXML private Button btnRefreshProfile;
     @FXML private Button btnLogout;
+    @FXML private TabPane settingsTabPane;
+    @FXML private Tab tabLabor;
+    @FXML private Tab tabSuppliers;
+    @FXML private Tab tabBrands;
 
     @FXML private PasswordField txtOldPassword;
     @FXML private PasswordField txtNewPassword;
@@ -94,11 +101,14 @@ public class SettingsController implements Initializable {
 
         setupTables();
         setupEvents();
+        applyRolePermissions();
 
         loadProfile();
-        loadLaborTable();
-        loadSupplierTable();
-        loadBrandTable();
+        if (AuthorizationService.isAdmin(currentUser)) {
+            loadLaborTable();
+            loadSupplierTable();
+            loadBrandTable();
+        }
     }
 
     private void setupTables() {
@@ -162,7 +172,7 @@ public class SettingsController implements Initializable {
 
         txtSettingMaNguoiDung.setText(currentUser.getMaNguoiDung());
         txtSettingUsername.setText(currentUser.getTenTaiKhoan());
-        txtSettingRole.setText(currentUser.getMaChucVu());
+        txtSettingRole.setText(AuthorizationService.getRoleName(currentUser));
 
         txtSettingMaNguoiDung.setDisable(true);
         txtSettingRole.setDisable(true);
@@ -194,6 +204,42 @@ public class SettingsController implements Initializable {
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật profile!");
         }
+    }
+
+    private void applyRolePermissions() {
+        boolean admin = AuthorizationService.isAdmin(currentUser);
+
+        if (settingsTabPane != null && !admin) {
+            settingsTabPane.getTabs().remove(tabLabor);
+            settingsTabPane.getTabs().remove(tabSuppliers);
+            settingsTabPane.getTabs().remove(tabBrands);
+        }
+
+        setAdminControlsEnabled(admin,
+                btnAddLabor, btnUpdateLabor, btnDeleteLabor, btnClearLabor,
+                btnAddSupplier, btnUpdateSupplier, btnDeleteSupplier, btnClearSupplier,
+                btnAddBrand, btnUpdateBrand, btnDeleteBrand, btnClearBrand,
+                txtMaTienCong, txtNoiDungTienCong, txtSoTienCong,
+                txtMaNhaCungCap, txtTenNhaCungCap, txtSdtNhaCungCap, txtEmailNhaCungCap,
+                txtMaHieuXe, txtTenHieuXe
+        );
+    }
+
+    private void setAdminControlsEnabled(boolean enabled, javafx.scene.Node... nodes) {
+        for (javafx.scene.Node node : nodes) {
+            if (node != null) {
+                node.setDisable(!enabled);
+            }
+        }
+    }
+
+    private boolean requireAdmin() {
+        if (AuthorizationService.isAdmin(currentUser)) {
+            return true;
+        }
+
+        showAlert(Alert.AlertType.WARNING, "Không có quyền", "Chỉ tài khoản quản trị viên mới được thay đổi cấu hình hệ thống.");
+        return false;
     }
 
     private void handleChangePassword() {
@@ -268,6 +314,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleAddLabor() {
+        if (!requireAdmin()) return;
+
         TienCong tc = getLaborForm();
 
         if (tc == null) return;
@@ -284,6 +332,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleUpdateLabor() {
+        if (!requireAdmin()) return;
+
         if (tblLabor.getSelectionModel().getSelectedItem() == null) {
             showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn tiền công cần sửa!");
             return;
@@ -305,6 +355,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleDeleteLabor() {
+        if (!requireAdmin()) return;
+
         TienCong selected = tblLabor.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
@@ -372,6 +424,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleAddSupplier() {
+        if (!requireAdmin()) return;
+
         NhaCungCap ncc = getSupplierForm();
 
         if (ncc == null) return;
@@ -388,6 +442,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleUpdateSupplier() {
+        if (!requireAdmin()) return;
+
         if (tblSupplier.getSelectionModel().getSelectedItem() == null) {
             showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn nhà cung cấp cần sửa!");
             return;
@@ -409,6 +465,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleDeleteSupplier() {
+        if (!requireAdmin()) return;
+
         NhaCungCap selected = tblSupplier.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
@@ -467,6 +525,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleAddBrand() {
+        if (!requireAdmin()) return;
+
         HieuXe hx = getBrandForm();
 
         if (hx == null) return;
@@ -483,6 +543,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleUpdateBrand() {
+        if (!requireAdmin()) return;
+
         if (tblBrand.getSelectionModel().getSelectedItem() == null) {
             showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn hiệu xe cần sửa!");
             return;
@@ -504,6 +566,8 @@ public class SettingsController implements Initializable {
     }
 
     private void handleDeleteBrand() {
+        if (!requireAdmin()) return;
+
         HieuXe selected = tblBrand.getSelectionModel().getSelectedItem();
 
         if (selected == null) {

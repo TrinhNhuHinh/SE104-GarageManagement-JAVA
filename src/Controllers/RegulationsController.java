@@ -36,12 +36,12 @@ public class RegulationsController implements Initializable {
     }
 
     private void loadSettings() {
-        ThongTinGarage tt = thongTinGarageService.getSettings();
+        ThongTinGarage settings = thongTinGarageService.getSettings();
 
-        txtMaxCarsPerDay.setText(String.valueOf(tt.getSoLuongXeToiDa()));
-        txtMaxBrands.setText(String.valueOf(tt.getTongSoHieuXe()));
-        txtMaxParts.setText(String.valueOf(tt.getSoLuongVatTuToiDa()));
-        txtMaxLabors.setText(String.valueOf(tt.getSoLuongTienCongToiDa()));
+        txtMaxCarsPerDay.setText(String.valueOf(settings.getSoLuongXeToiDa()));
+        txtMaxBrands.setText(String.valueOf(settings.getTongSoHieuXe()));
+        txtMaxParts.setText(String.valueOf(settings.getSoLuongVatTuToiDa()));
+        txtMaxLabors.setText(String.valueOf(settings.getSoLuongTienCongToiDa()));
     }
 
     private void handleUpdate() {
@@ -54,12 +54,7 @@ public class RegulationsController implements Initializable {
             return;
         }
 
-        boolean result = thongTinGarageService.updateSettings(
-                maxCars,
-                maxBrands,
-                maxParts,
-                maxLabors
-        );
+        boolean result = thongTinGarageService.updateSettings(maxCars, maxBrands, maxParts, maxLabors);
 
         if (result) {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật quy định thành công!");
@@ -73,10 +68,10 @@ public class RegulationsController implements Initializable {
         boolean result = thongTinGarageService.resetDefault();
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã reset quy định về mặc định!");
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã đưa quy định về mặc định!");
             loadSettings();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể reset quy định!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể đưa quy định về mặc định!");
         }
     }
 
@@ -90,7 +85,6 @@ public class RegulationsController implements Initializable {
             }
 
             return value;
-
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
             return null;

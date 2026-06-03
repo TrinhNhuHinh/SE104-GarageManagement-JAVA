@@ -26,11 +26,12 @@
 
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
-            <Label text="Settings" styleClass="pageTitle" />
-            <Label text="Manage profile, labor fee, suppliers and car brands." styleClass="pageSubtitle" />
+            <Label text="Cài đặt" styleClass="pageTitle" />
+            <Label text="Quản lý hồ sơ cá nhân, tiền công, nhà cung cấp và hiệu xe." styleClass="pageSubtitle" />
         </VBox>
 
-        <TabPane layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="655.0"
+        <TabPane fx:id="settingsTabPane"
+                 layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="655.0"
                  tabClosingPolicy="UNAVAILABLE"
                  tabMinWidth="145.0"
                  tabMaxWidth="145.0"
@@ -39,86 +40,86 @@
                  styleClass="settingsTabPane">
 
             <tabs>
-                <Tab text="Profile">
+                <Tab text="Hồ sơ">
                     <AnchorPane prefWidth="975.0" prefHeight="610.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="15.0" layoutY="15.0" prefWidth="940.0" prefHeight="260.0" spacing="16.0" styleClass="card">
-                                <Label text="User Profile" styleClass="sectionTitle" />
+                                <Label text="Thông tin người dùng" styleClass="sectionTitle" />
 
                                 <GridPane hgap="22.0" vgap="14.0">
-                                    <Label text="User ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label text="Mã người dùng" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtSettingMaNguoiDung" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label text="Username" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <Label text="Tài khoản" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtSettingUsername" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                                    <Label text="Role" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label text="Vai trò" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <TextField fx:id="txtSettingRole" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                 </GridPane>
 
                                 <HBox spacing="12.0">
-                                    <Button fx:id="btnUpdateProfile" text="Update Profile" styleClass="primaryBtn" prefWidth="135.0" />
-                                    <Button fx:id="btnRefreshProfile" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
-                                    <Button fx:id="btnLogout" text="Logout" styleClass="dangerBtn" prefWidth="100.0" />
+                                    <Button fx:id="btnUpdateProfile" text="Cập nhật" styleClass="primaryBtn" prefWidth="135.0" />
+                                    <Button fx:id="btnRefreshProfile" text="Làm mới" styleClass="secondaryBtn" prefWidth="100.0" />
+                                    <Button fx:id="btnLogout" text="Đăng xuất" styleClass="dangerBtn" prefWidth="100.0" />
                                 </HBox>
                             </VBox>
 
                             <VBox layoutX="15.0" layoutY="300.0" prefWidth="940.0" prefHeight="240.0" spacing="16.0" styleClass="card">
-                                <Label text="Change Password" styleClass="sectionTitle" />
+                                <Label text="Đổi mật khẩu" styleClass="sectionTitle" />
 
                                 <GridPane hgap="22.0" vgap="14.0">
-                                    <Label text="Old Password" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label text="Mật khẩu cũ" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                     <PasswordField fx:id="txtOldPassword" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label text="New Password" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label text="Mật khẩu mới" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <PasswordField fx:id="txtNewPassword" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                    <Label text="Confirm Password" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <Label text="Xác nhận mật khẩu" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     <PasswordField fx:id="txtConfirmPassword" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                 </GridPane>
 
                                 <HBox spacing="12.0">
-                                    <Button fx:id="btnChangePassword" text="Change Password" styleClass="primaryBtn" prefWidth="160.0" />
-                                    <Button fx:id="btnResetPasswordForm" text="Clear" styleClass="secondaryBtn" prefWidth="100.0" />
+                                    <Button fx:id="btnChangePassword" text="Đổi mật khẩu" styleClass="primaryBtn" prefWidth="160.0" />
+                                    <Button fx:id="btnResetPasswordForm" text="Xóa form" styleClass="secondaryBtn" prefWidth="100.0" />
                                 </HBox>
                             </VBox>
                         </children>
                     </AnchorPane>
                 </Tab>
 
-                <Tab text="Labor Fee">
+                <Tab fx:id="tabLabor" text="Tiền công">
                     <AnchorPane prefWidth="975.0" prefHeight="610.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="15.0" layoutY="15.0" prefWidth="940.0" prefHeight="200.0" spacing="14.0" styleClass="card">
-                                <Label text="Labor Fee Form" styleClass="sectionTitle" />
+                                <Label text="Thông tin tiền công" styleClass="sectionTitle" />
 
                                 <GridPane hgap="20.0" vgap="14.0">
-                                    <Label text="Labor ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label text="Mã tiền công" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtMaTienCong" promptText="TC01" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label text="Description" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <Label text="Nội dung" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtNoiDungTienCong" promptText="Thay nhớt..." styleClass="inputField" prefWidth="260.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                                    <Label text="Amount" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label text="Số tiền" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <TextField fx:id="txtSoTienCong" promptText="50000" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                 </GridPane>
 
                                 <HBox spacing="12.0">
-                                    <Button fx:id="btnAddLabor" text="Add" styleClass="primaryBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnUpdateLabor" text="Update" styleClass="secondaryBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnDeleteLabor" text="Delete" styleClass="dangerBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnClearLabor" text="Clear" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnAddLabor" text="Thêm" styleClass="primaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnUpdateLabor" text="Sửa" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnDeleteLabor" text="Xóa" styleClass="dangerBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnClearLabor" text="Làm mới" styleClass="secondaryBtn" prefWidth="90.0" />
                                 </HBox>
                             </VBox>
 
                             <VBox layoutX="15.0" layoutY="240.0" prefWidth="940.0" prefHeight="350.0" spacing="12.0" styleClass="card">
-                                <Label text="Labor Fee List" styleClass="sectionTitle" />
+                                <Label text="Danh sách tiền công" styleClass="sectionTitle" />
 
                                 <TableView fx:id="tblLabor" prefWidth="900.0" prefHeight="280.0" styleClass="dataTable">
                                     <columns>
-                                        <TableColumn fx:id="colLaborId" text="Labor ID" prefWidth="160.0" />
-                                        <TableColumn fx:id="colLaborContent" text="Description" prefWidth="480.0" />
-                                        <TableColumn fx:id="colLaborAmount" text="Amount" prefWidth="220.0" />
+                                        <TableColumn fx:id="colLaborId" text="Mã tiền công" prefWidth="160.0" />
+                                        <TableColumn fx:id="colLaborContent" text="Nội dung" prefWidth="480.0" />
+                                        <TableColumn fx:id="colLaborAmount" text="Số tiền" prefWidth="220.0" />
                                     </columns>
                                 </TableView>
                             </VBox>
@@ -126,20 +127,20 @@
                     </AnchorPane>
                 </Tab>
 
-                <Tab text="Suppliers">
+                <Tab fx:id="tabSuppliers" text="Nhà cung cấp">
                     <AnchorPane prefWidth="975.0" prefHeight="610.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="15.0" layoutY="15.0" prefWidth="940.0" prefHeight="225.0" spacing="14.0" styleClass="card">
-                                <Label text="Supplier Form" styleClass="sectionTitle" />
+                                <Label text="Thông tin nhà cung cấp" styleClass="sectionTitle" />
 
                                 <GridPane hgap="20.0" vgap="14.0">
-                                    <Label text="Supplier ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label text="Mã nhà cung cấp" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtMaNhaCungCap" promptText="NCC01" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label text="Supplier Name" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <Label text="Tên nhà cung cấp" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtTenNhaCungCap" promptText="Tên nhà cung cấp" styleClass="inputField" prefWidth="260.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                                    <Label text="Phone" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label text="Số điện thoại" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <TextField fx:id="txtSdtNhaCungCap" promptText="090..." styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                                     <Label text="Email" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
@@ -147,21 +148,21 @@
                                 </GridPane>
 
                                 <HBox spacing="12.0">
-                                    <Button fx:id="btnAddSupplier" text="Add" styleClass="primaryBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnUpdateSupplier" text="Update" styleClass="secondaryBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnDeleteSupplier" text="Delete" styleClass="dangerBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnClearSupplier" text="Clear" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnAddSupplier" text="Thêm" styleClass="primaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnUpdateSupplier" text="Sửa" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnDeleteSupplier" text="Xóa" styleClass="dangerBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnClearSupplier" text="Làm mới" styleClass="secondaryBtn" prefWidth="90.0" />
                                 </HBox>
                             </VBox>
 
                             <VBox layoutX="15.0" layoutY="265.0" prefWidth="940.0" prefHeight="325.0" spacing="12.0" styleClass="card">
-                                <Label text="Supplier List" styleClass="sectionTitle" />
+                                <Label text="Danh sách nhà cung cấp" styleClass="sectionTitle" />
 
                                 <TableView fx:id="tblSupplier" prefWidth="900.0" prefHeight="255.0" styleClass="dataTable">
                                     <columns>
-                                        <TableColumn fx:id="colSupplierId" text="Supplier ID" prefWidth="140.0" />
-                                        <TableColumn fx:id="colSupplierName" text="Name" prefWidth="280.0" />
-                                        <TableColumn fx:id="colSupplierPhone" text="Phone" prefWidth="200.0" />
+                                        <TableColumn fx:id="colSupplierId" text="Mã NCC" prefWidth="140.0" />
+                                        <TableColumn fx:id="colSupplierName" text="Tên nhà cung cấp" prefWidth="280.0" />
+                                        <TableColumn fx:id="colSupplierPhone" text="Số điện thoại" prefWidth="200.0" />
                                         <TableColumn fx:id="colSupplierEmail" text="Email" prefWidth="260.0" />
                                     </columns>
                                 </TableView>
@@ -170,35 +171,35 @@
                     </AnchorPane>
                 </Tab>
 
-                <Tab text="Car Brands">
+                <Tab fx:id="tabBrands" text="Hiệu xe">
                     <AnchorPane prefWidth="975.0" prefHeight="610.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="15.0" layoutY="15.0" prefWidth="940.0" prefHeight="185.0" spacing="14.0" styleClass="card">
-                                <Label text="Car Brand Form" styleClass="sectionTitle" />
+                                <Label text="Thông tin hiệu xe" styleClass="sectionTitle" />
 
                                 <GridPane hgap="20.0" vgap="14.0">
-                                    <Label text="Brand ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label text="Mã hiệu xe" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtMaHieuXe" promptText="HX01" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label text="Brand Name" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <Label text="Tên hiệu xe" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtTenHieuXe" promptText="Toyota, Honda..." styleClass="inputField" prefWidth="260.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
                                 </GridPane>
 
                                 <HBox spacing="12.0">
-                                    <Button fx:id="btnAddBrand" text="Add" styleClass="primaryBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnUpdateBrand" text="Update" styleClass="secondaryBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnDeleteBrand" text="Delete" styleClass="dangerBtn" prefWidth="90.0" />
-                                    <Button fx:id="btnClearBrand" text="Clear" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnAddBrand" text="Thêm" styleClass="primaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnUpdateBrand" text="Sửa" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnDeleteBrand" text="Xóa" styleClass="dangerBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnClearBrand" text="Làm mới" styleClass="secondaryBtn" prefWidth="90.0" />
                                 </HBox>
                             </VBox>
 
                             <VBox layoutX="15.0" layoutY="225.0" prefWidth="940.0" prefHeight="365.0" spacing="12.0" styleClass="card">
-                                <Label text="Car Brand List" styleClass="sectionTitle" />
+                                <Label text="Danh sách hiệu xe" styleClass="sectionTitle" />
 
                                 <TableView fx:id="tblBrand" prefWidth="900.0" prefHeight="295.0" styleClass="dataTable">
                                     <columns>
-                                        <TableColumn fx:id="colBrandId" text="Brand ID" prefWidth="200.0" />
-                                        <TableColumn fx:id="colBrandName" text="Brand Name" prefWidth="650.0" />
+                                        <TableColumn fx:id="colBrandId" text="Mã hiệu xe" prefWidth="200.0" />
+                                        <TableColumn fx:id="colBrandName" text="Tên hiệu xe" prefWidth="650.0" />
                                     </columns>
                                 </TableView>
                             </VBox>

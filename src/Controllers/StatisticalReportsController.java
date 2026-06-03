@@ -1,22 +1,14 @@
 package Controllers;
 
-import DAO.BanVatTuDAO;
 import DAO.PhieuThuTienDAO;
-import DAO.SuaChuaXeDAO;
-import DAO.TiepNhanXeDAO;
 import DAO.VatTuPhuTungDAO;
-import MODEL.BanVatTu;
 import MODEL.PhieuThuTien;
-import MODEL.SuaChuaXe;
-import MODEL.TiepNhanXe;
 import MODEL.VatTuPhuTung;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -35,6 +27,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 public class StatisticalReportsController implements Initializable {
+
+    private static final String REPORT_REVENUE = "Báo cáo doanh thu";
+    private static final String REPORT_INVENTORY = "Báo cáo vật tư tồn";
 
     @FXML private Label lblMonthlyRevenue;
     @FXML private Label lblReportRepairOrders;
@@ -61,11 +56,7 @@ public class StatisticalReportsController implements Initializable {
     @FXML private TableColumn<ObservableList<String>, String> colReportNote;
 
     private final PhieuThuTienDAO phieuThuTienDAO = new PhieuThuTienDAO();
-    private final BanVatTuDAO banVatTuDAO = new BanVatTuDAO();
-    private final SuaChuaXeDAO suaChuaXeDAO = new SuaChuaXeDAO();
-    private final TiepNhanXeDAO tiepNhanXeDAO = new TiepNhanXeDAO();
     private final VatTuPhuTungDAO vatTuPhuTungDAO = new VatTuPhuTungDAO();
-
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
@@ -80,44 +71,37 @@ public class StatisticalReportsController implements Initializable {
     }
 
     private void setupComboBoxes() {
-        cbbReportType.getItems().setAll(
-                "Revenue Report",
-                "Repair Report",
-                "Inventory Report",
-                "Vehicle Brand Report"
-        );
+        cbbReportType.getItems().setAll(REPORT_REVENUE, REPORT_INVENTORY);
 
         for (int i = 1; i <= 12; i++) {
             cbbMonth.getItems().add(String.valueOf(i));
         }
 
         int currentYear = LocalDate.now().getYear();
-
-        for (int y = currentYear - 3; y <= currentYear + 1; y++) {
-            cbbYear.getItems().add(String.valueOf(y));
+        for (int year = currentYear - 3; year <= currentYear + 1; year++) {
+            cbbYear.getItems().add(String.valueOf(year));
         }
 
-        cbbReportType.setValue("Revenue Report");
+        cbbReportType.setValue(REPORT_REVENUE);
         cbbMonth.setValue(String.valueOf(LocalDate.now().getMonthValue()));
         cbbYear.setValue(String.valueOf(currentYear));
     }
 
     private void setupTableColumns() {
-        colReportNo.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(0)));
-        colReportName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(1)));
-        colReportQuantity.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(2)));
-        colReportAmount.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(3)));
-        colReportRate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(4)));
-        colReportNote.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(5)));
+        colReportNo.setCellValueFactory(data -> new SimpleStringProperty(getCell(data.getValue(), 0)));
+        colReportName.setCellValueFactory(data -> new SimpleStringProperty(getCell(data.getValue(), 1)));
+        colReportQuantity.setCellValueFactory(data -> new SimpleStringProperty(getCell(data.getValue(), 2)));
+        colReportAmount.setCellValueFactory(data -> new SimpleStringProperty(getCell(data.getValue(), 3)));
+        colReportRate.setCellValueFactory(data -> new SimpleStringProperty(getCell(data.getValue(), 4)));
+        colReportNote.setCellValueFactory(data -> new SimpleStringProperty(getCell(data.getValue(), 5)));
     }
 
     private void setupChart() {
         barReportChart.setTitle("");
         barReportChart.setAnimated(false);
         barReportChart.setLegendVisible(false);
-
-        chartXAxis.setLabel("Item");
-        chartYAxis.setLabel("Value");
+        chartXAxis.setLabel("Nội dung");
+        chartYAxis.setLabel("Giá trị");
     }
 
     private void setupEvents() {
@@ -128,11 +112,13 @@ public class StatisticalReportsController implements Initializable {
 
         btnExportReport.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Export");
+            alert.setTitle("Xuất file");
             alert.setHeaderText(null);
-            alert.setContentText("Chức năng export có thể làm sau. Hiện tại bảng báo cáo và biểu đồ đã load dữ liệu.");
+            alert.setContentText("Chức năng xuất file có thể phát triển sau. Hiện tại bảng và biểu đồ đã tải dữ liệu báo cáo.");
             alert.showAndWait();
         });
+
+        cbbReportType.setOnAction(e -> loadReport());
     }
 
     private void loadSummaryCards() {
@@ -140,72 +126,39 @@ public class StatisticalReportsController implements Initializable {
         int year = Integer.parseInt(cbbYear.getValue());
 
         List<PhieuThuTien> receipts = phieuThuTienDAO.getAll();
-        List<BanVatTu> sales = banVatTuDAO.getAll();
-        List<SuaChuaXe> repairs = suaChuaXeDAO.getAll();
-        List<TiepNhanXe> intakes = tiepNhanXeDAO.getALL();
         List<VatTuPhuTung> parts = vatTuPhuTungDAO.getAll();
 
-        double monthlyRevenue = 0;
-        int monthlyRepairs = 0;
-        int monthlyIntakes = 0;
-        int lowStock = 0;
+        double revenue = 0;
+        int receiptCount = 0;
+        int warningParts = 0;
+        double inventoryValue = 0;
 
-        for (PhieuThuTien pt : receipts) {
-            if (isSameMonth(pt.getNgayThuTien(), month, year)) {
-                monthlyRevenue += pt.getSoTienThu();
+        for (PhieuThuTien receipt : receipts) {
+            if (isSameMonth(receipt.getNgayThuTien(), month, year)) {
+                revenue += receipt.getSoTienThu();
+                receiptCount++;
             }
         }
 
-        for (BanVatTu bvt : sales) {
-            if (isSameMonth(bvt.getNgayBan(), month, year)) {
-                monthlyRevenue += bvt.getTongTien();
+        for (VatTuPhuTung part : parts) {
+            inventoryValue += part.getSoLuongVatTuPhuTung() * part.getDonGiaVatTuPhuTung();
+            if (part.getSoLuongVatTuPhuTung() <= 5) {
+                warningParts++;
             }
         }
 
-        for (SuaChuaXe sc : repairs) {
-            if (isSameMonth(sc.getNgaySuaChua(), month, year)) {
-                monthlyRepairs++;
-            }
-        }
-
-        for (TiepNhanXe tnx : intakes) {
-            if (isSameMonth(tnx.getNgayTiepNhan(), month, year)) {
-                monthlyIntakes++;
-            }
-        }
-
-        for (VatTuPhuTung vt : parts) {
-            if (vt.getSoLuongVatTuPhuTung() <= 5) {
-                lowStock++;
-            }
-        }
-
-        lblMonthlyRevenue.setText(formatMoney(monthlyRevenue));
-        lblReportRepairOrders.setText(String.valueOf(monthlyRepairs));
-        lblReportCarsReceived.setText(String.valueOf(monthlyIntakes));
-        lblLowStockParts.setText(String.valueOf(lowStock));
+        lblMonthlyRevenue.setText(formatMoney(revenue));
+        lblReportRepairOrders.setText(String.valueOf(receiptCount));
+        lblReportCarsReceived.setText(formatMoney(inventoryValue));
+        lblLowStockParts.setText(String.valueOf(warningParts));
     }
 
     private void loadReport() {
         String type = cbbReportType.getValue();
-
-        if (type == null) {
-            type = "Revenue Report";
-        }
-
-        switch (type) {
-            case "Repair Report":
-                loadRepairReport();
-                break;
-            case "Inventory Report":
-                loadInventoryReport();
-                break;
-            case "Vehicle Brand Report":
-                loadVehicleBrandReport();
-                break;
-            default:
-                loadRevenueReport();
-                break;
+        if (REPORT_INVENTORY.equals(type)) {
+            loadInventoryReport();
+        } else {
+            loadRevenueReport();
         }
     }
 
@@ -214,188 +167,101 @@ public class StatisticalReportsController implements Initializable {
         int year = Integer.parseInt(cbbYear.getValue());
 
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
-
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-
         List<PhieuThuTien> receipts = phieuThuTienDAO.getAll();
-        List<BanVatTu> sales = banVatTuDAO.getAll();
 
         int index = 1;
         double total = 0;
 
-        for (PhieuThuTien pt : receipts) {
-            if (isSameMonth(pt.getNgayThuTien(), month, year)) {
-                total += pt.getSoTienThu();
+        for (PhieuThuTien receipt : receipts) {
+            if (isSameMonth(receipt.getNgayThuTien(), month, year)) {
+                total += receipt.getSoTienThu();
 
                 rows.add(row(
                         String.valueOf(index++),
-                        "Repair receipt " + pt.getMaPhieuThuTien(),
+                        "Phiếu thu " + receipt.getMaPhieuThuTien(),
                         "1",
-                        formatMoney(pt.getSoTienThu()),
+                        formatMoney(receipt.getSoTienThu()),
                         "-",
-                        "Intake: " + pt.getMaTiepNhanXe()
+                        "Mã tiếp nhận: " + receipt.getMaTiepNhanXe()
                 ));
 
                 series.getData().add(new XYChart.Data<>(
-                        pt.getMaPhieuThuTien(),
-                        pt.getSoTienThu()
+                        receipt.getMaPhieuThuTien(),
+                        receipt.getSoTienThu()
                 ));
             }
         }
 
-        for (BanVatTu bvt : sales) {
-            if (isSameMonth(bvt.getNgayBan(), month, year)) {
-                total += bvt.getTongTien();
-
-                rows.add(row(
-                        String.valueOf(index++),
-                        "Part sale " + bvt.getMaBanVatTu(),
-                        "1",
-                        formatMoney(bvt.getTongTien()),
-                        "-",
-                        "Customer: " + bvt.getMaKhachHang()
-                ));
-
-                series.getData().add(new XYChart.Data<>(
-                        bvt.getMaBanVatTu(),
-                        bvt.getTongTien()
-                ));
-            }
-        }
-
-        rows.add(row("", "Total Revenue", String.valueOf(index - 1), formatMoney(total), "100%", "Repair + part sales"));
-
+        rows.add(row("", "Tổng doanh thu", String.valueOf(index - 1), formatMoney(total), "100%", "Phiếu thu trong kỳ"));
         tblReports.setItems(rows);
-        updateBarChart("Revenue Report", "Invoice", "Amount", series);
-    }
-
-    private void loadRepairReport() {
-        int month = Integer.parseInt(cbbMonth.getValue());
-        int year = Integer.parseInt(cbbYear.getValue());
-
-        ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-
-        List<SuaChuaXe> repairs = suaChuaXeDAO.getAll();
-
-        int index = 1;
-        double total = 0;
-
-        for (SuaChuaXe sc : repairs) {
-            if (isSameMonth(sc.getNgaySuaChua(), month, year)) {
-                total += sc.getThanhTien();
-
-                rows.add(row(
-                        String.valueOf(index++),
-                        "Repair " + sc.getMaSuaChuaXe(),
-                        "1",
-                        formatMoney(sc.getThanhTien()),
-                        "-",
-                        "Intake: " + sc.getMaTiepNhanXe()
-                ));
-
-                series.getData().add(new XYChart.Data<>(
-                        sc.getMaSuaChuaXe(),
-                        sc.getThanhTien()
-                ));
-            }
-        }
-
-        rows.add(row("", "Total Repair Amount", String.valueOf(index - 1), formatMoney(total), "100%", "Monthly repairs"));
-
-        tblReports.setItems(rows);
-        updateBarChart("Repair Report", "Repair order", "Amount", series);
+        updateBarChart("Báo cáo doanh thu tháng " + month + "/" + year, "Phiếu thu", "Số tiền", series);
     }
 
     private void loadInventoryReport() {
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-
         List<VatTuPhuTung> parts = vatTuPhuTungDAO.getAll();
 
         int index = 1;
         double totalValue = 0;
 
-        for (VatTuPhuTung vt : parts) {
-            double value = vt.getSoLuongVatTuPhuTung() * vt.getDonGiaVatTuPhuTung();
+        for (VatTuPhuTung part : parts) {
+            double value = part.getSoLuongVatTuPhuTung() * part.getDonGiaVatTuPhuTung();
             totalValue += value;
 
-            String note = vt.getSoLuongVatTuPhuTung() <= 5 ? "Low stock" : "OK";
-
             rows.add(row(
                     String.valueOf(index++),
-                    vt.getTenVatTuPhuTung(),
-                    String.valueOf(vt.getSoLuongVatTuPhuTung()),
+                    part.getTenVatTuPhuTung(),
+                    String.valueOf(part.getSoLuongVatTuPhuTung()),
                     formatMoney(value),
                     "-",
-                    note
+                    getInventoryStatus(part)
             ));
 
-            series.getData().add(new XYChart.Data<>(
-                    vt.getMaVatTuPhuTung(),
-                    value
-            ));
+            series.getData().add(new XYChart.Data<>(part.getMaVatTuPhuTung(), value));
         }
 
-        rows.add(row("", "Total Inventory Value", String.valueOf(parts.size()), formatMoney(totalValue), "100%", "Inventory"));
-
+        rows.add(row("", "Tổng giá trị tồn", String.valueOf(parts.size()), formatMoney(totalValue), "100%", "Tồn kho hiện tại"));
         tblReports.setItems(rows);
-        updateBarChart("Inventory Report", "Part", "Stock value", series);
-    }
-
-    private void loadVehicleBrandReport() {
-        ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-
-        List<TiepNhanXe> intakes = tiepNhanXeDAO.getALL();
-
-        Map<String, Integer> countByBrand = new HashMap<>();
-
-        for (TiepNhanXe tnx : intakes) {
-            String brand = tnx.getMaHieuXe();
-            countByBrand.put(brand, countByBrand.getOrDefault(brand, 0) + 1);
-        }
-
-        int index = 1;
-        int total = intakes.size();
-
-        for (String brand : countByBrand.keySet()) {
-            int quantity = countByBrand.get(brand);
-            double rate = total == 0 ? 0 : (quantity * 100.0 / total);
-
-            rows.add(row(
-                    String.valueOf(index++),
-                    brand,
-                    String.valueOf(quantity),
-                    "-",
-                    String.format("%.2f%%", rate),
-                    "Vehicle brand frequency"
-            ));
-
-            series.getData().add(new XYChart.Data<>(brand, quantity));
-        }
-
-        tblReports.setItems(rows);
-        updateBarChart("Vehicle Brand Report", "Brand", "Cars received", series);
+        updateBarChart("Báo cáo vật tư tồn", "Vật tư", "Giá trị tồn", series);
     }
 
     private void updateBarChart(String title, String xLabel, String yLabel, XYChart.Series<String, Number> series) {
         barReportChart.getData().clear();
-
         chartXAxis.setLabel(xLabel);
         chartYAxis.setLabel(yLabel);
-
         barReportChart.setTitle(title);
 
         if (series.getData().isEmpty()) {
-            series.getData().add(new XYChart.Data<>("No data", 0));
+            series.getData().add(new XYChart.Data<>("Không có dữ liệu", 0));
         }
 
         barReportChart.getData().add(series);
     }
 
+    private String getInventoryStatus(VatTuPhuTung part) {
+        if (part.getSoLuongVatTuPhuTung() <= 0) {
+            return "Hết hàng";
+        }
+
+        if (part.getSoLuongVatTuPhuTung() <= 5) {
+            return "Sắp hết";
+        }
+
+        return "Còn hàng";
+    }
+
     private ObservableList<String> row(String no, String name, String quantity, String amount, String rate, String note) {
         return FXCollections.observableArrayList(no, name, quantity, amount, rate, note);
+    }
+
+    private String getCell(ObservableList<String> row, int index) {
+        if (row == null || row.size() <= index || row.get(index) == null) {
+            return "";
+        }
+
+        return row.get(index);
     }
 
     private boolean isSameMonth(java.sql.Date date, int month, int year) {

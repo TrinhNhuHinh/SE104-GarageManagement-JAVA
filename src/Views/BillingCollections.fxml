@@ -25,71 +25,71 @@
 
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
-            <Label text="Billing &amp; Collections" styleClass="pageTitle" />
-            <Label text="Create payment receipts based on repair order total." styleClass="pageSubtitle" />
+            <Label text="Thu tiền" styleClass="pageTitle" />
+            <Label text="Lập phiếu thu dựa trên tổng tiền phiếu sửa chữa." styleClass="pageSubtitle" />
         </VBox>
 
         <HBox layoutX="35.0" layoutY="100.0" spacing="18.0">
             <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Repair Total" styleClass="cardLabel" />
+                <Label text="Tổng tiền sửa chữa" styleClass="cardLabel" />
                 <Label fx:id="lblRepairTotal" text="0đ" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Already Paid" styleClass="cardLabel" />
+                <Label text="Đã thu" styleClass="cardLabel" />
                 <Label fx:id="lblAmountPaid" text="0đ" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="305.0" prefHeight="100.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Remaining" styleClass="cardLabel" />
+                <Label text="Còn lại" styleClass="cardLabel" />
                 <Label fx:id="lblRemainingDebt" text="0đ" styleClass="cardValue" />
             </VBox>
         </HBox>
 
         <VBox layoutX="35.0" layoutY="230.0" prefWidth="975.0" prefHeight="220.0" spacing="14.0" styleClass="card">
-            <Label text="Payment Receipt Form" styleClass="sectionTitle" />
+            <Label text="Phiếu thu tiền" styleClass="sectionTitle" />
 
             <GridPane hgap="18.0" vgap="12.0">
-                <Label text="Receipt ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="Mã phiếu thu" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                 <TextField fx:id="txtMaPhieuThu" promptText="PT06" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Repair ID" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                <ComboBox fx:id="cbbMaSuaChuaXe" promptText="Choose repair order" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                <Label text="Mã sửa chữa" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                <ComboBox fx:id="cbbMaSuaChuaXe" promptText="Chọn phiếu sửa chữa" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                <Label text="Intake ID" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <TextField fx:id="txtMaTiepNhanXe" promptText="Auto fill" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Mã tiếp nhận" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="txtMaTiepNhanXe" promptText="Tự động điền" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Payment Date" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <Label text="Ngày thu" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                 <DatePicker fx:id="dpNgayThuTien" styleClass="datePicker" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                <Label text="Amount" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextField fx:id="txtSoTienThu" promptText="Auto calculated" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Label text="Số tiền thu" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="txtSoTienThu" promptText="Tự động tính" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             </GridPane>
 
             <HBox spacing="12.0">
-                <Button fx:id="btnCreateReceipt" text="Create Receipt" styleClass="primaryBtn" prefWidth="135.0" />
-                <Button fx:id="btnUpdateReceipt" text="Update" styleClass="secondaryBtn" prefWidth="100.0" />
-                <Button fx:id="btnDeleteReceipt" text="Delete" styleClass="dangerBtn" prefWidth="100.0" />
-                <Button fx:id="btnClearReceipt" text="Clear" styleClass="secondaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnCreateReceipt" text="Tạo phiếu thu" styleClass="primaryBtn" prefWidth="135.0" />
+                <Button fx:id="btnUpdateReceipt" text="Cập nhật" styleClass="secondaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnDeleteReceipt" text="Xóa" styleClass="dangerBtn" prefWidth="100.0" />
+                <Button fx:id="btnClearReceipt" text="Làm mới" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
         </VBox>
 
         <VBox layoutX="35.0" layoutY="480.0" prefWidth="975.0" prefHeight="275.0" spacing="12.0" styleClass="card">
             <HBox spacing="12.0">
-                <TextField fx:id="txtSearchReceipt" promptText="Search receipt ID, repair ID, intake ID, license plate..." styleClass="inputField" prefWidth="735.0" />
-                <Button fx:id="btnSearchReceipt" text="Search" styleClass="primaryBtn" prefWidth="100.0" />
-                <Button fx:id="btnRefreshReceipt" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
+                <TextField fx:id="txtSearchReceipt" promptText="Tìm theo phiếu thu, mã sửa chữa, mã tiếp nhận, biển số..." styleClass="inputField" prefWidth="735.0" />
+                <Button fx:id="btnSearchReceipt" text="Tìm kiếm" styleClass="primaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnRefreshReceipt" text="Tải lại" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
 
             <TableView fx:id="tblReceipts" prefWidth="935.0" prefHeight="200.0" styleClass="dataTable">
                 <columns>
-                    <TableColumn fx:id="colMaPhieuThu" text="Receipt ID" prefWidth="115.0" />
-                    <TableColumn fx:id="colMaSuaChuaXe" text="Repair ID" prefWidth="115.0" />
-                    <TableColumn fx:id="colMaTiepNhanXe" text="Intake ID" prefWidth="115.0" />
-                    <TableColumn fx:id="colBienSoXe" text="License Plate" prefWidth="135.0" />
-                    <TableColumn fx:id="colNgayThuTien" text="Date" prefWidth="130.0" />
-                    <TableColumn fx:id="colSoDienThoai" text="Phone" prefWidth="150.0" />
-                    <TableColumn fx:id="colSoTienThu" text="Amount" prefWidth="150.0" />
+                    <TableColumn fx:id="colMaPhieuThu" text="Mã phiếu thu" prefWidth="115.0" />
+                    <TableColumn fx:id="colMaSuaChuaXe" text="Mã sửa chữa" prefWidth="115.0" />
+                    <TableColumn fx:id="colMaTiepNhanXe" text="Mã tiếp nhận" prefWidth="115.0" />
+                    <TableColumn fx:id="colBienSoXe" text="Biển số xe" prefWidth="135.0" />
+                    <TableColumn fx:id="colNgayThuTien" text="Ngày thu" prefWidth="130.0" />
+                    <TableColumn fx:id="colSoDienThoai" text="SĐT" prefWidth="150.0" />
+                    <TableColumn fx:id="colSoTienThu" text="Số tiền" prefWidth="150.0" />
                 </columns>
             </TableView>
         </VBox>

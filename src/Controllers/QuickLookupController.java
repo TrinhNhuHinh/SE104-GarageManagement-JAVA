@@ -25,6 +25,12 @@ import javafx.scene.control.TextField;
 
 public class QuickLookupController implements Initializable {
 
+    private static final String TYPE_ALL = "Tất cả";
+    private static final String TYPE_VEHICLES = "Xe tiếp nhận";
+    private static final String TYPE_CUSTOMERS = "Khách hàng";
+    private static final String TYPE_PARTS = "Vật tư";
+    private static final String TYPE_REPAIRS = "Sửa chữa";
+
     @FXML private ComboBox<String> cbbLookupType;
     @FXML private TextField txtLookupKeyword;
     @FXML private Button btnLookup;
@@ -56,14 +62,14 @@ public class QuickLookupController implements Initializable {
 
     private void setupComboBox() {
         cbbLookupType.getItems().setAll(
-                "All",
-                "Vehicles",
-                "Customers",
-                "Parts",
-                "Repairs"
+                TYPE_ALL,
+                TYPE_VEHICLES,
+                TYPE_CUSTOMERS,
+                TYPE_PARTS,
+                TYPE_REPAIRS
         );
 
-        cbbLookupType.setValue("All");
+        cbbLookupType.setValue(TYPE_ALL);
     }
 
     private void setupTableColumns() {
@@ -78,7 +84,7 @@ public class QuickLookupController implements Initializable {
         btnLookup.setOnAction(e -> handleLookup());
 
         btnResetLookup.setOnAction(e -> {
-            cbbLookupType.setValue("All");
+            cbbLookupType.setValue(TYPE_ALL);
             txtLookupKeyword.clear();
             handleLookup();
         });
@@ -94,7 +100,7 @@ public class QuickLookupController implements Initializable {
         int partCount = 0;
         int repairCount = 0;
 
-        if (type == null || type.equals("All") || type.equals("Vehicles")) {
+        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_VEHICLES)) {
             List<TiepNhanXe> vehicles = tiepNhanXeDAO.getALL();
 
             for (TiepNhanXe tnx : vehicles) {
@@ -107,11 +113,11 @@ public class QuickLookupController implements Initializable {
 
                 if (keyword.isEmpty() || text.contains(keyword)) {
                     rows.add(row(
-                            "Vehicle",
+                            "Xe",
                             tnx.getMaTiepNhanXe(),
                             tnx.getBienSoXe(),
-                            "Customer: " + tnx.getMaKhachHang() + " | Brand: " + tnx.getMaHieuXe() + " | Debt: " + tnx.getTienNo(),
-                            "Active"
+                            "Khách hàng: " + tnx.getMaKhachHang() + " | Hiệu xe: " + tnx.getMaHieuXe() + " | Tiền nợ: " + tnx.getTienNo(),
+                            tnx.getTienNo() > 0 ? "Còn nợ" : "Đã tất toán"
                     ));
 
                     vehicleCount++;
@@ -119,7 +125,7 @@ public class QuickLookupController implements Initializable {
             }
         }
 
-        if (type == null || type.equals("All") || type.equals("Customers")) {
+        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_CUSTOMERS)) {
             List<KhachHang> customers = khachHangDAO.getAll();
 
             for (KhachHang kh : customers) {
@@ -132,17 +138,17 @@ public class QuickLookupController implements Initializable {
 
                 if (keyword.isEmpty() || text.contains(keyword)) {
                     rows.add(row(
-                            "Customer",
+                            "Khách hàng",
                             kh.getMaKhachHang(),
                             kh.getTenKhachHang(),
-                            "Phone: " + kh.getSoDienThoaiKhachHang() + " | Address: " + kh.getDiaChiKhachHang(),
-                            "Active"
+                            "SĐT: " + kh.getSoDienThoaiKhachHang() + " | Địa chỉ: " + kh.getDiaChiKhachHang(),
+                            "Đang lưu"
                     ));
                 }
             }
         }
 
-        if (type == null || type.equals("All") || type.equals("Parts")) {
+        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_PARTS)) {
             List<VatTuPhuTung> parts = vatTuPhuTungDAO.getAll();
 
             for (VatTuPhuTung vt : parts) {
@@ -153,13 +159,20 @@ public class QuickLookupController implements Initializable {
                 ).toLowerCase();
 
                 if (keyword.isEmpty() || text.contains(keyword)) {
-                    String status = vt.getSoLuongVatTuPhuTung() <= 5 ? "Low stock" : "Available";
+                    String status;
+                    if (vt.getSoLuongVatTuPhuTung() <= 0) {
+                        status = "Hết hàng";
+                    } else if (vt.getSoLuongVatTuPhuTung() <= 5) {
+                        status = "Sắp hết";
+                    } else {
+                        status = "Còn hàng";
+                    }
 
                     rows.add(row(
-                            "Part",
+                            "Vật tư",
                             vt.getMaVatTuPhuTung(),
                             vt.getTenVatTuPhuTung(),
-                            "Qty: " + vt.getSoLuongVatTuPhuTung() + " | Unit: " + vt.getDonViTinh() + " | Price: " + vt.getDonGiaVatTuPhuTung(),
+                            "SL: " + vt.getSoLuongVatTuPhuTung() + " | ĐVT: " + vt.getDonViTinh() + " | Đơn giá: " + vt.getDonGiaVatTuPhuTung(),
                             status
                     ));
 
@@ -168,7 +181,7 @@ public class QuickLookupController implements Initializable {
             }
         }
 
-        if (type == null || type.equals("All") || type.equals("Repairs")) {
+        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_REPAIRS)) {
             List<SuaChuaXe> repairs = suaChuaXeService.getAll();
 
             for (SuaChuaXe sc : repairs) {
@@ -184,11 +197,11 @@ public class QuickLookupController implements Initializable {
 
                 if (keyword.isEmpty() || text.contains(keyword)) {
                     rows.add(row(
-                            "Repair",
+                            "Sửa chữa",
                             sc.getMaSuaChuaXe(),
                             bienSo,
-                            "Intake: " + sc.getMaTiepNhanXe() + " | " + noiDung + " | Total: " + sc.getThanhTien(),
-                            "Completed"
+                            "Mã tiếp nhận: " + sc.getMaTiepNhanXe() + " | " + noiDung + " | Thành tiền: " + sc.getThanhTien(),
+                            sc.getThanhTien() > 0 ? "Chờ thu tiền" : "Chưa tính tiền"
                     ));
 
                     repairCount++;

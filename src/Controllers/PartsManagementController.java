@@ -255,11 +255,11 @@ public class PartsManagementController implements Initializable {
         boolean result = vatTuService.add(vt);
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm vật tư thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "ThÃ nh cÃ´ng", "ThÃªm váº­t tÆ° thÃ nh cÃ´ng!");
             refreshAll();
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Mã vật tư có thể đã tồn tại hoặc dữ liệu không hợp lệ!");
+            showAlert(Alert.AlertType.ERROR, "Lá»—i", "KhÃ´ng thá»ƒ thÃªm. MÃ£ váº­t tÆ° cÃ³ thá»ƒ Ä‘Ã£ tá»“n táº¡i hoáº·c dá»¯ liá»‡u khÃ´ng há»£p lá»‡!");
         }
     }
 
@@ -267,7 +267,7 @@ public class PartsManagementController implements Initializable {
         VatTuPhuTung selected = tblParts.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn vật tư cần sửa!");
+            showAlert(Alert.AlertType.WARNING, "Cáº£nh bÃ¡o", "Vui lÃ²ng chá»n váº­t tÆ° cáº§n sá»­a!");
             return;
         }
 
@@ -280,11 +280,11 @@ public class PartsManagementController implements Initializable {
         boolean result = vatTuService.update(vt);
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật vật tư thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "ThÃ nh cÃ´ng", "Cáº­p nháº­t váº­t tÆ° thÃ nh cÃ´ng!");
             refreshAll();
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật vật tư!");
+            showAlert(Alert.AlertType.ERROR, "Lá»—i", "KhÃ´ng thá»ƒ cáº­p nháº­t váº­t tÆ°!");
         }
     }
 
@@ -292,14 +292,14 @@ public class PartsManagementController implements Initializable {
         VatTuPhuTung selected = tblParts.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn vật tư cần xóa!");
+            showAlert(Alert.AlertType.WARNING, "Cáº£nh bÃ¡o", "Vui lÃ²ng chá»n váº­t tÆ° cáº§n xÃ³a!");
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Xác nhận xóa");
+        confirm.setTitle("XÃ¡c nháº­n xÃ³a");
         confirm.setHeaderText(null);
-        confirm.setContentText("Bạn có chắc muốn xóa vật tư: " + selected.getMaVatTuPhuTung() + "?");
+        confirm.setContentText("Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a váº­t tÆ°: " + selected.getMaVatTuPhuTung() + "?");
 
         Optional<ButtonType> option = confirm.showAndWait();
 
@@ -307,11 +307,11 @@ public class PartsManagementController implements Initializable {
             boolean result = vatTuService.delete(selected.getMaVatTuPhuTung());
 
             if (result) {
-                showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa vật tư thành công!");
+                showAlert(Alert.AlertType.INFORMATION, "ThÃ nh cÃ´ng", "XÃ³a váº­t tÆ° thÃ nh cÃ´ng!");
                 refreshAll();
                 clearForm();
             } else {
-                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Vật tư có thể đang được dùng trong sửa chữa, nhập hoặc bán!");
+                showAlert(Alert.AlertType.ERROR, "Lá»—i", "KhÃ´ng thá»ƒ xÃ³a. Váº­t tÆ° cÃ³ thá»ƒ Ä‘ang Ä‘Æ°á»£c dÃ¹ng trong sá»­a chá»¯a, nháº­p hoáº·c bÃ¡n!");
             }
         }
     }
@@ -322,9 +322,9 @@ public class PartsManagementController implements Initializable {
     }
 
     private void handleCreateImport() {
-        Date ngayNhap = getSqlDate(dpNgayNhap, "Ngày nhập không được rỗng!");
-        Integer soLuong = getPositiveInteger(txtImportSoLuong, "Số lượng nhập phải là số nguyên lớn hơn 0!");
-        Double donGia = getNonNegativeDouble(txtImportDonGia, "Đơn giá nhập phải là số!");
+        Date ngayNhap = getSqlDate(dpNgayNhap, "NgÃ y nháº­p khÃ´ng Ä‘Æ°á»£c rá»—ng!");
+        Integer soLuong = getPositiveInteger(txtImportSoLuong, "Sá»‘ lÆ°á»£ng nháº­p pháº£i lÃ  sá»‘ nguyÃªn lá»›n hÆ¡n 0!");
+        Double donGia = getNonNegativeDouble(txtImportDonGia, "ÄÆ¡n giÃ¡ nháº­p pháº£i lÃ  sá»‘!");
 
         if (ngayNhap == null || soLuong == null || donGia == null) {
             return;
@@ -340,18 +340,18 @@ public class PartsManagementController implements Initializable {
         );
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo phiếu nhập vật tư thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "ThÃ nh cÃ´ng", "Táº¡o phiáº¿u nháº­p váº­t tÆ° thÃ nh cÃ´ng!");
             refreshAll();
             clearImportForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập. Kiểm tra mã phiếu, nhà cung cấp, vật tư hoặc dữ liệu nhập!");
+            showAlert(Alert.AlertType.ERROR, "Lá»—i", "KhÃ´ng thá»ƒ táº¡o phiáº¿u nháº­p. Kiá»ƒm tra mÃ£ phiáº¿u, nhÃ  cung cáº¥p, váº­t tÆ° hoáº·c dá»¯ liá»‡u nháº­p!");
         }
     }
 
     private void handleCreateSale() {
-        Date ngayBan = getSqlDate(dpNgayBan, "Ngày bán không được rỗng!");
-        Integer soLuong = getPositiveInteger(txtSaleSoLuong, "Số lượng bán phải là số nguyên lớn hơn 0!");
-        Double donGia = getNonNegativeDouble(txtSaleDonGia, "Đơn giá bán phải là số!");
+        Date ngayBan = getSqlDate(dpNgayBan, "NgÃ y bÃ¡n khÃ´ng Ä‘Æ°á»£c rá»—ng!");
+        Integer soLuong = getPositiveInteger(txtSaleSoLuong, "Sá»‘ lÆ°á»£ng bÃ¡n pháº£i lÃ  sá»‘ nguyÃªn lá»›n hÆ¡n 0!");
+        Double donGia = getNonNegativeDouble(txtSaleDonGia, "ÄÆ¡n giÃ¡ bÃ¡n pháº£i lÃ  sá»‘!");
 
         if (ngayBan == null || soLuong == null || donGia == null) {
             return;
@@ -367,11 +367,11 @@ public class PartsManagementController implements Initializable {
         );
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hóa đơn bán vật tư thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "ThÃ nh cÃ´ng", "Táº¡o hÃ³a Ä‘Æ¡n bÃ¡n váº­t tÆ° thÃ nh cÃ´ng!");
             refreshAll();
             clearSaleForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán. Kiểm tra mã hóa đơn, khách hàng, tồn kho hoặc dữ liệu nhập!");
+            showAlert(Alert.AlertType.ERROR, "Lá»—i", "KhÃ´ng thá»ƒ táº¡o hÃ³a Ä‘Æ¡n bÃ¡n. Kiá»ƒm tra mÃ£ hÃ³a Ä‘Æ¡n, khÃ¡ch hÃ ng, tá»“n kho hoáº·c dá»¯ liá»‡u nháº­p!");
         }
     }
 
@@ -381,22 +381,22 @@ public class PartsManagementController implements Initializable {
         String donViTinh = cbbDonViTinh.getValue();
 
         if (maVatTu.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã vật tư không được rỗng!");
+            showAlert(Alert.AlertType.WARNING, "Thiáº¿u dá»¯ liá»‡u", "MÃ£ váº­t tÆ° khÃ´ng Ä‘Æ°á»£c rá»—ng!");
             return null;
         }
 
         if (tenVatTu.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Tên vật tư không được rỗng!");
+            showAlert(Alert.AlertType.WARNING, "Thiáº¿u dá»¯ liá»‡u", "TÃªn váº­t tÆ° khÃ´ng Ä‘Æ°á»£c rá»—ng!");
             return null;
         }
 
         if (donViTinh == null || donViTinh.trim().isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Vui lòng chọn đơn vị tính!");
+            showAlert(Alert.AlertType.WARNING, "Thiáº¿u dá»¯ liá»‡u", "Vui lÃ²ng chá»n Ä‘Æ¡n vá»‹ tÃ­nh!");
             return null;
         }
 
-        Integer soLuong = getNonNegativeInteger(txtSoLuongTon, "Số lượng tồn phải là số nguyên không âm!");
-        Double donGia = getNonNegativeDouble(txtGiaNhap, "Đơn giá phải là số không âm!");
+        Integer soLuong = getNonNegativeInteger(txtSoLuongTon, "Sá»‘ lÆ°á»£ng tá»“n pháº£i lÃ  sá»‘ nguyÃªn khÃ´ng Ã¢m!");
+        Double donGia = getNonNegativeDouble(txtGiaNhap, "ÄÆ¡n giÃ¡ pháº£i lÃ  sá»‘ khÃ´ng Ã¢m!");
 
         if (soLuong == null || donGia == null) {
             return null;
@@ -512,7 +512,7 @@ public class PartsManagementController implements Initializable {
         LocalDate localDate = picker.getValue();
 
         if (localDate == null) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", message);
+            showAlert(Alert.AlertType.WARNING, "Thiáº¿u dá»¯ liá»‡u", message);
             return null;
         }
 
@@ -524,14 +524,14 @@ public class PartsManagementController implements Initializable {
             int value = Integer.parseInt(field.getText().trim());
 
             if (value <= 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+                showAlert(Alert.AlertType.WARNING, "Sai dá»¯ liá»‡u", message);
                 return null;
             }
 
             return value;
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+            showAlert(Alert.AlertType.WARNING, "Sai dá»¯ liá»‡u", message);
             return null;
         }
     }
@@ -541,14 +541,14 @@ public class PartsManagementController implements Initializable {
             int value = Integer.parseInt(field.getText().trim());
 
             if (value < 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+                showAlert(Alert.AlertType.WARNING, "Sai dá»¯ liá»‡u", message);
                 return null;
             }
 
             return value;
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+            showAlert(Alert.AlertType.WARNING, "Sai dá»¯ liá»‡u", message);
             return null;
         }
     }
@@ -558,14 +558,14 @@ public class PartsManagementController implements Initializable {
             double value = Double.parseDouble(field.getText().trim());
 
             if (value < 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+                showAlert(Alert.AlertType.WARNING, "Sai dá»¯ liá»‡u", message);
                 return null;
             }
 
             return value;
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
+            showAlert(Alert.AlertType.WARNING, "Sai dá»¯ liá»‡u", message);
             return null;
         }
     }

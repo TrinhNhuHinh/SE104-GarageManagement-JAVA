@@ -14,16 +14,16 @@
         <URL value="@../Assets/css/loginmodal.css" />
     </stylesheets>
    <children>
-      <Label alignment="CENTER" layoutX="137.0" layoutY="34.0" prefHeight="42.0" prefWidth="126.0" styleClass="titleLabel" text="Đăng Nhập" />
+      <Label alignment="CENTER" layoutX="120.0" layoutY="34.0" prefHeight="42.0" prefWidth="160.0" styleClass="titleLabel" text="Đăng nhập" />
       <Pane layoutX="37.0" layoutY="93.0" prefHeight="359.0" prefWidth="327.0" styleClass="bodyPane">
          <children>
-            <Label layoutX="46.0" layoutY="38.0" prefHeight="17.0" prefWidth="66.0" styleClass="userNameLabel" text="Tài khoản" />
-            <TextField fx:id="txtUsername" layoutX="45.0" layoutY="67.0" prefHeight="42.0" prefWidth="235.0" promptText="Your Username..." styleClass="txtUsername" />
+            <Label layoutX="46.0" layoutY="38.0" prefHeight="17.0" prefWidth="90.0" styleClass="userNameLabel" text="Tài khoản" />
+            <TextField fx:id="txtUsername" layoutX="45.0" layoutY="67.0" prefHeight="42.0" prefWidth="235.0" promptText="Nhập tài khoản" styleClass="txtUsername" />
             <Label layoutX="45.0" layoutY="132.0" styleClass="passwordLabel" text="Mật khẩu" />
-            <PasswordField fx:id="txtPassword" layoutX="46.0" layoutY="159.0" prefHeight="42.0" prefWidth="235.0" promptText="***************" styleClass="txtPassword" />
-            <CheckBox layoutX="46.0" layoutY="224.0" mnemonicParsing="false" styleClass="rememberCB" text="Remember me" />
-            <Label id="regisLabel" fx:id="regisBtnLoginModal" layoutX="197.0" layoutY="224.0" onMouseClicked="#switchToRegister" styleClass="regisLabel" text="Tạo toàn khoản" />
-            <Button fx:id="loginBtn" layoutX="89.0" layoutY="273.0" mnemonicParsing="false" onAction="#btnLoginAction" prefHeight="42.0" prefWidth="147.0" styleClass="loginBtn" text="Đăng nhập" />
+            <PasswordField fx:id="txtPassword" layoutX="46.0" layoutY="159.0" prefHeight="42.0" prefWidth="235.0" promptText="Nhập mật khẩu" styleClass="txtPassword" />
+            <CheckBox layoutX="46.0" layoutY="224.0" mnemonicParsing="false" styleClass="rememberCB" text="Ghi nhớ đăng nhập" />
+            <Label layoutX="46.0" layoutY="250.0" prefHeight="18.0" prefWidth="240.0" styleClass="regisLabel" text="Dùng admin/staff với mật khẩu 123456" />
+            <Button fx:id="loginBtn" layoutX="89.0" layoutY="288.0" mnemonicParsing="false" onAction="#btnLoginAction" prefHeight="42.0" prefWidth="147.0" styleClass="loginBtn" text="Đăng nhập" />
          </children>
       </Pane>
    </children>

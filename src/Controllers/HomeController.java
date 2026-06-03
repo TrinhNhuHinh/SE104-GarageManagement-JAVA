@@ -1,11 +1,13 @@
 package Controllers;
 
+import Service.AuthorizationService;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
@@ -28,6 +30,7 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        applyRolePermissions();
         loadPage("Dashboard.fxml");
 
         logoIcon.setOnMouseClicked(e -> {
@@ -77,6 +80,11 @@ public class HomeController implements Initializable {
     }
 
     private void loadPage(String fxmlFile) {
+        if (!AuthorizationService.canAccessPage(fxmlFile)) {
+            showAccessDenied();
+            return;
+        }
+
         try {
             Parent page = FXMLLoader.load(getClass().getResource("/Views/" + fxmlFile));
 
@@ -90,6 +98,31 @@ public class HomeController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void applyRolePermissions() {
+        boolean admin = AuthorizationService.isAdmin();
+
+        setButtonVisible(btnReports, admin);
+        setButtonVisible(btnParts, admin);
+        setButtonVisible(btnRegulations, admin);
+    }
+
+    private void setButtonVisible(Button button, boolean visible) {
+        if (button == null) {
+            return;
+        }
+
+        button.setVisible(visible);
+        button.setManaged(visible);
+    }
+
+    private void showAccessDenied() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Không có quyền truy cập");
+        alert.setHeaderText(null);
+        alert.setContentText("Tài khoản hiện tại không có quyền mở chức năng này.");
+        alert.showAndWait();
     }
 
     private void setActive(Button clicked) {

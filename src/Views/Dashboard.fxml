@@ -20,55 +20,56 @@
 
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
-            <Label text="Dashboard" styleClass="pageTitle" />
-            <Label text="Overview of garage performance and recent activities." styleClass="pageSubtitle" />
+            <Label text="Tổng quan" styleClass="pageTitle" />
+            <Label text="Theo dõi hoạt động, doanh thu và trạng thái gần đây của gara." styleClass="pageSubtitle" />
         </VBox>
 
         <HBox layoutX="35.0" layoutY="105.0" spacing="18.0">
             <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
-                <Label text="Customers" styleClass="cardLabel" />
+                <Label text="Khách hàng" styleClass="cardLabel" />
                 <Label fx:id="lblTotalCustomers" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
-                <Label text="Cars Received" styleClass="cardLabel" />
+                <Label text="Xe tiếp nhận" styleClass="cardLabel" />
                 <Label fx:id="lblCarsReceived" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
-                <Label text="Repair Orders" styleClass="cardLabel" />
+                <Label text="Phiếu sửa chữa" styleClass="cardLabel" />
                 <Label fx:id="lblRepairOrders" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="115.0" spacing="10.0" styleClass="smallCard">
-                <Label text="Revenue" styleClass="cardLabel" />
+                <Label text="Doanh thu" styleClass="cardLabel" />
                 <Label fx:id="lblRevenue" text="0đ" styleClass="cardValue" />
             </VBox>
         </HBox>
 
         <VBox layoutX="35.0" layoutY="250.0" prefWidth="455.0" prefHeight="215.0" spacing="12.0" styleClass="card">
-            <Label fx:id="lblTodayVehicles" text="Total vehicles received: 0" styleClass="summaryText" />
-            <Label fx:id="lblTodayRepairs" text="Total repair orders: 0" styleClass="summaryText" />
-            <Label fx:id="lblTodayReceipts" text="Total receipts: 0" styleClass="summaryText" />
-            <Label fx:id="lblLowStockParts" text="Low stock parts: 0" styleClass="summaryText" />
+            <Label fx:id="lblTodayVehicles" text="Tổng xe đã tiếp nhận: 0" styleClass="summaryText" />
+            <Label fx:id="lblTodayRepairs" text="Tổng phiếu sửa chữa: 0" styleClass="summaryText" />
+            <Label fx:id="lblTodayReceipts" text="Tổng phiếu thu: 0" styleClass="summaryText" />
+            <Label fx:id="lblLowStockParts" text="Vật tư sắp hết: 0" styleClass="summaryText" />
         </VBox>
 
         <VBox layoutX="515.0" layoutY="250.0" prefWidth="495.0" prefHeight="215.0" spacing="12.0" styleClass="card">
-            <Label text="Quick Status" styleClass="sectionTitle" />
-            <Label text="System ready" styleClass="statusGood" />
-            <Label text="Database connection will be checked after backend is connected." styleClass="noteText" />
-            <Label text="Use sidebar to manage intake service, repairs, billing and parts." styleClass="noteText" />
+            <Label text="Trạng thái nhanh" styleClass="sectionTitle" />
+            <Label fx:id="lblSystemStatus" text="Trạng thái hệ thống: -" styleClass="statusGood" />
+            <Label fx:id="lblDebtStatus" text="Công nợ còn lại: 0" styleClass="noteText" />
+            <Label fx:id="lblInventoryStatus" text="Trạng thái tồn kho: -" styleClass="noteText" />
+            <Label fx:id="lblRoleStatus" text="Vai trò hiện tại: -" styleClass="noteText" />
         </VBox>
 
         <VBox layoutX="35.0" layoutY="495.0" prefWidth="975.0" prefHeight="260.0" spacing="12.0" styleClass="card">
-            <Label text="Recent Activities" styleClass="sectionTitle" />
+            <Label text="Hoạt động gần đây" styleClass="sectionTitle" />
 
             <TableView fx:id="tblRecentActivities" prefWidth="935.0" prefHeight="195.0" styleClass="dataTable">
                 <columns>
-                    <TableColumn fx:id="colActivityTime" text="Time" prefWidth="150.0" />
-                    <TableColumn fx:id="colActivityType" text="Type" prefWidth="180.0" />
-                    <TableColumn fx:id="colActivityContent" text="Content" prefWidth="420.0" />
-                    <TableColumn fx:id="colActivityStatus" text="Status" prefWidth="180.0" />
+                    <TableColumn fx:id="colActivityTime" text="Thời gian" prefWidth="150.0" />
+                    <TableColumn fx:id="colActivityType" text="Loại" prefWidth="180.0" />
+                    <TableColumn fx:id="colActivityContent" text="Nội dung" prefWidth="420.0" />
+                    <TableColumn fx:id="colActivityStatus" text="Trạng thái" prefWidth="180.0" />
                 </columns>
             </TableView>
         </VBox>

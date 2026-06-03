@@ -21,31 +21,31 @@
 
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
-            <Label text="Garage Regulations" styleClass="pageTitle" />
-            <Label text="Change garage business rules according to QĐ1, QĐ2 and QĐ6." styleClass="pageSubtitle" />
+            <Label text="Quy định gara" styleClass="pageTitle" />
+            <Label text="Thay đổi các quy định hoạt động của gara." styleClass="pageSubtitle" />
         </VBox>
 
         <VBox layoutX="35.0" layoutY="110.0" prefWidth="975.0" prefHeight="330.0" spacing="18.0" styleClass="card">
-            <Label text="Regulation Settings" styleClass="sectionTitle" />
+            <Label text="Thiết lập quy định" styleClass="sectionTitle" />
 
             <GridPane hgap="22.0" vgap="16.0">
-                <Label text="Max cars received per day" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="Số xe tối đa mỗi ngày" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                 <TextField fx:id="txtMaxCarsPerDay" promptText="30" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Max car brands" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Số hiệu xe tối đa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                 <TextField fx:id="txtMaxBrands" promptText="10" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Max part types" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label text="Số loại vật tư tối đa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <TextField fx:id="txtMaxParts" promptText="200" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label text="Max labor types" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label text="Số loại tiền công tối đa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                 <TextField fx:id="txtMaxLabors" promptText="100" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             </GridPane>
 
             <HBox spacing="12.0">
-                <Button fx:id="btnUpdateRegulations" text="Update Regulations" styleClass="primaryBtn" prefWidth="165.0" />
-                <Button fx:id="btnResetRegulations" text="Reset Default" styleClass="secondaryBtn" prefWidth="130.0" />
-                <Button fx:id="btnRefreshRegulations" text="Refresh" styleClass="secondaryBtn" prefWidth="100.0" />
+                <Button fx:id="btnUpdateRegulations" text="Cập nhật quy định" styleClass="primaryBtn" prefWidth="165.0" />
+                <Button fx:id="btnResetRegulations" text="Về mặc định" styleClass="secondaryBtn" prefWidth="130.0" />
+                <Button fx:id="btnRefreshRegulations" text="Tải lại" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
         </VBox>
     </children>

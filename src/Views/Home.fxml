@@ -19,14 +19,14 @@
                   <Region fx:id="logoIcon" layoutX="27.0" layoutY="32.0" prefHeight="178.0" prefWidth="182.0" styleClass="logoIcon" />
                   <VBox layoutX="26.0" layoutY="217.0" prefHeight="406.0" prefWidth="182.0" styleClass="asideVbox">
                      <children>
-                        <Button fx:id="btnIntake" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Intake Service" />
-                        <Button fx:id="btnRepairOrders" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Repair Orders" />
-                        <Button fx:id="btnBilling" layoutX="10.0" layoutY="64.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Billing &amp; Collections" />
-                        <Button fx:id="btnQuickLookup" layoutX="10.0" layoutY="119.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Quick Lookup" />
-                        <Button fx:id="btnReports" layoutX="10.0" layoutY="173.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Statistical Reports" />
-                        <Button fx:id="btnParts" layoutX="10.0" layoutY="228.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Parts Management" />
-                        <Button fx:id="btnSettings" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Setting" />
-                        <Button fx:id="btnRegulations" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Regulations" />
+                        <Button fx:id="btnIntake" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Tiếp nhận xe" />
+                        <Button fx:id="btnRepairOrders" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Phiếu sửa chữa" />
+                        <Button fx:id="btnBilling" layoutX="10.0" layoutY="64.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Thu tiền" />
+                        <Button fx:id="btnQuickLookup" layoutX="10.0" layoutY="119.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Tra cứu nhanh" />
+                        <Button fx:id="btnReports" layoutX="10.0" layoutY="173.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Báo cáo thống kê" />
+                        <Button fx:id="btnParts" layoutX="10.0" layoutY="228.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Quản lý vật tư" />
+                        <Button fx:id="btnSettings" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Cài đặt" />
+                        <Button fx:id="btnRegulations" layoutX="10.0" layoutY="282.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="183.0" text="Quy định" />
                      </children></VBox>
                </children></AnchorPane>
          </left>

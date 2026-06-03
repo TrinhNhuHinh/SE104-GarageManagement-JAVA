@@ -9,36 +9,50 @@ import java.sql.SQLException;
  * @author hinh
  */
 public class DBConnection {
-    // Thông tin kết nối
-    private static final String SERVER = "localhost";
-    private static final String PORT = "1433";
-    private static final String DATABASE = "Garage";
-    private static final String USERNAME = "sa";
-    private static final String PASSWORD = "123456"; // password của sa
+    // Connection settings. Defaults keep the old local setup, GARAGE_DB_* can override them.
+    private static final String SERVER = getConfig("GARAGE_DB_SERVER", "localhost");
+    private static final String PORT = getConfig("GARAGE_DB_PORT", "1433");
+    private static final String DATABASE = getConfig("GARAGE_DB_NAME", "Garage");
+    private static final String USERNAME = getConfig("GARAGE_DB_USER", "sa");
+    private static final String PASSWORD = getConfig("GARAGE_DB_PASSWORD", "123456");
     
-    // URL kết nối SQL Server
+    // SQL Server connection URL.
     private static final String URL = 
         "jdbc:sqlserver://" + SERVER + ":" + PORT 
         + ";databaseName=" + DATABASE 
         + ";encrypt=true;trustServerCertificate=true";
     
-    // Hàm lấy kết nối tới database, mọi DAO đều gọi hàm này
+    // All DAOs use this method to open a database connection.
     public static Connection getConnection() {
         Connection conn = null;
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
         } catch (ClassNotFoundException e) {
-            System.err.println("Không tìm thấy JDBC Driver!");
+            System.err.println("JDBC Driver not found!");
             e.printStackTrace();
         } catch (SQLException e) {
-            System.err.println("Kết nối thất bại!");
+            System.err.println("Database connection failed!");
             e.printStackTrace();
         }
         return conn;
     }
+
+    private static String getConfig(String key, String defaultValue) {
+        String systemValue = System.getProperty(key);
+        if (systemValue != null && !systemValue.trim().isEmpty()) {
+            return systemValue.trim();
+        }
+
+        String envValue = System.getenv(key);
+        if (envValue != null && !envValue.trim().isEmpty()) {
+            return envValue.trim();
+        }
+
+        return defaultValue;
+    }
     
-    // Hàm test
+    // Quick connection test.
     public static void main(String[] args) {
         Connection conn = getConnection();
         if (conn != null) {
