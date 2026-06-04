@@ -30,6 +30,7 @@ public class HomeController implements Initializable {
 
     private Button currentActive = null;
     private final Map<String, Parent> pageCache = new HashMap<>();
+    private final Map<String, Object> controllerCache = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -90,9 +91,11 @@ public class HomeController implements Initializable {
 
         try {
             Parent page = pageCache.get(fxmlFile);
+            boolean cached = page != null;
 
             if (page == null) {
-                page = FXMLLoader.load(getClass().getResource("/Views/" + fxmlFile));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/" + fxmlFile));
+                page = loader.load();
 
                 AnchorPane.setTopAnchor(page, 0.0);
                 AnchorPane.setBottomAnchor(page, 0.0);
@@ -100,11 +103,24 @@ public class HomeController implements Initializable {
                 AnchorPane.setRightAnchor(page, 0.0);
 
                 pageCache.put(fxmlFile, page);
+                controllerCache.put(fxmlFile, loader.getController());
+            }
+
+            if (cached) {
+                refreshPage(fxmlFile);
             }
 
             mainContent.getChildren().setAll(page);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void refreshPage(String fxmlFile) {
+        Object controller = controllerCache.get(fxmlFile);
+
+        if (controller instanceof Refreshable refreshable) {
+            refreshable.refreshData();
         }
     }
 

@@ -8,8 +8,10 @@ import java.net.URL;
 import java.sql.Date;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,7 +30,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class PartsManagementController implements Initializable {
+public class PartsManagementController implements Initializable, Refreshable {
 
     @FXML private Label lblTotalParts;
     @FXML private Label lblLowStock;
@@ -96,6 +98,10 @@ public class PartsManagementController implements Initializable {
     @FXML private TableColumn<ChiTietBanVatTu, String> colSaleTotal;
 
     private final VatTuPhuTungService vatTuService = new VatTuPhuTungService();
+    private final Map<String, String> importSupplierById = new HashMap<>();
+    private final Map<String, String> importDateById = new HashMap<>();
+    private final Map<String, String> saleCustomerById = new HashMap<>();
+    private final Map<String, String> saleDateById = new HashMap<>();
 
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -104,8 +110,14 @@ public class PartsManagementController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         setupComboBoxes();
         setupTableColumns();
-        loadAllData();
+        refreshData();
         setupEvents();
+        updateTotalLabels();
+    }
+
+    @Override
+    public void refreshData() {
+        loadAllData();
         updateTotalLabels();
     }
 
@@ -143,9 +155,13 @@ public class PartsManagementController implements Initializable {
         colImportPartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
         colImportQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
 
-        // Avoid database calls while rendering each TableView cell.
-        colImportSupplier.setCellValueFactory(cellData -> new SimpleStringProperty(""));
-        colImportDate.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colImportSupplier.setCellValueFactory(cellData ->
+                new SimpleStringProperty(importSupplierById.getOrDefault(cellData.getValue().getMaNhapVatTu(), ""))
+        );
+
+        colImportDate.setCellValueFactory(cellData ->
+                new SimpleStringProperty(importDateById.getOrDefault(cellData.getValue().getMaNhapVatTu(), ""))
+        );
 
         colImportUnitPrice.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getDonGia()))
@@ -159,9 +175,13 @@ public class PartsManagementController implements Initializable {
         colSalePartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
         colSaleQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
 
-        // Avoid database calls while rendering each TableView cell.
-        colSaleCustomer.setCellValueFactory(cellData -> new SimpleStringProperty(""));
-        colSaleDate.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colSaleCustomer.setCellValueFactory(cellData ->
+                new SimpleStringProperty(saleCustomerById.getOrDefault(cellData.getValue().getMaBanVatTu(), ""))
+        );
+
+        colSaleDate.setCellValueFactory(cellData ->
+                new SimpleStringProperty(saleDateById.getOrDefault(cellData.getValue().getMaBanVatTu(), ""))
+        );
 
         colSaleUnitPrice.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getDonGia()))
@@ -211,10 +231,10 @@ public class PartsManagementController implements Initializable {
 
     private void loadAllData() {
         loadTableData();
+        loadImportDetails();
+        loadSaleDetails();
         loadSummaryCards();
         loadPartComboBoxes();
-        tblImportDetails.setItems(FXCollections.observableArrayList());
-        tblSaleDetails.setItems(FXCollections.observableArrayList());
     }
 
     private void loadTableData() {
@@ -224,11 +244,33 @@ public class PartsManagementController implements Initializable {
     }
 
     private void loadImportDetails() {
-        tblImportDetails.setItems(FXCollections.observableArrayList(vatTuService.getAllImportDetails()));
+        List<ChiTietNhapVatTu> details = vatTuService.getAllImportDetails();
+
+        importSupplierById.clear();
+        importDateById.clear();
+
+        for (ChiTietNhapVatTu detail : details) {
+            String importId = detail.getMaNhapVatTu();
+            importSupplierById.computeIfAbsent(importId, vatTuService::getSupplierByImportId);
+            importDateById.computeIfAbsent(importId, vatTuService::getImportDateByImportId);
+        }
+
+        tblImportDetails.setItems(FXCollections.observableArrayList(details));
     }
 
     private void loadSaleDetails() {
-        tblSaleDetails.setItems(FXCollections.observableArrayList(vatTuService.getAllSaleDetails()));
+        List<ChiTietBanVatTu> details = vatTuService.getAllSaleDetails();
+
+        saleCustomerById.clear();
+        saleDateById.clear();
+
+        for (ChiTietBanVatTu detail : details) {
+            String saleId = detail.getMaBanVatTu();
+            saleCustomerById.computeIfAbsent(saleId, vatTuService::getCustomerBySaleId);
+            saleDateById.computeIfAbsent(saleId, vatTuService::getSaleDateBySaleId);
+        }
+
+        tblSaleDetails.setItems(FXCollections.observableArrayList(details));
     }
 
     private void loadSummaryCards() {
@@ -460,8 +502,7 @@ public class PartsManagementController implements Initializable {
     }
 
     private void refreshAll() {
-        loadAllData();
-        updateTotalLabels();
+        refreshData();
     }
 
     private void updateTotalLabels() {

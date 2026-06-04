@@ -27,7 +27,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public class DashboardController implements Initializable {
+public class DashboardController implements Initializable, Refreshable {
 
     @FXML private Label lblTotalCustomers;
     @FXML private Label lblCarsReceived;
@@ -61,6 +61,11 @@ public class DashboardController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupTableColumns();
+        refreshData();
+    }
+
+    @Override
+    public void refreshData() {
         loadSummaryCards();
         loadSystemSummary();
         loadRecentActivities();
