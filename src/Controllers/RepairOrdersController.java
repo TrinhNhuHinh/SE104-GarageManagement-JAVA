@@ -70,29 +70,12 @@ public class RepairOrdersController implements Initializable {
         colNgaySuaChua.setCellValueFactory(new PropertyValueFactory<>("ngaySuaChua"));
         colThanhTien.setCellValueFactory(new PropertyValueFactory<>("thanhTien"));
 
-        colBienSoXe.setCellValueFactory(cellData ->
-                new SimpleStringProperty(
-                        suaChuaService.getBienSoXeByIntakeId(cellData.getValue().getMaTiepNhanXe())
-                )
-        );
-
-        colNoiDungSuaChua.setCellValueFactory(cellData ->
-                new SimpleStringProperty(
-                        suaChuaService.getNoiDungByRepairId(cellData.getValue().getMaSuaChuaXe())
-                )
-        );
-
-        colMaVatTu.setCellValueFactory(cellData ->
-                new SimpleStringProperty(
-                        suaChuaService.getMaVatTuByRepairId(cellData.getValue().getMaSuaChuaXe())
-                )
-        );
-
-        colSoLuong.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(
-                        suaChuaService.getSoLuongByRepairId(cellData.getValue().getMaSuaChuaXe())
-                )
-        );
+        // Do not query the database while TableView renders each cell.
+        // Details are still loaded into the form when a repair order is selected.
+        colBienSoXe.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colNoiDungSuaChua.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colMaVatTu.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colSoLuong.setCellValueFactory(cellData -> new SimpleObjectProperty<>(0));
     }
 
     private void loadComboBoxes() {

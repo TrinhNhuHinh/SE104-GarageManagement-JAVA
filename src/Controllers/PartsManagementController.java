@@ -143,13 +143,9 @@ public class PartsManagementController implements Initializable {
         colImportPartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
         colImportQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
 
-        colImportSupplier.setCellValueFactory(cellData ->
-                new SimpleStringProperty(vatTuService.getSupplierByImportId(cellData.getValue().getMaNhapVatTu()))
-        );
-
-        colImportDate.setCellValueFactory(cellData ->
-                new SimpleStringProperty(vatTuService.getImportDateByImportId(cellData.getValue().getMaNhapVatTu()))
-        );
+        // Avoid database calls while rendering each TableView cell.
+        colImportSupplier.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colImportDate.setCellValueFactory(cellData -> new SimpleStringProperty(""));
 
         colImportUnitPrice.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getDonGia()))
@@ -163,13 +159,9 @@ public class PartsManagementController implements Initializable {
         colSalePartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
         colSaleQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
 
-        colSaleCustomer.setCellValueFactory(cellData ->
-                new SimpleStringProperty(vatTuService.getCustomerBySaleId(cellData.getValue().getMaBanVatTu()))
-        );
-
-        colSaleDate.setCellValueFactory(cellData ->
-                new SimpleStringProperty(vatTuService.getSaleDateBySaleId(cellData.getValue().getMaBanVatTu()))
-        );
+        // Avoid database calls while rendering each TableView cell.
+        colSaleCustomer.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+        colSaleDate.setCellValueFactory(cellData -> new SimpleStringProperty(""));
 
         colSaleUnitPrice.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getDonGia()))
@@ -219,10 +211,10 @@ public class PartsManagementController implements Initializable {
 
     private void loadAllData() {
         loadTableData();
-        loadImportDetails();
-        loadSaleDetails();
         loadSummaryCards();
         loadPartComboBoxes();
+        tblImportDetails.setItems(FXCollections.observableArrayList());
+        tblSaleDetails.setItems(FXCollections.observableArrayList());
     }
 
     private void loadTableData() {

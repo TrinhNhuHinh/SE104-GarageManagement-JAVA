@@ -2,6 +2,8 @@ package Controllers;
 
 import Service.AuthorizationService;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,6 +29,7 @@ public class HomeController implements Initializable {
     @FXML private Button btnRegulations;
 
     private Button currentActive = null;
+    private final Map<String, Parent> pageCache = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -72,7 +75,7 @@ public class HomeController implements Initializable {
             setActive(btnSettings);
             loadPage("Settings.fxml");
         });
-        
+
         btnRegulations.setOnAction(e -> {
             setActive(btnRegulations);
             loadPage("Regulations.fxml");
@@ -86,15 +89,20 @@ public class HomeController implements Initializable {
         }
 
         try {
-            Parent page = FXMLLoader.load(getClass().getResource("/Views/" + fxmlFile));
+            Parent page = pageCache.get(fxmlFile);
 
-            AnchorPane.setTopAnchor(page, 0.0);
-            AnchorPane.setBottomAnchor(page, 0.0);
-            AnchorPane.setLeftAnchor(page, 0.0);
-            AnchorPane.setRightAnchor(page, 0.0);
+            if (page == null) {
+                page = FXMLLoader.load(getClass().getResource("/Views/" + fxmlFile));
+
+                AnchorPane.setTopAnchor(page, 0.0);
+                AnchorPane.setBottomAnchor(page, 0.0);
+                AnchorPane.setLeftAnchor(page, 0.0);
+                AnchorPane.setRightAnchor(page, 0.0);
+
+                pageCache.put(fxmlFile, page);
+            }
 
             mainContent.getChildren().setAll(page);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
