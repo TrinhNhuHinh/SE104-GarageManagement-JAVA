@@ -121,9 +121,9 @@
 
                                 <TableView fx:id="tblUsers" prefWidth="900.0" prefHeight="260.0" styleClass="dataTable">
                                     <columns>
-                                        <TableColumn fx:id="colUserId" text="Mã người dùng" prefWidth="160.0" />
-                                        <TableColumn fx:id="colUserName" text="Tên tài khoản" prefWidth="300.0" />
-                                        <TableColumn fx:id="colUserRole" text="Vai trò" prefWidth="260.0" />
+                                        <TableColumn fx:id="colUserId" text="Mã người dùng" prefWidth="220.0" />
+                                        <TableColumn fx:id="colUserName" text="Tên tài khoản" prefWidth="360.0" />
+                                        <TableColumn fx:id="colUserRole" text="Vai trò" prefWidth="320.0" />
                                     </columns>
                                 </TableView>
                             </VBox>
