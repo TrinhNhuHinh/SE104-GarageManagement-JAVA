@@ -25,6 +25,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -35,6 +37,10 @@ public class PartsManagementController implements Initializable, Refreshable {
     @FXML private Label lblTotalParts;
     @FXML private Label lblLowStock;
     @FXML private Label lblInventoryValue;
+    @FXML private TabPane partsTabPane;
+    @FXML private Tab tabInventory;
+    @FXML private Tab tabImport;
+    @FXML private Tab tabSale;
 
     @FXML private TextField txtMaVatTu;
     @FXML private TextField txtTenVatTu;
@@ -102,6 +108,8 @@ public class PartsManagementController implements Initializable, Refreshable {
     private final Map<String, String> importDateById = new HashMap<>();
     private final Map<String, String> saleCustomerById = new HashMap<>();
     private final Map<String, String> saleDateById = new HashMap<>();
+    private boolean importDetailsLoaded = false;
+    private boolean saleDetailsLoaded = false;
 
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -110,8 +118,8 @@ public class PartsManagementController implements Initializable, Refreshable {
     public void initialize(URL url, ResourceBundle rb) {
         setupComboBoxes();
         setupTableColumns();
-        refreshData();
         setupEvents();
+        loadInitialData();
         updateTotalLabels();
     }
 
@@ -227,6 +235,26 @@ public class PartsManagementController implements Initializable, Refreshable {
 
         txtSaleSoLuong.textProperty().addListener((obs, oldValue, newValue) -> updateSaleTotalLabel());
         txtSaleDonGia.textProperty().addListener((obs, oldValue, newValue) -> updateSaleTotalLabel());
+
+        partsTabPane.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldTab, selectedTab) -> loadDetailsForTab(selectedTab)
+        );
+    }
+
+    private void loadInitialData() {
+        loadTableData();
+        loadSummaryCards();
+        loadPartComboBoxes();
+        tblImportDetails.setItems(FXCollections.observableArrayList());
+        tblSaleDetails.setItems(FXCollections.observableArrayList());
+    }
+
+    private void loadDetailsForTab(Tab selectedTab) {
+        if (selectedTab == tabImport && !importDetailsLoaded) {
+            loadImportDetails();
+        } else if (selectedTab == tabSale && !saleDetailsLoaded) {
+            loadSaleDetails();
+        }
     }
 
     private void loadAllData() {
@@ -256,6 +284,7 @@ public class PartsManagementController implements Initializable, Refreshable {
         }
 
         tblImportDetails.setItems(FXCollections.observableArrayList(details));
+        importDetailsLoaded = true;
     }
 
     private void loadSaleDetails() {
@@ -271,6 +300,7 @@ public class PartsManagementController implements Initializable, Refreshable {
         }
 
         tblSaleDetails.setItems(FXCollections.observableArrayList(details));
+        saleDetailsLoaded = true;
     }
 
     private void loadSummaryCards() {
@@ -375,7 +405,8 @@ public class PartsManagementController implements Initializable, Refreshable {
 
         if (result) {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo phiếu nhập vật tư thành công!");
-            refreshAll();
+            refreshInventoryData();
+            loadImportDetails();
             clearImportForm();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập. Kiểm tra mã phiếu, nhà cung cấp, vật tư hoặc dữ liệu nhập!");
@@ -402,7 +433,8 @@ public class PartsManagementController implements Initializable, Refreshable {
 
         if (result) {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hóa đơn bán vật tư thành công!");
-            refreshAll();
+            refreshInventoryData();
+            loadSaleDetails();
             clearSaleForm();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán. Kiểm tra mã hóa đơn, khách hàng, tồn kho hoặc dữ liệu nhập!");
@@ -503,6 +535,12 @@ public class PartsManagementController implements Initializable, Refreshable {
 
     private void refreshAll() {
         refreshData();
+    }
+
+    private void refreshInventoryData() {
+        loadTableData();
+        loadSummaryCards();
+        loadPartComboBoxes();
     }
 
     private void updateTotalLabels() {

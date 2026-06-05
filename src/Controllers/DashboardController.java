@@ -70,9 +70,15 @@ public class DashboardController implements Initializable, Refreshable {
 
     @Override
     public void refreshData() {
-        loadSummaryCards();
-        loadSystemSummary();
-        loadRecentActivities();
+        List<KhachHang> customers = safeList(khachHangDAO.getAll());
+        List<TiepNhanXe> intakes = safeList(tiepNhanXeDAO.getALL());
+        List<SuaChuaXe> repairs = safeList(suaChuaXeDAO.getAll());
+        List<PhieuThuTien> receipts = safeList(phieuThuTienDAO.getAll());
+        List<VatTuPhuTung> parts = safeList(vatTuPhuTungDAO.getAll());
+
+        loadSummaryCards(customers, intakes, repairs, receipts);
+        loadSystemSummary(customers, intakes, repairs, receipts, parts);
+        loadRecentActivities(intakes, repairs, receipts, parts);
     }
 
     private void setupTableColumns() {
@@ -95,12 +101,8 @@ public class DashboardController implements Initializable, Refreshable {
                 new SimpleStringProperty(getCell(data.getValue(), 3)));
     }
 
-    private void loadSummaryCards() {
-        List<KhachHang> customers = safeList(khachHangDAO.getAll());
-        List<TiepNhanXe> intakes = safeList(tiepNhanXeDAO.getALL());
-        List<SuaChuaXe> repairs = safeList(suaChuaXeDAO.getAll());
-        List<PhieuThuTien> receipts = safeList(phieuThuTienDAO.getAll());
-
+    private void loadSummaryCards(List<KhachHang> customers, List<TiepNhanXe> intakes,
+            List<SuaChuaXe> repairs, List<PhieuThuTien> receipts) {
         double revenue = 0;
 
         for (PhieuThuTien pt : receipts) {
@@ -119,12 +121,8 @@ public class DashboardController implements Initializable, Refreshable {
      * Dùng tổng toàn hệ thống thay vì "today".
      * Như vậy dashboard không bị toàn số 0 khi data mẫu nằm ở ngày khác.
      */
-    private void loadSystemSummary() {
-        List<TiepNhanXe> intakes = safeList(tiepNhanXeDAO.getALL());
-        List<SuaChuaXe> repairs = safeList(suaChuaXeDAO.getAll());
-        List<PhieuThuTien> receipts = safeList(phieuThuTienDAO.getAll());
-        List<VatTuPhuTung> parts = safeList(vatTuPhuTungDAO.getAll());
-
+    private void loadSystemSummary(List<KhachHang> customers, List<TiepNhanXe> intakes,
+            List<SuaChuaXe> repairs, List<PhieuThuTien> receipts, List<VatTuPhuTung> parts) {
         int lowStockCount = 0;
         int outOfStockCount = 0;
         int debtCount = 0;
@@ -151,24 +149,20 @@ public class DashboardController implements Initializable, Refreshable {
         setLabel(lblTodayRepairs, "Tổng phiếu sửa chữa: " + repairs.size());
         setLabel(lblTodayReceipts, "Tổng phiếu thu: " + receipts.size());
         setLabel(lblLowStockParts, "Vật tư sắp hết: " + lowStockCount);
-        setLabel(lblSystemStatus, buildSystemStatus(customersLoaded(), intakes, repairs, receipts, parts));
+        setLabel(lblSystemStatus, buildSystemStatus(!customers.isEmpty(), intakes, repairs, receipts, parts));
         setLabel(lblDebtStatus, "Công nợ còn lại: " + debtCount + " xe - " + formatMoney(totalDebt));
         setLabel(lblInventoryStatus, "Trạng thái tồn kho: " + buildInventoryStatus(lowStockCount, outOfStockCount));
         setLabel(lblRoleStatus, "Vai trò hiện tại: " + AuthorizationService.getRoleName(AuthService.currentUser));
     }
 
-    private void loadRecentActivities() {
+    private void loadRecentActivities(List<TiepNhanXe> intakes, List<SuaChuaXe> repairs,
+            List<PhieuThuTien> receipts, List<VatTuPhuTung> parts) {
         if (tblRecentActivities == null) {
             System.out.println("tblRecentActivities is missing fx:id in Dashboard.fxml");
             return;
         }
 
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
-
-        List<TiepNhanXe> intakes = safeList(tiepNhanXeDAO.getALL());
-        List<SuaChuaXe> repairs = safeList(suaChuaXeDAO.getAll());
-        List<PhieuThuTien> receipts = safeList(phieuThuTienDAO.getAll());
-        List<VatTuPhuTung> parts = safeList(vatTuPhuTungDAO.getAll());
         Map<String, SuaChuaXe> repairByIntakeId = buildRepairByIntakeId(repairs);
         Set<String> paidRepairIds = buildPaidRepairIds(receipts);
 
@@ -246,10 +240,6 @@ public class DashboardController implements Initializable, Refreshable {
         }
 
         return "Trạng thái hệ thống: Chưa có dữ liệu";
-    }
-
-    private boolean customersLoaded() {
-        return !safeList(khachHangDAO.getAll()).isEmpty();
     }
 
     private String buildInventoryStatus(int lowStockCount, int outOfStockCount) {

@@ -48,7 +48,7 @@
             </VBox>
         </HBox>
 
-        <TabPane layoutX="35.0" layoutY="220.0" prefWidth="975.0" prefHeight="540.0"
+        <TabPane fx:id="partsTabPane" layoutX="35.0" layoutY="220.0" prefWidth="975.0" prefHeight="540.0"
          styleClass="partsTabPane"
          tabClosingPolicy="UNAVAILABLE"
          tabMinWidth="145.0"
@@ -57,7 +57,7 @@
          tabMaxHeight="36.0">
             <tabs>
 
-                <Tab text="Tồn kho">
+                <Tab fx:id="tabInventory" text="Tồn kho">
                     <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
@@ -112,7 +112,7 @@
                     </AnchorPane>
                 </Tab>
 
-                <Tab text="Phiếu nhập">
+                <Tab fx:id="tabImport" text="Phiếu nhập">
                     <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
@@ -165,7 +165,7 @@
                     </AnchorPane>
                 </Tab>
 
-                <Tab text="Hóa đơn bán">
+                <Tab fx:id="tabSale" text="Hóa đơn bán">
                     <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
                         <children>
                             <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
