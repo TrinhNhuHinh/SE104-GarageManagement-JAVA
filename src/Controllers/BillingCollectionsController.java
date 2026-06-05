@@ -151,21 +151,8 @@ public class BillingCollectionsController implements Initializable, Refreshable 
         }
 
         double amount = phieuThuService.getRemainingByRepairId(maSuaChuaXe);
-        double currentDebt = phieuThuService.getCurrentDebtByRepairId(maSuaChuaXe);
-
         if (amount <= 0) {
             showAlert(Alert.AlertType.WARNING, "Không thể thu", "Phiếu sửa chữa này đã được thu đủ tiền!");
-            return;
-        }
-
-        if (amount > currentDebt) {
-            showAlert(
-                    Alert.AlertType.WARNING,
-                    "Dữ liệu nợ không hợp lệ",
-                    "Số tiền còn phải thu của phiếu sửa chữa lớn hơn tiền nợ hiện tại của xe.\n"
-                    + "Còn phải thu: " + formatMoney(amount) + "\n"
-                    + "Tiền nợ hiện tại: " + formatMoney(currentDebt)
-            );
             return;
         }
 
