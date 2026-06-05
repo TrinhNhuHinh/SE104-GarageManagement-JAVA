@@ -15,9 +15,13 @@ import Service.AuthorizationService;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -165,6 +169,8 @@ public class DashboardController implements Initializable, Refreshable {
         List<SuaChuaXe> repairs = safeList(suaChuaXeDAO.getAll());
         List<PhieuThuTien> receipts = safeList(phieuThuTienDAO.getAll());
         List<VatTuPhuTung> parts = safeList(vatTuPhuTungDAO.getAll());
+        Map<String, SuaChuaXe> repairByIntakeId = buildRepairByIntakeId(repairs);
+        Set<String> paidRepairIds = buildPaidRepairIds(receipts);
 
         int count = 0;
 
@@ -179,7 +185,7 @@ public class DashboardController implements Initializable, Refreshable {
                     safeDate(tnx.getNgayTiepNhan()),
                     "Tiếp nhận",
                     "Tiếp nhận xe " + safeText(tnx.getBienSoXe()) + " - " + safeText(tnx.getMaTiepNhanXe()),
-                    buildDebtStatus(tnx)
+                    buildIntakeStatus(tnx, repairByIntakeId, paidRepairIds)
             ));
 
             count++;
@@ -196,7 +202,7 @@ public class DashboardController implements Initializable, Refreshable {
                     safeDate(sc.getNgaySuaChua()),
                     "Sửa chữa",
                     "Phiếu sửa chữa " + safeText(sc.getMaSuaChuaXe()) + " - " + formatMoney(sc.getThanhTien()),
-                    buildRepairStatus(sc)
+                    buildRepairStatus(sc, paidRepairIds)
             ));
 
             count++;
@@ -213,7 +219,7 @@ public class DashboardController implements Initializable, Refreshable {
                     safeDate(pt.getNgayThuTien()),
                     "Thu tiền",
                     "Phiếu thu " + safeText(pt.getMaPhieuThuTien()) + " - " + formatMoney(pt.getSoTienThu()),
-                    "Đã thu"
+                    "Thu tiền thành công"
             ));
 
             count++;
@@ -258,28 +264,51 @@ public class DashboardController implements Initializable, Refreshable {
         return "Ổn định";
     }
 
-    private String buildDebtStatus(TiepNhanXe intake) {
-        if (intake == null) {
-            return "Không xác định";
+    private Map<String, SuaChuaXe> buildRepairByIntakeId(List<SuaChuaXe> repairs) {
+        Map<String, SuaChuaXe> repairByIntakeId = new HashMap<>();
+
+        for (SuaChuaXe repair : repairs) {
+            if (repair != null) {
+                repairByIntakeId.put(safeKey(repair.getMaTiepNhanXe()), repair);
+            }
         }
 
-        if (intake.getTienNo() > 0) {
-            return "Còn nợ: " + formatMoney(intake.getTienNo());
-        }
-
-        return "Đã tất toán";
+        return repairByIntakeId;
     }
 
-    private String buildRepairStatus(SuaChuaXe repair) {
-        if (repair == null) {
-            return "Không xác định";
+    private Set<String> buildPaidRepairIds(List<PhieuThuTien> receipts) {
+        Set<String> paidRepairIds = new HashSet<>();
+
+        for (PhieuThuTien receipt : receipts) {
+            if (receipt != null) {
+                paidRepairIds.add(safeKey(receipt.getMaSuaChuaXe()));
+            }
         }
 
-        if (repair.getThanhTien() > 0) {
-            return "Chờ thu tiền";
+        return paidRepairIds;
+    }
+
+    private String buildIntakeStatus(TiepNhanXe intake, Map<String, SuaChuaXe> repairByIntakeId,
+            Set<String> paidRepairIds) {
+        if (intake == null) {
+            return "Đang tiếp nhận";
         }
 
-        return "Chưa tính tiền";
+        SuaChuaXe repair = repairByIntakeId.get(safeKey(intake.getMaTiepNhanXe()));
+
+        if (repair != null && paidRepairIds.contains(safeKey(repair.getMaSuaChuaXe()))) {
+            return "Hoàn tất tiếp nhận";
+        }
+
+        return "Đang tiếp nhận";
+    }
+
+    private String buildRepairStatus(SuaChuaXe repair, Set<String> paidRepairIds) {
+        if (repair != null && paidRepairIds.contains(safeKey(repair.getMaSuaChuaXe()))) {
+            return "Đã sửa chữa";
+        }
+
+        return "Đang sửa chữa";
     }
 
     private String buildPartStatus(VatTuPhuTung part) {
@@ -332,6 +361,14 @@ public class DashboardController implements Initializable, Refreshable {
         }
 
         return text.trim();
+    }
+
+    private String safeKey(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
     }
 
     private String formatMoney(double value) {

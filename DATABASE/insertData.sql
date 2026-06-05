@@ -72,16 +72,16 @@ GO
 -- 6. Tiep nhan xe
 INSERT INTO TIEPNHANXE (MaTiepNhanXe, Ma_KhachHang, BienSoXe, Ma_HieuXe, NgayTiepNhan, TienNo) VALUES
 ('TN01', 'KH01', '51A12345', 'HX01', '2026-06-01', 0),
-('TN02', 'KH02', '51B23456', 'HX02', '2026-06-01', 350000),
-('TN03', 'KH03', '51C34567', 'HX03', '2026-06-02', 1200000),
+('TN02', 'KH02', '51B23456', 'HX02', '2026-06-01', 0),
+('TN03', 'KH03', '51C34567', 'HX03', '2026-06-02', 1150000),
 ('TN04', 'KH04', '51D45678', 'HX05', '2026-06-03', 0);
 GO
 
 -- 7. Phieu sua chua
 INSERT INTO SUACHUAXE (MaSuaChuaXe, Ma_TiepNhanXe, NgaySuaChua, ThanhTien) VALUES
-('SC01', 'TN01', '2026-06-01', 0),
-('SC02', 'TN02', '2026-06-02', 0),
-('SC03', 'TN03', '2026-06-03', 0);
+('SC01', 'TN01', '2026-06-01', 630000),
+('SC02', 'TN02', '2026-06-02', 150000),
+('SC03', 'TN03', '2026-06-03', 1150000);
 GO
 
 -- 8. Nha cung cap
@@ -118,9 +118,9 @@ GO
 INSERT INTO CHITIETSUACHUAXE
     (MaChiTietSuaChuaXe, Ma_SuaChuaXe, NoiDung, Ma_VatTuPhuTung, SoLuong, DonGia, Ma_TienCong, ThanhTien, SoTienCong)
 VALUES
-('CTSC01', 'SC01', N'Thay dau may va loc dau', 'VT01', 1, 550000, 'TC01', 0, 80000),
-('CTSC02', 'SC02', N'Kiem tra tong quat', NULL, 0, 0, 'TC02', 0, 150000),
-('CTSC03', 'SC03', N'Thay ma phanh truoc', 'VT04', 2, 450000, 'TC03', 0, 250000);
+('CTSC01', 'SC01', N'Thay dau may va loc dau', 'VT01', 1, 550000, 'TC01', 630000, 80000),
+('CTSC02', 'SC02', N'Kiem tra tong quat', NULL, 0, 0, 'TC02', 150000, 150000),
+('CTSC03', 'SC03', N'Thay ma phanh truoc', 'VT04', 2, 450000, 'TC03', 1150000, 250000);
 GO
 
 -- 12. Phieu thu tien
