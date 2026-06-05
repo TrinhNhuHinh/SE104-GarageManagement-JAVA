@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -61,6 +62,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final Map<String, String> brandNameToId = new HashMap<>();
     private final Map<String, String> brandIdToName = new HashMap<>();
+    private boolean refreshing = false;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -72,8 +74,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
 
     @Override
     public void refreshData() {
-        loadHieuXeComboBox();
-        loadTableData();
+        refreshDataAsync();
     }
 
     private void setupTableColumns() {
@@ -120,22 +121,55 @@ public class IntakeServiceController implements Initializable, Refreshable {
     private void loadHieuXeComboBox() {
         try {
             List<HieuXe> list = hieuXeDAO.getAll();
-
-            cbbMaHieuXe.getItems().clear();
-            brandNameToId.clear();
-            brandIdToName.clear();
-
-            for (HieuXe hx : list) {
-                String id = hx.getMaHieuXe().trim();
-                String name = hx.getTenHieuXe().trim();
-                brandNameToId.put(name, id);
-                brandIdToName.put(id, name);
-                cbbMaHieuXe.getItems().add(name);
-            }
+            applyBrandComboBox(list);
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể load danh sách hiệu xe!");
+        }
+    }
+
+    private void refreshDataAsync() {
+        if (refreshing) {
+            return;
+        }
+
+        refreshing = true;
+        String selectedBrandId = getSelectedBrandId();
+
+        Task<IntakeRefreshData> task = new Task<>() {
+            @Override
+            protected IntakeRefreshData call() {
+                return new IntakeRefreshData(hieuXeDAO.getAll(), tiepNhanXeService.getAll());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            refreshing = false;
+            IntakeRefreshData data = task.getValue();
+            applyBrandComboBox(data.brands());
+            cbbMaHieuXe.setValue(brandIdToName.get(selectedBrandId));
+            tblTiepNhanXe.setItems(FXCollections.observableArrayList(data.intakes()));
+        });
+
+        task.setOnFailed(e -> refreshing = false);
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void applyBrandComboBox(List<HieuXe> list) {
+        cbbMaHieuXe.getItems().clear();
+        brandNameToId.clear();
+        brandIdToName.clear();
+
+        for (HieuXe hx : list) {
+            String id = hx.getMaHieuXe().trim();
+            String name = hx.getTenHieuXe().trim();
+            brandNameToId.put(name, id);
+            brandIdToName.put(id, name);
+            cbbMaHieuXe.getItems().add(name);
         }
     }
 
@@ -410,5 +444,16 @@ private void markIntakeDataChanged() {
             DataRefreshService.REPORTS,
             DataRefreshService.PARTS
     );
+}
+
+private String getSelectedBrandId() {
+    String value = cbbMaHieuXe.getValue();
+    return value == null ? null : brandNameToId.getOrDefault(value, value).trim();
+}
+
+private record IntakeRefreshData(
+        List<HieuXe> brands,
+        List<TiepNhanXe> intakes
+) {
 }
 }

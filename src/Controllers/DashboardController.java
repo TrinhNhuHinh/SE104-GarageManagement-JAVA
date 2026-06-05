@@ -25,6 +25,7 @@ import java.util.Set;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -61,6 +62,7 @@ public class DashboardController implements Initializable, Refreshable {
 
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    private boolean refreshing = false;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -70,15 +72,41 @@ public class DashboardController implements Initializable, Refreshable {
 
     @Override
     public void refreshData() {
-        List<KhachHang> customers = safeList(khachHangDAO.getAll());
-        List<TiepNhanXe> intakes = safeList(tiepNhanXeDAO.getALL());
-        List<SuaChuaXe> repairs = safeList(suaChuaXeDAO.getAll());
-        List<PhieuThuTien> receipts = safeList(phieuThuTienDAO.getAll());
-        List<VatTuPhuTung> parts = safeList(vatTuPhuTungDAO.getAll());
+        refreshDataAsync();
+    }
 
-        loadSummaryCards(customers, intakes, repairs, receipts);
-        loadSystemSummary(customers, intakes, repairs, receipts, parts);
-        loadRecentActivities(intakes, repairs, receipts, parts);
+    private void refreshDataAsync() {
+        if (refreshing) {
+            return;
+        }
+
+        refreshing = true;
+        Task<DashboardData> task = new Task<>() {
+            @Override
+            protected DashboardData call() {
+                return new DashboardData(
+                        safeList(khachHangDAO.getAll()),
+                        safeList(tiepNhanXeDAO.getALL()),
+                        safeList(suaChuaXeDAO.getAll()),
+                        safeList(phieuThuTienDAO.getAll()),
+                        safeList(vatTuPhuTungDAO.getAll())
+                );
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            refreshing = false;
+            DashboardData data = task.getValue();
+            loadSummaryCards(data.customers(), data.intakes(), data.repairs(), data.receipts());
+            loadSystemSummary(data.customers(), data.intakes(), data.repairs(), data.receipts(), data.parts());
+            loadRecentActivities(data.intakes(), data.repairs(), data.receipts(), data.parts());
+        });
+
+        task.setOnFailed(e -> refreshing = false);
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void setupTableColumns() {
@@ -371,5 +399,14 @@ public class DashboardController implements Initializable, Refreshable {
         }
 
         return list;
+    }
+
+    private record DashboardData(
+            List<KhachHang> customers,
+            List<TiepNhanXe> intakes,
+            List<SuaChuaXe> repairs,
+            List<PhieuThuTien> receipts,
+            List<VatTuPhuTung> parts
+    ) {
     }
 }
