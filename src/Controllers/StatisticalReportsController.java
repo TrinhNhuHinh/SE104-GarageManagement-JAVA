@@ -26,7 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public class StatisticalReportsController implements Initializable {
+public class StatisticalReportsController implements Initializable, Refreshable {
 
     private static final String REPORT_REVENUE = "Báo cáo doanh thu";
     private static final String REPORT_INVENTORY = "Báo cáo vật tư tồn";
@@ -66,6 +66,12 @@ public class StatisticalReportsController implements Initializable {
         setupTableColumns();
         setupChart();
         setupEvents();
+        loadSummaryCards();
+        loadReport();
+    }
+
+    @Override
+    public void refreshData() {
         loadSummaryCards();
         loadReport();
     }

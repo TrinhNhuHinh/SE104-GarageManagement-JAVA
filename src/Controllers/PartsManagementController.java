@@ -129,7 +129,7 @@ public class PartsManagementController implements Initializable, Refreshable {
 
     @Override
     public void refreshData() {
-        loadAllData();
+        refreshInventoryDataAsync();
         updateTotalLabels();
     }
 
@@ -295,7 +295,9 @@ public class PartsManagementController implements Initializable, Refreshable {
                 vatTuService.countAll(),
                 vatTuService.countLowStock(),
                 vatTuService.getInventoryValue(),
-                vatTuService.getAllPartIds()
+                vatTuService.getAllPartIds(),
+                vatTuService.getAllSupplierIds(),
+                vatTuService.getAllCustomerIds()
         );
     }
 
@@ -344,6 +346,8 @@ public class PartsManagementController implements Initializable, Refreshable {
         lblInventoryValue.setText(formatMoney(data.inventoryValue()));
         cbbImportMaVatTu.getItems().setAll(data.partIds());
         cbbSaleMaVatTu.getItems().setAll(data.partIds());
+        cbbMaNhaCungCap.getItems().setAll(data.supplierIds());
+        cbbMaKhachHang.getItems().setAll(data.customerIds());
     }
 
     private void applyImportDetails(ImportDetailsData data) {
@@ -404,6 +408,33 @@ public class PartsManagementController implements Initializable, Refreshable {
             saleDetailsLoading = false;
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải chi tiết hóa đơn bán vật tư!");
         });
+
+        startBackgroundTask(task);
+    }
+
+    private void refreshInventoryDataAsync() {
+        Task<InventoryData> task = new Task<>() {
+            @Override
+            protected InventoryData call() {
+                return loadInventoryData();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            applyInventoryData(task.getValue());
+            Tab selectedTab = partsTabPane.getSelectionModel().getSelectedItem();
+            if (selectedTab == tabImport) {
+                importDetailsLoaded = false;
+                loadImportDetailsAsync();
+            } else if (selectedTab == tabSale) {
+                saleDetailsLoaded = false;
+                loadSaleDetailsAsync();
+            }
+        });
+
+        task.setOnFailed(e ->
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải lại dữ liệu vật tư!")
+        );
 
         startBackgroundTask(task);
     }
@@ -883,7 +914,9 @@ public class PartsManagementController implements Initializable, Refreshable {
             int totalParts,
             int lowStock,
             double inventoryValue,
-            List<String> partIds
+            List<String> partIds,
+            List<String> supplierIds,
+            List<String> customerIds
     ) {
     }
 

@@ -25,7 +25,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class RepairOrdersController implements Initializable {
+public class RepairOrdersController implements Initializable, Refreshable {
 
     @FXML private TextField txtMaSuaChua;
     @FXML private ComboBox<String> cbbMaTiepNhanXe;
@@ -64,6 +64,12 @@ public class RepairOrdersController implements Initializable {
         setupEvents();
     }
 
+    @Override
+    public void refreshData() {
+        loadComboBoxes();
+        loadTableData();
+    }
+
     private void setupTableColumns() {
         colMaSuaChua.setCellValueFactory(new PropertyValueFactory<>("maSuaChuaXe"));
         colMaTiepNhanXe.setCellValueFactory(new PropertyValueFactory<>("maTiepNhanXe"));
@@ -79,9 +85,21 @@ public class RepairOrdersController implements Initializable {
     }
 
     private void loadComboBoxes() {
-        cbbMaTiepNhanXe.getItems().setAll(suaChuaService.getAllIntakeIds());
-        cbbMaVatTu.getItems().setAll(suaChuaService.getAllPartIds());
-        cbbMaTienCong.getItems().setAll(suaChuaService.getAllLaborIds());
+        String selectedIntake = cbbMaTiepNhanXe.getValue();
+        String selectedPart = cbbMaVatTu.getValue();
+        String selectedLabor = cbbMaTienCong.getValue();
+
+        List<String> intakeIds = suaChuaService.getAllIntakeIds();
+        List<String> partIds = suaChuaService.getAllPartIds();
+        List<String> laborIds = suaChuaService.getAllLaborIds();
+
+        cbbMaTiepNhanXe.getItems().setAll(intakeIds);
+        cbbMaVatTu.getItems().setAll(partIds);
+        cbbMaTienCong.getItems().setAll(laborIds);
+
+        cbbMaTiepNhanXe.setValue(intakeIds.contains(selectedIntake) ? selectedIntake : null);
+        cbbMaVatTu.setValue(partIds.contains(selectedPart) ? selectedPart : null);
+        cbbMaTienCong.setValue(laborIds.contains(selectedLabor) ? selectedLabor : null);
     }
 
     private void loadTableData() {

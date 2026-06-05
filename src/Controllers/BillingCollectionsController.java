@@ -24,7 +24,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class BillingCollectionsController implements Initializable {
+public class BillingCollectionsController implements Initializable, Refreshable {
 
     @FXML private Label lblRepairTotal;
     @FXML private Label lblAmountPaid;
@@ -69,6 +69,13 @@ public class BillingCollectionsController implements Initializable {
         updateRepairCards();
     }
 
+    @Override
+    public void refreshData() {
+        loadComboBox();
+        loadTableData();
+        updateRepairCards();
+    }
+
     private void setupInitialState() {
         txtMaTiepNhanXe.setDisable(true);
         txtSoTienThu.setDisable(true);
@@ -85,7 +92,11 @@ public class BillingCollectionsController implements Initializable {
     }
 
     private void loadComboBox() {
-        cbbMaSuaChuaXe.getItems().setAll(phieuThuService.getAllRepairIds());
+        String selectedRepair = cbbMaSuaChuaXe.getValue();
+        List<String> repairIds = phieuThuService.getAllRepairIds();
+
+        cbbMaSuaChuaXe.getItems().setAll(repairIds);
+        cbbMaSuaChuaXe.setValue(repairIds.contains(selectedRepair) ? selectedRepair : null);
     }
 
     private void loadTableData() {

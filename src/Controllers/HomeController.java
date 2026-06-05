@@ -106,7 +106,7 @@ public class HomeController implements Initializable {
                 controllerCache.put(fxmlFile, loader.getController());
             }
 
-            if (cached && "Dashboard.fxml".equals(fxmlFile)) {
+            if (cached) {
                 refreshPage(fxmlFile);
             }
 

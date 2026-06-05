@@ -23,7 +23,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class QuickLookupController implements Initializable {
+public class QuickLookupController implements Initializable, Refreshable {
 
     private static final String TYPE_ALL = "Tất cả";
     private static final String TYPE_VEHICLES = "Xe tiếp nhận";
@@ -57,6 +57,11 @@ public class QuickLookupController implements Initializable {
         setupComboBox();
         setupTableColumns();
         setupEvents();
+        handleLookup();
+    }
+
+    @Override
+    public void refreshData() {
         handleLookup();
     }
 

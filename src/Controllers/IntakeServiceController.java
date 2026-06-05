@@ -27,7 +27,7 @@ import DAO.KhachHangDAO;
 import MODEL.KhachHang;
 import javafx.scene.control.TextInputDialog;
 
-public class IntakeServiceController implements Initializable {
+public class IntakeServiceController implements Initializable, Refreshable {
 
     @FXML private TextField txtMaTiepNhanXe;
     @FXML private TextField txtMaKhachHang;
@@ -63,6 +63,12 @@ public class IntakeServiceController implements Initializable {
         loadHieuXeComboBox();
         loadTableData();
         setupEvents();
+    }
+
+    @Override
+    public void refreshData() {
+        loadHieuXeComboBox();
+        loadTableData();
     }
 
     private void setupTableColumns() {
