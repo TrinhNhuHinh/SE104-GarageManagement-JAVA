@@ -9,11 +9,13 @@ import MODEL.TiepNhanXe;
 import MODEL.VatTuPhuTung;
 import Service.SuaChuaXeService;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -52,17 +54,20 @@ public class QuickLookupController implements Initializable, Refreshable {
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final SuaChuaXeService suaChuaXeService = new SuaChuaXeService();
 
+    private List<LookupRow> cachedRows = new ArrayList<>();
+    private boolean loading = false;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupComboBox();
         setupTableColumns();
         setupEvents();
-        handleLookup();
+        loadLookupDataAsync();
     }
 
     @Override
     public void refreshData() {
-        handleLookup();
+        loadLookupDataAsync();
     }
 
     private void setupComboBox() {
@@ -95,133 +100,198 @@ public class QuickLookupController implements Initializable, Refreshable {
         });
     }
 
+    private void loadLookupDataAsync() {
+        if (loading) {
+            return;
+        }
+
+        loading = true;
+        setLookupButtonsDisabled(true);
+        tblLookupResults.setItems(singleRow("Đang tải", "", "", "Đang tải dữ liệu tra cứu...", ""));
+
+        Task<List<LookupRow>> task = new Task<>() {
+            @Override
+            protected List<LookupRow> call() {
+                return loadLookupRows();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            loading = false;
+            setLookupButtonsDisabled(false);
+            cachedRows = task.getValue();
+            handleLookup();
+        });
+
+        task.setOnFailed(e -> {
+            loading = false;
+            setLookupButtonsDisabled(false);
+            tblLookupResults.setItems(singleRow("Lỗi", "", "", "Không thể tải dữ liệu tra cứu.", ""));
+            lblVehiclesFound.setText("0");
+            lblPartsFound.setText("0");
+            lblRepairRecordsFound.setText("0");
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private List<LookupRow> loadLookupRows() {
+        List<LookupRow> rows = new ArrayList<>();
+
+        for (TiepNhanXe tnx : tiepNhanXeDAO.getALL()) {
+            rows.add(new LookupRow(
+                    TYPE_VEHICLES,
+                    "Xe",
+                    tnx.getMaTiepNhanXe(),
+                    tnx.getBienSoXe(),
+                    "Khách hàng: " + tnx.getMaKhachHang()
+                            + " | Hiệu xe: " + tnx.getMaHieuXe()
+                            + " | Tiền nợ: " + tnx.getTienNo(),
+                    tnx.getTienNo() > 0 ? "Còn nợ" : "Đã tất toán"
+            ));
+        }
+
+        for (KhachHang kh : khachHangDAO.getAll()) {
+            rows.add(new LookupRow(
+                    TYPE_CUSTOMERS,
+                    "Khách hàng",
+                    kh.getMaKhachHang(),
+                    kh.getTenKhachHang(),
+                    "SĐT: " + kh.getSoDienThoaiKhachHang()
+                            + " | Địa chỉ: " + kh.getDiaChiKhachHang(),
+                    "Đang lưu"
+            ));
+        }
+
+        for (VatTuPhuTung vt : vatTuPhuTungDAO.getAll()) {
+            rows.add(new LookupRow(
+                    TYPE_PARTS,
+                    "Vật tư",
+                    vt.getMaVatTuPhuTung(),
+                    vt.getTenVatTuPhuTung(),
+                    "SL: " + vt.getSoLuongVatTuPhuTung()
+                            + " | ĐVT: " + vt.getDonViTinh()
+                            + " | Đơn giá: " + vt.getDonGiaVatTuPhuTung(),
+                    getInventoryStatus(vt)
+            ));
+        }
+
+        for (SuaChuaXe sc : suaChuaXeService.getAll()) {
+            String bienSo = suaChuaXeService.getBienSoXeByIntakeId(sc.getMaTiepNhanXe());
+            String noiDung = suaChuaXeService.getNoiDungByRepairId(sc.getMaSuaChuaXe());
+
+            rows.add(new LookupRow(
+                    TYPE_REPAIRS,
+                    "Sửa chữa",
+                    sc.getMaSuaChuaXe(),
+                    bienSo,
+                    "Mã tiếp nhận: " + sc.getMaTiepNhanXe()
+                            + " | " + noiDung
+                            + " | Thành tiền: " + sc.getThanhTien(),
+                    sc.getThanhTien() > 0 ? "Đang sửa chữa" : "Chưa tính tiền"
+            ));
+        }
+
+        return rows;
+    }
+
     private void handleLookup() {
+        if (loading) {
+            return;
+        }
+
         String type = cbbLookupType.getValue();
-        String keyword = txtLookupKeyword.getText() == null ? "" : txtLookupKeyword.getText().trim().toLowerCase();
+        String keyword = txtLookupKeyword.getText() == null
+                ? ""
+                : txtLookupKeyword.getText().trim().toLowerCase();
 
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
-
         int vehicleCount = 0;
         int partCount = 0;
         int repairCount = 0;
 
-        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_VEHICLES)) {
-            List<TiepNhanXe> vehicles = tiepNhanXeDAO.getALL();
-
-            for (TiepNhanXe tnx : vehicles) {
-                String text = (
-                        tnx.getMaTiepNhanXe() + " " +
-                        tnx.getMaKhachHang() + " " +
-                        tnx.getBienSoXe() + " " +
-                        tnx.getMaHieuXe()
-                ).toLowerCase();
-
-                if (keyword.isEmpty() || text.contains(keyword)) {
-                    rows.add(row(
-                            "Xe",
-                            tnx.getMaTiepNhanXe(),
-                            tnx.getBienSoXe(),
-                            "Khách hàng: " + tnx.getMaKhachHang() + " | Hiệu xe: " + tnx.getMaHieuXe() + " | Tiền nợ: " + tnx.getTienNo(),
-                            tnx.getTienNo() > 0 ? "Còn nợ" : "Đã tất toán"
-                    ));
-
-                    vehicleCount++;
-                }
+        for (LookupRow lookupRow : cachedRows) {
+            if (!matchesType(type, lookupRow.group())) {
+                continue;
             }
-        }
 
-        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_CUSTOMERS)) {
-            List<KhachHang> customers = khachHangDAO.getAll();
-
-            for (KhachHang kh : customers) {
-                String text = (
-                        kh.getMaKhachHang() + " " +
-                        kh.getTenKhachHang() + " " +
-                        kh.getSoDienThoaiKhachHang() + " " +
-                        kh.getDiaChiKhachHang()
-                ).toLowerCase();
-
-                if (keyword.isEmpty() || text.contains(keyword)) {
-                    rows.add(row(
-                            "Khách hàng",
-                            kh.getMaKhachHang(),
-                            kh.getTenKhachHang(),
-                            "SĐT: " + kh.getSoDienThoaiKhachHang() + " | Địa chỉ: " + kh.getDiaChiKhachHang(),
-                            "Đang lưu"
-                    ));
-                }
+            if (!keyword.isEmpty() && !lookupRow.searchText().contains(keyword)) {
+                continue;
             }
-        }
 
-        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_PARTS)) {
-            List<VatTuPhuTung> parts = vatTuPhuTungDAO.getAll();
+            rows.add(row(
+                    lookupRow.displayType(),
+                    lookupRow.code(),
+                    lookupRow.name(),
+                    lookupRow.info(),
+                    lookupRow.status()
+            ));
 
-            for (VatTuPhuTung vt : parts) {
-                String text = (
-                        vt.getMaVatTuPhuTung() + " " +
-                        vt.getTenVatTuPhuTung() + " " +
-                        vt.getDonViTinh()
-                ).toLowerCase();
-
-                if (keyword.isEmpty() || text.contains(keyword)) {
-                    String status;
-                    if (vt.getSoLuongVatTuPhuTung() <= 0) {
-                        status = "Hết hàng";
-                    } else if (vt.getSoLuongVatTuPhuTung() <= 5) {
-                        status = "Sắp hết";
-                    } else {
-                        status = "Còn hàng";
-                    }
-
-                    rows.add(row(
-                            "Vật tư",
-                            vt.getMaVatTuPhuTung(),
-                            vt.getTenVatTuPhuTung(),
-                            "SL: " + vt.getSoLuongVatTuPhuTung() + " | ĐVT: " + vt.getDonViTinh() + " | Đơn giá: " + vt.getDonGiaVatTuPhuTung(),
-                            status
-                    ));
-
-                    partCount++;
-                }
-            }
-        }
-
-        if (type == null || type.equals(TYPE_ALL) || type.equals(TYPE_REPAIRS)) {
-            List<SuaChuaXe> repairs = suaChuaXeService.getAll();
-
-            for (SuaChuaXe sc : repairs) {
-                String bienSo = suaChuaXeService.getBienSoXeByIntakeId(sc.getMaTiepNhanXe());
-                String noiDung = suaChuaXeService.getNoiDungByRepairId(sc.getMaSuaChuaXe());
-
-                String text = (
-                        sc.getMaSuaChuaXe() + " " +
-                        sc.getMaTiepNhanXe() + " " +
-                        bienSo + " " +
-                        noiDung
-                ).toLowerCase();
-
-                if (keyword.isEmpty() || text.contains(keyword)) {
-                    rows.add(row(
-                            "Sửa chữa",
-                            sc.getMaSuaChuaXe(),
-                            bienSo,
-                            "Mã tiếp nhận: " + sc.getMaTiepNhanXe() + " | " + noiDung + " | Thành tiền: " + sc.getThanhTien(),
-                            sc.getThanhTien() > 0 ? "Chờ thu tiền" : "Chưa tính tiền"
-                    ));
-
-                    repairCount++;
-                }
+            if (TYPE_VEHICLES.equals(lookupRow.group())) {
+                vehicleCount++;
+            } else if (TYPE_PARTS.equals(lookupRow.group())) {
+                partCount++;
+            } else if (TYPE_REPAIRS.equals(lookupRow.group())) {
+                repairCount++;
             }
         }
 
         lblVehiclesFound.setText(String.valueOf(vehicleCount));
         lblPartsFound.setText(String.valueOf(partCount));
         lblRepairRecordsFound.setText(String.valueOf(repairCount));
-
         tblLookupResults.setItems(rows);
+    }
+
+    private boolean matchesType(String selectedType, String rowType) {
+        return selectedType == null || TYPE_ALL.equals(selectedType) || selectedType.equals(rowType);
+    }
+
+    private String getInventoryStatus(VatTuPhuTung part) {
+        if (part.getSoLuongVatTuPhuTung() <= 0) {
+            return "Hết hàng";
+        }
+
+        if (part.getSoLuongVatTuPhuTung() <= 5) {
+            return "Sắp hết";
+        }
+
+        return "Còn hàng";
+    }
+
+    private void setLookupButtonsDisabled(boolean disabled) {
+        btnLookup.setDisable(disabled);
+        btnResetLookup.setDisable(disabled);
     }
 
     private ObservableList<String> row(String type, String code, String name, String info, String status) {
         return FXCollections.observableArrayList(type, code, name, info, status);
+    }
+
+    private ObservableList<ObservableList<String>> singleRow(
+            String type,
+            String code,
+            String name,
+            String info,
+            String status
+    ) {
+        ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
+        rows.add(row(type, code, name, info, status));
+        return rows;
+    }
+
+    private record LookupRow(
+            String group,
+            String displayType,
+            String code,
+            String name,
+            String info,
+            String status
+    ) {
+        String searchText() {
+            return (group + " " + displayType + " " + code + " " + name + " " + info + " " + status)
+                    .toLowerCase();
+        }
     }
 }

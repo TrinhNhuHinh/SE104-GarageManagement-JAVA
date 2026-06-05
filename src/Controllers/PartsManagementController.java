@@ -534,10 +534,10 @@ public class PartsManagementController implements Initializable, Refreshable {
 
         setImportActionsDisabled(true);
 
-        Task<ImportOperationResult> task = new Task<>() {
+        Task<Boolean> task = new Task<>() {
             @Override
-            protected ImportOperationResult call() {
-                boolean success = vatTuService.createImportInvoice(
+            protected Boolean call() {
+                return vatTuService.createImportInvoice(
                         maNhap,
                         maNhaCungCap,
                         ngayNhap,
@@ -545,23 +545,15 @@ public class PartsManagementController implements Initializable, Refreshable {
                         soLuong,
                         donGia
                 );
-
-                if (!success) {
-                    return new ImportOperationResult(false, null, null);
-                }
-
-                return new ImportOperationResult(true, loadInventoryData(), loadImportDetailsData());
             }
         };
 
         task.setOnSucceeded(e -> {
             setImportActionsDisabled(false);
-            ImportOperationResult result = task.getValue();
-
-            if (result.success()) {
-                applyInventoryData(result.inventoryData());
-                applyImportDetails(result.detailsData());
+            if (task.getValue()) {
                 clearImportForm();
+                importDetailsLoaded = false;
+                refreshInventoryDataAsync();
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo phiếu nhập vật tư thành công!");
                 markPartsDataChanged();
             } else {
@@ -592,10 +584,10 @@ public class PartsManagementController implements Initializable, Refreshable {
 
         setSaleActionsDisabled(true);
 
-        Task<SaleOperationResult> task = new Task<>() {
+        Task<Boolean> task = new Task<>() {
             @Override
-            protected SaleOperationResult call() {
-                boolean success = vatTuService.createSaleInvoice(
+            protected Boolean call() {
+                return vatTuService.createSaleInvoice(
                         maBan,
                         maKhachHang,
                         ngayBan,
@@ -603,23 +595,15 @@ public class PartsManagementController implements Initializable, Refreshable {
                         soLuong,
                         donGia
                 );
-
-                if (!success) {
-                    return new SaleOperationResult(false, null, null);
-                }
-
-                return new SaleOperationResult(true, loadInventoryData(), loadSaleDetailsData());
             }
         };
 
         task.setOnSucceeded(e -> {
             setSaleActionsDisabled(false);
-            SaleOperationResult result = task.getValue();
-
-            if (result.success()) {
-                applyInventoryData(result.inventoryData());
-                applySaleDetails(result.detailsData());
+            if (task.getValue()) {
                 clearSaleForm();
+                saleDetailsLoaded = false;
+                refreshInventoryDataAsync();
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hóa đơn bán vật tư thành công!");
                 markPartsDataChanged();
             } else {
