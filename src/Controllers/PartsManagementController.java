@@ -3,6 +3,7 @@ package Controllers;
 import MODEL.ChiTietBanVatTu;
 import MODEL.ChiTietNhapVatTu;
 import MODEL.VatTuPhuTung;
+import Service.DataRefreshService;
 import Service.VatTuPhuTungService;
 import java.net.URL;
 import java.sql.Date;
@@ -452,6 +453,7 @@ public class PartsManagementController implements Initializable, Refreshable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm vật tư thành công!");
             refreshAll();
             clearForm();
+            markPartsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Mã vật tư có thể đã tồn tại hoặc dữ liệu không hợp lệ!");
         }
@@ -477,6 +479,7 @@ public class PartsManagementController implements Initializable, Refreshable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật vật tư thành công!");
             refreshAll();
             clearForm();
+            markPartsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật vật tư!");
         }
@@ -504,6 +507,7 @@ public class PartsManagementController implements Initializable, Refreshable {
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa vật tư thành công!");
                 refreshAll();
                 clearForm();
+                markPartsDataChanged();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Vật tư có thể đang được dùng trong sửa chữa, nhập hoặc bán!");
             }
@@ -559,6 +563,7 @@ public class PartsManagementController implements Initializable, Refreshable {
                 applyImportDetails(result.detailsData());
                 clearImportForm();
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo phiếu nhập vật tư thành công!");
+                markPartsDataChanged();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập. Kiểm tra mã phiếu, nhà cung cấp, vật tư hoặc dữ liệu nhập!");
             }
@@ -616,6 +621,7 @@ public class PartsManagementController implements Initializable, Refreshable {
                 applySaleDetails(result.detailsData());
                 clearSaleForm();
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hóa đơn bán vật tư thành công!");
+                markPartsDataChanged();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán. Kiểm tra mã hóa đơn, khách hàng, tồn kho hoặc dữ liệu nhập!");
             }
@@ -652,6 +658,7 @@ public class PartsManagementController implements Initializable, Refreshable {
             refreshInventoryData();
             loadImportDetails();
             clearImportForm();
+            markPartsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập. Kiểm tra mã phiếu, nhà cung cấp, vật tư hoặc dữ liệu nhập!");
         }
@@ -680,6 +687,7 @@ public class PartsManagementController implements Initializable, Refreshable {
             refreshInventoryData();
             loadSaleDetails();
             clearSaleForm();
+            markPartsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán. Kiểm tra mã hóa đơn, khách hàng, tồn kho hoặc dữ liệu nhập!");
         }
@@ -907,6 +915,16 @@ public class PartsManagementController implements Initializable, Refreshable {
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private void markPartsDataChanged() {
+        DataRefreshService.markDirty(
+                DataRefreshService.DASHBOARD,
+                DataRefreshService.REPAIR,
+                DataRefreshService.BILLING,
+                DataRefreshService.LOOKUP,
+                DataRefreshService.REPORTS
+        );
     }
 
     private record InventoryData(

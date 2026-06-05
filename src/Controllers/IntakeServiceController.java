@@ -3,6 +3,7 @@ package Controllers;
 import DAO.HieuXeDAO;
 import MODEL.HieuXe;
 import MODEL.TiepNhanXe;
+import Service.DataRefreshService;
 import Service.TiepNhanXeService;
 import java.net.URL;
 import java.sql.Date;
@@ -163,6 +164,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
         showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm tiếp nhận xe thành công!");
         loadTableData();
         clearForm();
+        markIntakeDataChanged();
     } else {
         showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Kiểm tra mã tiếp nhận, khách hàng, hiệu xe hoặc giới hạn tiếp nhận!");
     }
@@ -188,6 +190,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật tiếp nhận xe thành công!");
             loadTableData();
             clearForm();
+            markIntakeDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật dữ liệu!");
         }
@@ -215,6 +218,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
                 showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa tiếp nhận xe thành công!");
                 loadTableData();
                 clearForm();
+                markIntakeDataChanged();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Dữ liệu có thể đang được tham chiếu ở bảng khác!");
             }
@@ -380,5 +384,16 @@ private String askText(String title, String content) {
     }
 
     return result.get();
+}
+
+private void markIntakeDataChanged() {
+    DataRefreshService.markDirty(
+            DataRefreshService.DASHBOARD,
+            DataRefreshService.REPAIR,
+            DataRefreshService.BILLING,
+            DataRefreshService.LOOKUP,
+            DataRefreshService.REPORTS,
+            DataRefreshService.PARTS
+    );
 }
 }

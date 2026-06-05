@@ -7,6 +7,7 @@ import MODEL.NhaCungCap;
 import MODEL.TienCong;
 import Service.AuthService;
 import Service.AuthorizationService;
+import Service.DataRefreshService;
 import Service.HieuXeService;
 import Service.NhaCungCapService;
 import Service.TienCongService;
@@ -326,6 +327,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm tiền công thành công!");
             loadLaborTable();
             clearLaborForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Có thể trùng mã hoặc vượt số loại tiền công tối đa!");
         }
@@ -349,6 +351,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật tiền công thành công!");
             loadLaborTable();
             clearLaborForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật tiền công!");
         }
@@ -374,6 +377,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa tiền công thành công!");
             loadLaborTable();
             clearLaborForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Tiền công có thể đang được dùng trong phiếu sửa chữa!");
         }
@@ -436,6 +440,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm nhà cung cấp thành công!");
             loadSupplierTable();
             clearSupplierForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm nhà cung cấp. Mã có thể đã tồn tại!");
         }
@@ -459,6 +464,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật nhà cung cấp thành công!");
             loadSupplierTable();
             clearSupplierForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật nhà cung cấp!");
         }
@@ -484,6 +490,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa nhà cung cấp thành công!");
             loadSupplierTable();
             clearSupplierForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Nhà cung cấp có thể đang được dùng trong phiếu nhập!");
         }
@@ -537,6 +544,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm hiệu xe thành công!");
             loadBrandTable();
             clearBrandForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Có thể trùng mã hoặc vượt số hiệu xe tối đa!");
         }
@@ -560,6 +568,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật hiệu xe thành công!");
             loadBrandTable();
             clearBrandForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật hiệu xe!");
         }
@@ -585,6 +594,7 @@ public class SettingsController implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa hiệu xe thành công!");
             loadBrandTable();
             clearBrandForm();
+            markSettingsDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Hiệu xe có thể đang được dùng trong tiếp nhận xe!");
         }
@@ -632,5 +642,15 @@ public class SettingsController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void markSettingsDataChanged() {
+        DataRefreshService.markDirty(
+                DataRefreshService.INTAKE,
+                DataRefreshService.REPAIR,
+                DataRefreshService.PARTS,
+                DataRefreshService.LOOKUP,
+                DataRefreshService.REPORTS
+        );
     }
 }

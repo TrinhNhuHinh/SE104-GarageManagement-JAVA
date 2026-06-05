@@ -1,6 +1,7 @@
 package Controllers;
 
 import MODEL.PhieuThuTien;
+import Service.DataRefreshService;
 import Service.PhieuThuTienService;
 import java.net.URL;
 import java.sql.Date;
@@ -11,6 +12,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -55,6 +57,7 @@ public class BillingCollectionsController implements Initializable, Refreshable 
     @FXML private TableColumn<PhieuThuTien, Double> colSoTienThu;
 
     private final PhieuThuTienService phieuThuService = new PhieuThuTienService();
+    private boolean refreshing = false;
 
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -71,9 +74,7 @@ public class BillingCollectionsController implements Initializable, Refreshable 
 
     @Override
     public void refreshData() {
-        loadComboBox();
-        loadTableData();
-        updateRepairCards();
+        refreshDataAsync();
     }
 
     private void setupInitialState() {
@@ -180,6 +181,7 @@ public class BillingCollectionsController implements Initializable, Refreshable 
             loadComboBox();
             loadTableData();
             clearForm();
+            markBillingDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu thu. Kiểm tra mã phiếu, mã sửa chữa hoặc tiền nợ!");
         }
@@ -213,6 +215,7 @@ public class BillingCollectionsController implements Initializable, Refreshable 
             loadComboBox();
             loadTableData();
             clearForm();
+            markBillingDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật phiếu thu!");
         }
@@ -241,6 +244,7 @@ public class BillingCollectionsController implements Initializable, Refreshable 
                 loadComboBox();
                 loadTableData();
                 clearForm();
+                markBillingDataChanged();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa phiếu thu!");
             }
@@ -324,5 +328,55 @@ public class BillingCollectionsController implements Initializable, Refreshable 
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void refreshDataAsync() {
+        if (refreshing) {
+            return;
+        }
+
+        refreshing = true;
+        String selectedRepair = cbbMaSuaChuaXe.getValue();
+
+        Task<BillingRefreshData> task = new Task<>() {
+            @Override
+            protected BillingRefreshData call() {
+                return new BillingRefreshData(
+                        phieuThuService.getAllRepairIds(),
+                        phieuThuService.getAll()
+                );
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            refreshing = false;
+            BillingRefreshData data = task.getValue();
+            cbbMaSuaChuaXe.getItems().setAll(data.repairIds());
+            cbbMaSuaChuaXe.setValue(data.repairIds().contains(selectedRepair) ? selectedRepair : null);
+            tblReceipts.setItems(FXCollections.observableArrayList(data.receipts()));
+            updateRepairCards();
+        });
+
+        task.setOnFailed(e -> refreshing = false);
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void markBillingDataChanged() {
+        DataRefreshService.markDirty(
+                DataRefreshService.DASHBOARD,
+                DataRefreshService.INTAKE,
+                DataRefreshService.REPAIR,
+                DataRefreshService.LOOKUP,
+                DataRefreshService.REPORTS
+        );
+    }
+
+    private record BillingRefreshData(
+            List<String> repairIds,
+            List<PhieuThuTien> receipts
+    ) {
     }
 }

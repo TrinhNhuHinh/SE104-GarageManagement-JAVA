@@ -2,6 +2,7 @@ package Controllers;
 
 import MODEL.ChiTietSuaChuaXe;
 import MODEL.SuaChuaXe;
+import Service.DataRefreshService;
 import Service.SuaChuaXeService;
 import java.net.URL;
 import java.sql.Date;
@@ -12,6 +13,7 @@ import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -55,6 +57,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
     @FXML private TableColumn<SuaChuaXe, Double> colThanhTien;
 
     private final SuaChuaXeService suaChuaService = new SuaChuaXeService();
+    private boolean refreshing = false;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -66,8 +69,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
 
     @Override
     public void refreshData() {
-        loadComboBoxes();
-        loadTableData();
+        refreshDataAsync();
     }
 
     private void setupTableColumns() {
@@ -152,6 +154,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
             loadComboBoxes();
             loadTableData();
             clearForm();
+            markRepairDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Kiểm tra mã phiếu, tồn kho, mã tiếp nhận, mã tiền công hoặc dữ liệu nhập!");
         }
@@ -187,6 +190,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
             loadComboBoxes();
             loadTableData();
             clearForm();
+            markRepairDataChanged();
         } else {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật. Kiểm tra tồn kho, mã tiền công hoặc dữ liệu nhập!");
         }
@@ -215,6 +219,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
                 loadComboBoxes();
                 loadTableData();
                 clearForm();
+                markRepairDataChanged();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa phiếu sửa chữa!");
             }
@@ -296,5 +301,66 @@ public class RepairOrdersController implements Initializable, Refreshable {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void refreshDataAsync() {
+        if (refreshing) {
+            return;
+        }
+
+        refreshing = true;
+        String selectedIntake = cbbMaTiepNhanXe.getValue();
+        String selectedPart = cbbMaVatTu.getValue();
+        String selectedLabor = cbbMaTienCong.getValue();
+
+        Task<RepairRefreshData> task = new Task<>() {
+            @Override
+            protected RepairRefreshData call() {
+                return new RepairRefreshData(
+                        suaChuaService.getAllIntakeIds(),
+                        suaChuaService.getAllPartIds(),
+                        suaChuaService.getAllLaborIds(),
+                        suaChuaService.getAll()
+                );
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            refreshing = false;
+            RepairRefreshData data = task.getValue();
+
+            cbbMaTiepNhanXe.getItems().setAll(data.intakeIds());
+            cbbMaVatTu.getItems().setAll(data.partIds());
+            cbbMaTienCong.getItems().setAll(data.laborIds());
+            cbbMaTiepNhanXe.setValue(data.intakeIds().contains(selectedIntake) ? selectedIntake : null);
+            cbbMaVatTu.setValue(data.partIds().contains(selectedPart) ? selectedPart : null);
+            cbbMaTienCong.setValue(data.laborIds().contains(selectedLabor) ? selectedLabor : null);
+            tblRepairOrders.setItems(FXCollections.observableArrayList(data.repairs()));
+        });
+
+        task.setOnFailed(e -> refreshing = false);
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void markRepairDataChanged() {
+        DataRefreshService.markDirty(
+                DataRefreshService.DASHBOARD,
+                DataRefreshService.INTAKE,
+                DataRefreshService.BILLING,
+                DataRefreshService.LOOKUP,
+                DataRefreshService.REPORTS,
+                DataRefreshService.PARTS
+        );
+    }
+
+    private record RepairRefreshData(
+            List<String> intakeIds,
+            List<String> partIds,
+            List<String> laborIds,
+            List<SuaChuaXe> repairs
+    ) {
     }
 }

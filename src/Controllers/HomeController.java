@@ -1,6 +1,7 @@
 package Controllers;
 
 import Service.AuthorizationService;
+import Service.DataRefreshService;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,11 +107,11 @@ public class HomeController implements Initializable {
                 controllerCache.put(fxmlFile, loader.getController());
             }
 
-            if (cached) {
+            mainContent.getChildren().setAll(page);
+
+            if (cached && DataRefreshService.consumeDirty(fxmlFile)) {
                 refreshPage(fxmlFile);
             }
-
-            mainContent.getChildren().setAll(page);
         } catch (Exception e) {
             e.printStackTrace();
         }
