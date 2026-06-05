@@ -92,15 +92,13 @@ GO
 
 -- 9. Nhap vat tu
 INSERT INTO NHAPVATTU (MaNhapVatTu, Ma_NhaCungCap, TongTien, NgayNhap) VALUES
-('NVT01', 'NCC01', 0, '2026-05-28'),
-('NVT02', 'NCC02', 0, '2026-05-29');
+('NVT01', 'NCC01', 5000000, '2026-05-28'),
+('NVT02', 'NCC02', 1000000, '2026-05-29');
 GO
 
 INSERT INTO CHITIETNHAPVATTU (Ma_NhapVatTu, Ma_VatTuPhuTung, SoLuong, DonGia, ThanhTien) VALUES
-('NVT01', 'VT01', 10, 500000, 0),
-('NVT01', 'VT04', 4, 400000, 0),
-('NVT02', 'VT02', 10, 100000, 0),
-('NVT02', 'VT03', 20, 75000, 0);
+('NVT01', 'VT01', 10, 500000, 5000000),
+('NVT02', 'VT02', 10, 100000, 1000000);
 GO
 
 -- 10. Ban vat tu demo
