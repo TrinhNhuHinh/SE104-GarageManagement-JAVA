@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -108,8 +109,11 @@ public class PartsManagementController implements Initializable, Refreshable {
     private final Map<String, String> importDateById = new HashMap<>();
     private final Map<String, String> saleCustomerById = new HashMap<>();
     private final Map<String, String> saleDateById = new HashMap<>();
+    private final Map<String, VatTuPhuTung> partById = new HashMap<>();
     private boolean importDetailsLoaded = false;
     private boolean saleDetailsLoaded = false;
+    private boolean importDetailsLoading = false;
+    private boolean saleDetailsLoading = false;
 
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -211,10 +215,10 @@ public class PartsManagementController implements Initializable, Refreshable {
             refreshAll();
         });
 
-        btnCreateImport.setOnAction(e -> handleCreateImport());
+        btnCreateImport.setOnAction(e -> handleCreateImportAsync());
         btnClearImport.setOnAction(e -> clearImportForm());
 
-        btnCreateSale.setOnAction(e -> handleCreateSale());
+        btnCreateSale.setOnAction(e -> handleCreateSaleAsync());
         btnClearSale.setOnAction(e -> clearSaleForm());
 
         tblParts.getSelectionModel().selectedItemProperty().addListener(
@@ -250,10 +254,10 @@ public class PartsManagementController implements Initializable, Refreshable {
     }
 
     private void loadDetailsForTab(Tab selectedTab) {
-        if (selectedTab == tabImport && !importDetailsLoaded) {
-            loadImportDetails();
-        } else if (selectedTab == tabSale && !saleDetailsLoaded) {
-            loadSaleDetails();
+        if (selectedTab == tabImport && !importDetailsLoaded && !importDetailsLoading) {
+            loadImportDetailsAsync();
+        } else if (selectedTab == tabSale && !saleDetailsLoaded && !saleDetailsLoading) {
+            loadSaleDetailsAsync();
         }
     }
 
@@ -267,46 +271,141 @@ public class PartsManagementController implements Initializable, Refreshable {
 
     private void loadTableData() {
         List<VatTuPhuTung> list = vatTuService.getAll();
-        ObservableList<VatTuPhuTung> data = FXCollections.observableArrayList(list);
-        tblParts.setItems(data);
+        applyInventoryTable(list);
     }
 
     private void loadImportDetails() {
-        List<ChiTietNhapVatTu> details = vatTuService.getAllImportDetails();
-
-        importSupplierById.clear();
-        importDateById.clear();
-
-        for (ChiTietNhapVatTu detail : details) {
-            String importId = detail.getMaNhapVatTu();
-            importSupplierById.computeIfAbsent(importId, vatTuService::getSupplierByImportId);
-            importDateById.computeIfAbsent(importId, vatTuService::getImportDateByImportId);
-        }
-
-        tblImportDetails.setItems(FXCollections.observableArrayList(details));
-        importDetailsLoaded = true;
+        applyImportDetails(loadImportDetailsData());
     }
 
     private void loadSaleDetails() {
-        List<ChiTietBanVatTu> details = vatTuService.getAllSaleDetails();
-
-        saleCustomerById.clear();
-        saleDateById.clear();
-
-        for (ChiTietBanVatTu detail : details) {
-            String saleId = detail.getMaBanVatTu();
-            saleCustomerById.computeIfAbsent(saleId, vatTuService::getCustomerBySaleId);
-            saleDateById.computeIfAbsent(saleId, vatTuService::getSaleDateBySaleId);
-        }
-
-        tblSaleDetails.setItems(FXCollections.observableArrayList(details));
-        saleDetailsLoaded = true;
+        applySaleDetails(loadSaleDetailsData());
     }
 
     private void loadSummaryCards() {
         lblTotalParts.setText(String.valueOf(vatTuService.countAll()));
         lblLowStock.setText(String.valueOf(vatTuService.countLowStock()));
         lblInventoryValue.setText(formatMoney(vatTuService.getInventoryValue()));
+    }
+
+    private InventoryData loadInventoryData() {
+        List<VatTuPhuTung> parts = vatTuService.getAll();
+        return new InventoryData(
+                parts,
+                vatTuService.countAll(),
+                vatTuService.countLowStock(),
+                vatTuService.getInventoryValue(),
+                vatTuService.getAllPartIds()
+        );
+    }
+
+    private ImportDetailsData loadImportDetailsData() {
+        List<ChiTietNhapVatTu> details = vatTuService.getAllImportDetails();
+        Map<String, String> suppliers = new HashMap<>();
+        Map<String, String> dates = new HashMap<>();
+
+        for (ChiTietNhapVatTu detail : details) {
+            String importId = detail.getMaNhapVatTu();
+            suppliers.computeIfAbsent(importId, vatTuService::getSupplierByImportId);
+            dates.computeIfAbsent(importId, vatTuService::getImportDateByImportId);
+        }
+
+        return new ImportDetailsData(details, suppliers, dates);
+    }
+
+    private SaleDetailsData loadSaleDetailsData() {
+        List<ChiTietBanVatTu> details = vatTuService.getAllSaleDetails();
+        Map<String, String> customers = new HashMap<>();
+        Map<String, String> dates = new HashMap<>();
+
+        for (ChiTietBanVatTu detail : details) {
+            String saleId = detail.getMaBanVatTu();
+            customers.computeIfAbsent(saleId, vatTuService::getCustomerBySaleId);
+            dates.computeIfAbsent(saleId, vatTuService::getSaleDateBySaleId);
+        }
+
+        return new SaleDetailsData(details, customers, dates);
+    }
+
+    private void applyInventoryTable(List<VatTuPhuTung> parts) {
+        partById.clear();
+        for (VatTuPhuTung part : parts) {
+            partById.put(part.getMaVatTuPhuTung(), part);
+        }
+
+        ObservableList<VatTuPhuTung> data = FXCollections.observableArrayList(parts);
+        tblParts.setItems(data);
+    }
+
+    private void applyInventoryData(InventoryData data) {
+        applyInventoryTable(data.parts());
+        lblTotalParts.setText(String.valueOf(data.totalParts()));
+        lblLowStock.setText(String.valueOf(data.lowStock()));
+        lblInventoryValue.setText(formatMoney(data.inventoryValue()));
+        cbbImportMaVatTu.getItems().setAll(data.partIds());
+        cbbSaleMaVatTu.getItems().setAll(data.partIds());
+    }
+
+    private void applyImportDetails(ImportDetailsData data) {
+        importSupplierById.clear();
+        importSupplierById.putAll(data.suppliers());
+        importDateById.clear();
+        importDateById.putAll(data.dates());
+        tblImportDetails.setItems(FXCollections.observableArrayList(data.details()));
+        importDetailsLoaded = true;
+    }
+
+    private void applySaleDetails(SaleDetailsData data) {
+        saleCustomerById.clear();
+        saleCustomerById.putAll(data.customers());
+        saleDateById.clear();
+        saleDateById.putAll(data.dates());
+        tblSaleDetails.setItems(FXCollections.observableArrayList(data.details()));
+        saleDetailsLoaded = true;
+    }
+
+    private void loadImportDetailsAsync() {
+        importDetailsLoading = true;
+        Task<ImportDetailsData> task = new Task<>() {
+            @Override
+            protected ImportDetailsData call() {
+                return loadImportDetailsData();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            importDetailsLoading = false;
+            applyImportDetails(task.getValue());
+        });
+
+        task.setOnFailed(e -> {
+            importDetailsLoading = false;
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải chi tiết phiếu nhập vật tư!");
+        });
+
+        startBackgroundTask(task);
+    }
+
+    private void loadSaleDetailsAsync() {
+        saleDetailsLoading = true;
+        Task<SaleDetailsData> task = new Task<>() {
+            @Override
+            protected SaleDetailsData call() {
+                return loadSaleDetailsData();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            saleDetailsLoading = false;
+            applySaleDetails(task.getValue());
+        });
+
+        task.setOnFailed(e -> {
+            saleDetailsLoading = false;
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải chi tiết hóa đơn bán vật tư!");
+        });
+
+        startBackgroundTask(task);
     }
 
     private void handleAdd() {
@@ -383,6 +482,120 @@ public class PartsManagementController implements Initializable, Refreshable {
     private void handleSearch() {
         List<VatTuPhuTung> list = vatTuService.search(txtSearchPart.getText());
         tblParts.setItems(FXCollections.observableArrayList(list));
+    }
+
+    private void handleCreateImportAsync() {
+        Date ngayNhap = getSqlDate(dpNgayNhap, "Ngày nhập không được rỗng!");
+        Integer soLuong = getPositiveInteger(txtImportSoLuong, "Số lượng nhập phải là số nguyên lớn hơn 0!");
+        Double donGia = getNonNegativeDouble(txtImportDonGia, "Đơn giá nhập phải là số!");
+
+        if (ngayNhap == null || soLuong == null || donGia == null) {
+            return;
+        }
+
+        String maNhap = txtMaNhapVatTu.getText().trim();
+        String maNhaCungCap = cbbMaNhaCungCap.getValue();
+        String maVatTu = cbbImportMaVatTu.getValue();
+
+        setImportActionsDisabled(true);
+
+        Task<ImportOperationResult> task = new Task<>() {
+            @Override
+            protected ImportOperationResult call() {
+                boolean success = vatTuService.createImportInvoice(
+                        maNhap,
+                        maNhaCungCap,
+                        ngayNhap,
+                        maVatTu,
+                        soLuong,
+                        donGia
+                );
+
+                if (!success) {
+                    return new ImportOperationResult(false, null, null);
+                }
+
+                return new ImportOperationResult(true, loadInventoryData(), loadImportDetailsData());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            setImportActionsDisabled(false);
+            ImportOperationResult result = task.getValue();
+
+            if (result.success()) {
+                applyInventoryData(result.inventoryData());
+                applyImportDetails(result.detailsData());
+                clearImportForm();
+                showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo phiếu nhập vật tư thành công!");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập. Kiểm tra mã phiếu, nhà cung cấp, vật tư hoặc dữ liệu nhập!");
+            }
+        });
+
+        task.setOnFailed(e -> {
+            setImportActionsDisabled(false);
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo phiếu nhập vật tư!");
+        });
+
+        startBackgroundTask(task);
+    }
+
+    private void handleCreateSaleAsync() {
+        Date ngayBan = getSqlDate(dpNgayBan, "Ngày bán không được rỗng!");
+        Integer soLuong = getPositiveInteger(txtSaleSoLuong, "Số lượng bán phải là số nguyên lớn hơn 0!");
+        Double donGia = getNonNegativeDouble(txtSaleDonGia, "Đơn giá bán phải là số!");
+
+        if (ngayBan == null || soLuong == null || donGia == null) {
+            return;
+        }
+
+        String maBan = txtMaBanVatTu.getText().trim();
+        String maKhachHang = cbbMaKhachHang.getValue();
+        String maVatTu = cbbSaleMaVatTu.getValue();
+
+        setSaleActionsDisabled(true);
+
+        Task<SaleOperationResult> task = new Task<>() {
+            @Override
+            protected SaleOperationResult call() {
+                boolean success = vatTuService.createSaleInvoice(
+                        maBan,
+                        maKhachHang,
+                        ngayBan,
+                        maVatTu,
+                        soLuong,
+                        donGia
+                );
+
+                if (!success) {
+                    return new SaleOperationResult(false, null, null);
+                }
+
+                return new SaleOperationResult(true, loadInventoryData(), loadSaleDetailsData());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            setSaleActionsDisabled(false);
+            SaleOperationResult result = task.getValue();
+
+            if (result.success()) {
+                applyInventoryData(result.inventoryData());
+                applySaleDetails(result.detailsData());
+                clearSaleForm();
+                showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hóa đơn bán vật tư thành công!");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán. Kiểm tra mã hóa đơn, khách hàng, tồn kho hoặc dữ liệu nhập!");
+            }
+        });
+
+        task.setOnFailed(e -> {
+            setSaleActionsDisabled(false);
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hóa đơn bán vật tư!");
+        });
+
+        startBackgroundTask(task);
     }
 
     private void handleCreateImport() {
@@ -483,7 +696,11 @@ public class PartsManagementController implements Initializable, Refreshable {
     }
 
     private void fillImportPriceByPart() {
-        VatTuPhuTung vt = vatTuService.getPartById(cbbImportMaVatTu.getValue());
+        VatTuPhuTung vt = partById.get(cbbImportMaVatTu.getValue());
+
+        if (vt == null) {
+            vt = vatTuService.getPartById(cbbImportMaVatTu.getValue());
+        }
 
         if (vt != null) {
             txtImportDonGia.setText(String.valueOf(vt.getDonGiaVatTuPhuTung()));
@@ -493,7 +710,11 @@ public class PartsManagementController implements Initializable, Refreshable {
     }
 
     private void fillSalePriceByPart() {
-        VatTuPhuTung vt = vatTuService.getPartById(cbbSaleMaVatTu.getValue());
+        VatTuPhuTung vt = partById.get(cbbSaleMaVatTu.getValue());
+
+        if (vt == null) {
+            vt = vatTuService.getPartById(cbbSaleMaVatTu.getValue());
+        }
 
         if (vt != null) {
             txtSaleDonGia.setText(String.valueOf(vt.getDonGiaVatTuPhuTung()));
@@ -639,6 +860,59 @@ public class PartsManagementController implements Initializable, Refreshable {
             showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", message);
             return null;
         }
+    }
+
+    private void setImportActionsDisabled(boolean disabled) {
+        btnCreateImport.setDisable(disabled);
+        btnClearImport.setDisable(disabled);
+    }
+
+    private void setSaleActionsDisabled(boolean disabled) {
+        btnCreateSale.setDisable(disabled);
+        btnClearSale.setDisable(disabled);
+    }
+
+    private void startBackgroundTask(Task<?> task) {
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private record InventoryData(
+            List<VatTuPhuTung> parts,
+            int totalParts,
+            int lowStock,
+            double inventoryValue,
+            List<String> partIds
+    ) {
+    }
+
+    private record ImportDetailsData(
+            List<ChiTietNhapVatTu> details,
+            Map<String, String> suppliers,
+            Map<String, String> dates
+    ) {
+    }
+
+    private record SaleDetailsData(
+            List<ChiTietBanVatTu> details,
+            Map<String, String> customers,
+            Map<String, String> dates
+    ) {
+    }
+
+    private record ImportOperationResult(
+            boolean success,
+            InventoryData inventoryData,
+            ImportDetailsData detailsData
+    ) {
+    }
+
+    private record SaleOperationResult(
+            boolean success,
+            InventoryData inventoryData,
+            SaleDetailsData detailsData
+    ) {
     }
 
     private String formatMoney(double value) {
