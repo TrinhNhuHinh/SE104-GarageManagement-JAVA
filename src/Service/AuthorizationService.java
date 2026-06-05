@@ -12,7 +12,6 @@ public class AuthorizationService {
 
     private static final Set<String> ADMIN_ONLY_PAGES = new HashSet<>(Arrays.asList(
             "StatisticalReports.fxml",
-            "PartsManagement.fxml",
             "Regulations.fxml"
     ));
 

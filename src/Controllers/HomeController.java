@@ -128,7 +128,6 @@ public class HomeController implements Initializable {
         boolean admin = AuthorizationService.isAdmin();
 
         setButtonVisible(btnReports, admin);
-        setButtonVisible(btnParts, admin);
         setButtonVisible(btnRegulations, admin);
     }
 
