@@ -2,12 +2,15 @@ package Controllers;
 
 import MODEL.ChiTietSuaChuaXe;
 import MODEL.SuaChuaXe;
+import MODEL.VatTuPhuTung;
 import Service.DataRefreshService;
 import Service.SuaChuaXeService;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
@@ -57,6 +60,8 @@ public class RepairOrdersController implements Initializable, Refreshable {
     @FXML private TableColumn<SuaChuaXe, Double> colThanhTien;
 
     private final SuaChuaXeService suaChuaService = new SuaChuaXeService();
+    private final Map<String, String> partNameToId = new HashMap<>();
+    private final Map<String, String> partIdToName = new HashMap<>();
     private boolean refreshing = false;
 
     @Override
@@ -88,19 +93,19 @@ public class RepairOrdersController implements Initializable, Refreshable {
 
     private void loadComboBoxes() {
         String selectedIntake = cbbMaTiepNhanXe.getValue();
-        String selectedPart = cbbMaVatTu.getValue();
+        String selectedPartId = getSelectedPartId();
         String selectedLabor = cbbMaTienCong.getValue();
 
         List<String> intakeIds = suaChuaService.getAllIntakeIds();
-        List<String> partIds = suaChuaService.getAllPartIds();
+        List<VatTuPhuTung> parts = suaChuaService.getAllParts();
         List<String> laborIds = suaChuaService.getAllLaborIds();
 
         cbbMaTiepNhanXe.getItems().setAll(intakeIds);
-        cbbMaVatTu.getItems().setAll(partIds);
+        applyPartComboBox(parts);
         cbbMaTienCong.getItems().setAll(laborIds);
 
         cbbMaTiepNhanXe.setValue(intakeIds.contains(selectedIntake) ? selectedIntake : null);
-        cbbMaVatTu.setValue(partIds.contains(selectedPart) ? selectedPart : null);
+        cbbMaVatTu.setValue(partIdToName.get(selectedPartId));
         cbbMaTienCong.setValue(laborIds.contains(selectedLabor) ? selectedLabor : null);
     }
 
@@ -143,7 +148,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
                 txtMaSuaChua.getText().trim(),
                 cbbMaTiepNhanXe.getValue(),
                 ngaySuaChua,
-                cbbMaVatTu.getValue(),
+                getSelectedPartId(),
                 soLuong,
                 cbbMaTienCong.getValue(),
                 txtNoiDungSuaChua.getText().trim()
@@ -179,7 +184,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
                 txtMaSuaChua.getText().trim(),
                 cbbMaTiepNhanXe.getValue(),
                 ngaySuaChua,
-                cbbMaVatTu.getValue(),
+                getSelectedPartId(),
                 soLuong,
                 cbbMaTienCong.getValue(),
                 txtNoiDungSuaChua.getText().trim()
@@ -247,7 +252,8 @@ public class RepairOrdersController implements Initializable, Refreshable {
 
         if (ct != null) {
             txtNoiDungSuaChua.setText(ct.getNoiDung());
-            cbbMaVatTu.setValue(ct.getMaVatTuPhuTung());
+            String partId = ct.getMaVatTuPhuTung() == null ? "" : ct.getMaVatTuPhuTung().trim();
+            cbbMaVatTu.setValue(partIdToName.getOrDefault(partId, partId));
             txtSoLuong.setText(String.valueOf(ct.getSoLuong()));
             cbbMaTienCong.setValue(ct.getMaTienCong());
         }
@@ -310,7 +316,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
 
         refreshing = true;
         String selectedIntake = cbbMaTiepNhanXe.getValue();
-        String selectedPart = cbbMaVatTu.getValue();
+        String selectedPartId = getSelectedPartId();
         String selectedLabor = cbbMaTienCong.getValue();
 
         Task<RepairRefreshData> task = new Task<>() {
@@ -318,7 +324,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
             protected RepairRefreshData call() {
                 return new RepairRefreshData(
                         suaChuaService.getAllIntakeIds(),
-                        suaChuaService.getAllPartIds(),
+                        suaChuaService.getAllParts(),
                         suaChuaService.getAllLaborIds(),
                         suaChuaService.getAll()
                 );
@@ -330,10 +336,10 @@ public class RepairOrdersController implements Initializable, Refreshable {
             RepairRefreshData data = task.getValue();
 
             cbbMaTiepNhanXe.getItems().setAll(data.intakeIds());
-            cbbMaVatTu.getItems().setAll(data.partIds());
+            applyPartComboBox(data.parts());
             cbbMaTienCong.getItems().setAll(data.laborIds());
             cbbMaTiepNhanXe.setValue(data.intakeIds().contains(selectedIntake) ? selectedIntake : null);
-            cbbMaVatTu.setValue(data.partIds().contains(selectedPart) ? selectedPart : null);
+            cbbMaVatTu.setValue(partIdToName.get(selectedPartId));
             cbbMaTienCong.setValue(data.laborIds().contains(selectedLabor) ? selectedLabor : null);
             tblRepairOrders.setItems(FXCollections.observableArrayList(data.repairs()));
         });
@@ -356,9 +362,28 @@ public class RepairOrdersController implements Initializable, Refreshable {
         );
     }
 
+    private void applyPartComboBox(List<VatTuPhuTung> parts) {
+        partNameToId.clear();
+        partIdToName.clear();
+        cbbMaVatTu.getItems().clear();
+
+        for (VatTuPhuTung part : parts) {
+            String id = part.getMaVatTuPhuTung().trim();
+            String name = part.getTenVatTuPhuTung().trim();
+            partNameToId.put(name, id);
+            partIdToName.put(id, name);
+            cbbMaVatTu.getItems().add(name);
+        }
+    }
+
+    private String getSelectedPartId() {
+        String value = cbbMaVatTu.getValue();
+        return value == null ? null : partNameToId.getOrDefault(value, value).trim();
+    }
+
     private record RepairRefreshData(
             List<String> intakeIds,
-            List<String> partIds,
+            List<VatTuPhuTung> parts,
             List<String> laborIds,
             List<SuaChuaXe> repairs
     ) {

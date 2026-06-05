@@ -26,6 +26,10 @@ public class NhaCungCapService {
             return false;
         }
 
+        if (nhaCungCapDAO.getByName(ncc.getTenNhaCungCap().trim()) != null) {
+            return false;
+        }
+
         return nhaCungCapDAO.insert(ncc);
     }
 
@@ -33,6 +37,13 @@ public class NhaCungCapService {
         if (!isValid(ncc)) return false;
 
         if (nhaCungCapDAO.getById(ncc.getMaNhaCungCap()) == null) {
+            return false;
+        }
+
+        NhaCungCap sameName = nhaCungCapDAO.getByName(ncc.getTenNhaCungCap().trim());
+
+        if (sameName != null
+                && !sameName.getMaNhaCungCap().trim().equalsIgnoreCase(ncc.getMaNhaCungCap().trim())) {
             return false;
         }
 

@@ -154,7 +154,7 @@
                                         <TableColumn fx:id="colImportId" text="Mã nhập" prefWidth="115.0" />
                                         <TableColumn fx:id="colImportSupplier" text="Nhà cung cấp" prefWidth="115.0" />
                                         <TableColumn fx:id="colImportDate" text="Ngày" prefWidth="120.0" />
-                                        <TableColumn fx:id="colImportPartId" text="Mã vật tư" prefWidth="115.0" />
+                                        <TableColumn fx:id="colImportPartId" text="Vật tư" prefWidth="115.0" />
                                         <TableColumn fx:id="colImportQuantity" text="SL" prefWidth="95.0" />
                                         <TableColumn fx:id="colImportUnitPrice" text="Đơn giá" prefWidth="160.0" />
                                         <TableColumn fx:id="colImportTotal" text="Thành tiền" prefWidth="170.0" />
@@ -207,7 +207,7 @@
                                         <TableColumn fx:id="colSaleId" text="Mã hóa đơn" prefWidth="115.0" />
                                         <TableColumn fx:id="colSaleCustomer" text="Khách hàng" prefWidth="115.0" />
                                         <TableColumn fx:id="colSaleDate" text="Ngày" prefWidth="120.0" />
-                                        <TableColumn fx:id="colSalePartId" text="Mã vật tư" prefWidth="115.0" />
+                                        <TableColumn fx:id="colSalePartId" text="Vật tư" prefWidth="115.0" />
                                         <TableColumn fx:id="colSaleQuantity" text="SL" prefWidth="95.0" />
                                         <TableColumn fx:id="colSaleUnitPrice" text="Đơn giá" prefWidth="160.0" />
                                         <TableColumn fx:id="colSaleTotal" text="Thành tiền" prefWidth="170.0" />

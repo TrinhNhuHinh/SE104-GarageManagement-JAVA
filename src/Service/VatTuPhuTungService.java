@@ -69,6 +69,10 @@ public class VatTuPhuTungService {
         return ids;
     }
 
+    public List<NhaCungCap> getAllSuppliers() {
+        return nhaCungCapDAO.getAll();
+    }
+
     public VatTuPhuTung getPartById(String maVatTu) {
         if (maVatTu == null || maVatTu.trim().isEmpty()) {
             return null;

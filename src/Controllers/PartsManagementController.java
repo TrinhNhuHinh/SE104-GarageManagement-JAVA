@@ -2,6 +2,7 @@ package Controllers;
 
 import MODEL.ChiTietBanVatTu;
 import MODEL.ChiTietNhapVatTu;
+import MODEL.NhaCungCap;
 import MODEL.VatTuPhuTung;
 import Service.DataRefreshService;
 import Service.VatTuPhuTungService;
@@ -111,6 +112,10 @@ public class PartsManagementController implements Initializable, Refreshable {
     private final Map<String, String> saleCustomerById = new HashMap<>();
     private final Map<String, String> saleDateById = new HashMap<>();
     private final Map<String, VatTuPhuTung> partById = new HashMap<>();
+    private final Map<String, String> partNameToId = new HashMap<>();
+    private final Map<String, String> partIdToName = new HashMap<>();
+    private final Map<String, String> supplierNameToId = new HashMap<>();
+    private final Map<String, String> supplierIdToName = new HashMap<>();
     private boolean importDetailsLoaded = false;
     private boolean saleDetailsLoaded = false;
     private boolean importDetailsLoading = false;
@@ -137,17 +142,14 @@ public class PartsManagementController implements Initializable, Refreshable {
     private void setupComboBoxes() {
         cbbDonViTinh.getItems().setAll("Cái", "Bộ", "Chiếc", "Lít", "Hộp", "Chai", "Cặp", "Mét");
 
-        cbbMaNhaCungCap.getItems().setAll(vatTuService.getAllSupplierIds());
+        applySupplierComboBox(vatTuService.getAllSuppliers());
         cbbMaKhachHang.getItems().setAll(vatTuService.getAllCustomerIds());
 
         loadPartComboBoxes();
     }
 
     private void loadPartComboBoxes() {
-        List<String> partIds = vatTuService.getAllPartIds();
-
-        cbbImportMaVatTu.getItems().setAll(partIds);
-        cbbSaleMaVatTu.getItems().setAll(partIds);
+        applyPartComboBoxes(vatTuService.getAll());
     }
 
     private void setupTableColumns() {
@@ -165,11 +167,13 @@ public class PartsManagementController implements Initializable, Refreshable {
         );
 
         colImportId.setCellValueFactory(new PropertyValueFactory<>("maNhapVatTu"));
-        colImportPartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
+        colImportPartId.setCellValueFactory(cellData ->
+                new SimpleStringProperty(toPartName(cellData.getValue().getMaVatTuPhuTung()))
+        );
         colImportQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
 
         colImportSupplier.setCellValueFactory(cellData ->
-                new SimpleStringProperty(importSupplierById.getOrDefault(cellData.getValue().getMaNhapVatTu(), ""))
+                new SimpleStringProperty(toSupplierName(importSupplierById.getOrDefault(cellData.getValue().getMaNhapVatTu(), "")))
         );
 
         colImportDate.setCellValueFactory(cellData ->
@@ -185,7 +189,9 @@ public class PartsManagementController implements Initializable, Refreshable {
         );
 
         colSaleId.setCellValueFactory(new PropertyValueFactory<>("maBanVatTu"));
-        colSalePartId.setCellValueFactory(new PropertyValueFactory<>("maVatTuPhuTung"));
+        colSalePartId.setCellValueFactory(cellData ->
+                new SimpleStringProperty(toPartName(cellData.getValue().getMaVatTuPhuTung()))
+        );
         colSaleQuantity.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
 
         colSaleCustomer.setCellValueFactory(cellData ->
@@ -296,8 +302,7 @@ public class PartsManagementController implements Initializable, Refreshable {
                 vatTuService.countAll(),
                 vatTuService.countLowStock(),
                 vatTuService.getInventoryValue(),
-                vatTuService.getAllPartIds(),
-                vatTuService.getAllSupplierIds(),
+                vatTuService.getAllSuppliers(),
                 vatTuService.getAllCustomerIds()
         );
     }
@@ -333,7 +338,7 @@ public class PartsManagementController implements Initializable, Refreshable {
     private void applyInventoryTable(List<VatTuPhuTung> parts) {
         partById.clear();
         for (VatTuPhuTung part : parts) {
-            partById.put(part.getMaVatTuPhuTung(), part);
+            partById.put(part.getMaVatTuPhuTung().trim(), part);
         }
 
         ObservableList<VatTuPhuTung> data = FXCollections.observableArrayList(parts);
@@ -341,13 +346,19 @@ public class PartsManagementController implements Initializable, Refreshable {
     }
 
     private void applyInventoryData(InventoryData data) {
+        String selectedImportPartId = getSelectedImportPartId();
+        String selectedSalePartId = getSelectedSalePartId();
+        String selectedSupplierId = getSelectedSupplierId();
+
         applyInventoryTable(data.parts());
         lblTotalParts.setText(String.valueOf(data.totalParts()));
         lblLowStock.setText(String.valueOf(data.lowStock()));
         lblInventoryValue.setText(formatMoney(data.inventoryValue()));
-        cbbImportMaVatTu.getItems().setAll(data.partIds());
-        cbbSaleMaVatTu.getItems().setAll(data.partIds());
-        cbbMaNhaCungCap.getItems().setAll(data.supplierIds());
+        applyPartComboBoxes(data.parts());
+        applySupplierComboBox(data.suppliers());
+        cbbImportMaVatTu.setValue(partIdToName.get(selectedImportPartId));
+        cbbSaleMaVatTu.setValue(partIdToName.get(selectedSalePartId));
+        cbbMaNhaCungCap.setValue(supplierIdToName.get(selectedSupplierId));
         cbbMaKhachHang.getItems().setAll(data.customerIds());
     }
 
@@ -529,8 +540,8 @@ public class PartsManagementController implements Initializable, Refreshable {
         }
 
         String maNhap = txtMaNhapVatTu.getText().trim();
-        String maNhaCungCap = cbbMaNhaCungCap.getValue();
-        String maVatTu = cbbImportMaVatTu.getValue();
+        String maNhaCungCap = getSelectedSupplierId();
+        String maVatTu = getSelectedImportPartId();
 
         setImportActionsDisabled(true);
 
@@ -580,7 +591,7 @@ public class PartsManagementController implements Initializable, Refreshable {
 
         String maBan = txtMaBanVatTu.getText().trim();
         String maKhachHang = cbbMaKhachHang.getValue();
-        String maVatTu = cbbSaleMaVatTu.getValue();
+        String maVatTu = getSelectedSalePartId();
 
         setSaleActionsDisabled(true);
 
@@ -719,10 +730,10 @@ public class PartsManagementController implements Initializable, Refreshable {
     }
 
     private void fillImportPriceByPart() {
-        VatTuPhuTung vt = partById.get(cbbImportMaVatTu.getValue());
+        VatTuPhuTung vt = partById.get(getSelectedImportPartId());
 
         if (vt == null) {
-            vt = vatTuService.getPartById(cbbImportMaVatTu.getValue());
+            vt = vatTuService.getPartById(getSelectedImportPartId());
         }
 
         if (vt != null) {
@@ -733,10 +744,10 @@ public class PartsManagementController implements Initializable, Refreshable {
     }
 
     private void fillSalePriceByPart() {
-        VatTuPhuTung vt = partById.get(cbbSaleMaVatTu.getValue());
+        VatTuPhuTung vt = partById.get(getSelectedSalePartId());
 
         if (vt == null) {
-            vt = vatTuService.getPartById(cbbSaleMaVatTu.getValue());
+            vt = vatTuService.getPartById(getSelectedSalePartId());
         }
 
         if (vt != null) {
@@ -911,13 +922,82 @@ public class PartsManagementController implements Initializable, Refreshable {
         );
     }
 
+    private void applyPartComboBoxes(List<VatTuPhuTung> parts) {
+        partNameToId.clear();
+        partIdToName.clear();
+
+        ObservableList<String> partNames = FXCollections.observableArrayList();
+
+        for (VatTuPhuTung part : parts) {
+            String id = part.getMaVatTuPhuTung().trim();
+            String name = part.getTenVatTuPhuTung().trim();
+            partNameToId.put(name, id);
+            partIdToName.put(id, name);
+            partNames.add(name);
+        }
+
+        cbbImportMaVatTu.setItems(FXCollections.observableArrayList(partNames));
+        cbbSaleMaVatTu.setItems(FXCollections.observableArrayList(partNames));
+    }
+
+    private void applySupplierComboBox(List<NhaCungCap> suppliers) {
+        supplierNameToId.clear();
+        supplierIdToName.clear();
+
+        ObservableList<String> supplierNames = FXCollections.observableArrayList();
+
+        for (NhaCungCap supplier : suppliers) {
+            String id = supplier.getMaNhaCungCap().trim();
+            String name = supplier.getTenNhaCungCap().trim();
+            supplierNameToId.put(name, id);
+            supplierIdToName.put(id, name);
+            supplierNames.add(name);
+        }
+
+        cbbMaNhaCungCap.setItems(supplierNames);
+    }
+
+    private String getSelectedImportPartId() {
+        return toPartId(cbbImportMaVatTu.getValue());
+    }
+
+    private String getSelectedSalePartId() {
+        return toPartId(cbbSaleMaVatTu.getValue());
+    }
+
+    private String getSelectedSupplierId() {
+        String value = cbbMaNhaCungCap.getValue();
+        return value == null ? null : supplierNameToId.getOrDefault(value, value).trim();
+    }
+
+    private String toPartId(String value) {
+        return value == null ? null : partNameToId.getOrDefault(value, value).trim();
+    }
+
+    private String toPartName(String id) {
+        if (id == null) {
+            return "";
+        }
+
+        String key = id.trim();
+        return partIdToName.getOrDefault(key, key);
+    }
+
+    private String toSupplierName(String id) {
+        if (id == null) {
+            return "";
+        }
+
+        String key = id.trim();
+        return supplierIdToName.getOrDefault(key, key);
+    }
+
     private record InventoryData(
             List<VatTuPhuTung> parts,
             int totalParts,
             int lowStock,
             double inventoryValue,
-            List<String> partIds,
-            List<String> supplierIds,
+            List<NhaCungCap> suppliers,
             List<String> customerIds
     ) {
     }

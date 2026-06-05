@@ -5,7 +5,7 @@ use Garage;
 --Lập bảng--
 create table HIEUXE(
     MaHieuXe char(10) primary key,
-	TenHieuXe varchar(100)
+	TenHieuXe varchar(100) unique
 );
 
 create table  KHACHHANG(
@@ -176,7 +176,7 @@ GO
 
 create table NHACUNGCAP(
     MaNhaCungCap char(10) primary key,
-	TenNhaCungCap varchar(100),
+	TenNhaCungCap varchar(100) unique,
 	SoDienThoaiNhaCungCap char(20),
 	EmailNhaCungCap varchar(50)
 );

@@ -8,7 +8,9 @@ import Service.TiepNhanXeService;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -57,6 +59,8 @@ public class IntakeServiceController implements Initializable, Refreshable {
     private final TiepNhanXeService tiepNhanXeService = new TiepNhanXeService();
     private final HieuXeDAO hieuXeDAO = new HieuXeDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private final Map<String, String> brandNameToId = new HashMap<>();
+    private final Map<String, String> brandIdToName = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -76,7 +80,11 @@ public class IntakeServiceController implements Initializable, Refreshable {
         colMaTiepNhanXe.setCellValueFactory(new PropertyValueFactory<>("maTiepNhanXe"));
         colMaKhachHang.setCellValueFactory(new PropertyValueFactory<>("maKhachHang"));
         colBienSoXe.setCellValueFactory(new PropertyValueFactory<>("bienSoXe"));
-        colMaHieuXe.setCellValueFactory(new PropertyValueFactory<>("maHieuXe"));
+        colMaHieuXe.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleStringProperty(
+                        brandIdToName.getOrDefault(cellData.getValue().getMaHieuXe(), cellData.getValue().getMaHieuXe())
+                )
+        );
         colNgayTiepNhan.setCellValueFactory(new PropertyValueFactory<>("ngayTiepNhan"));
         colTienNo.setCellValueFactory(new PropertyValueFactory<>("tienNo"));
     }
@@ -114,9 +122,15 @@ public class IntakeServiceController implements Initializable, Refreshable {
             List<HieuXe> list = hieuXeDAO.getAll();
 
             cbbMaHieuXe.getItems().clear();
+            brandNameToId.clear();
+            brandIdToName.clear();
 
             for (HieuXe hx : list) {
-                cbbMaHieuXe.getItems().add(hx.getMaHieuXe());
+                String id = hx.getMaHieuXe().trim();
+                String name = hx.getTenHieuXe().trim();
+                brandNameToId.put(name, id);
+                brandIdToName.put(id, name);
+                cbbMaHieuXe.getItems().add(name);
             }
 
         } catch (Exception e) {
@@ -242,7 +256,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
         String maTiepNhanXe = txtMaTiepNhanXe.getText().trim();
         String maKhachHang = txtMaKhachHang.getText().trim();
         String bienSoXe = txtBienSoXe.getText().trim();
-        String maHieuXe = cbbMaHieuXe.getValue();
+        String maHieuXe = brandNameToId.get(cbbMaHieuXe.getValue());
         LocalDate ngayTiepNhanLocal = dpNgayTiepNhan.getValue();
         String tienNoText = txtTienNo.getText().trim();
 
@@ -301,7 +315,8 @@ public class IntakeServiceController implements Initializable, Refreshable {
         txtMaTiepNhanXe.setText(tnx.getMaTiepNhanXe());
         txtMaKhachHang.setText(tnx.getMaKhachHang());
         txtBienSoXe.setText(tnx.getBienSoXe());
-        cbbMaHieuXe.setValue(tnx.getMaHieuXe());
+        String brandId = tnx.getMaHieuXe() == null ? "" : tnx.getMaHieuXe().trim();
+        cbbMaHieuXe.setValue(brandIdToName.getOrDefault(brandId, brandId));
 
         if (tnx.getNgayTiepNhan() != null) {
             dpNgayTiepNhan.setValue(tnx.getNgayTiepNhan().toLocalDate());

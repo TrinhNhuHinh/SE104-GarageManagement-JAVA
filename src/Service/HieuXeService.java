@@ -29,6 +29,10 @@ public class HieuXeService {
             return false;
         }
 
+        if (hieuXeDAO.getByName(hx.getTenHieuXe().trim()) != null) {
+            return false;
+        }
+
         ThongTinGarage tt = thongTinGarageDAO.get();
         int maxBrand = tt == null ? 10 : tt.getTongSoHieuXe();
 
@@ -43,6 +47,13 @@ public class HieuXeService {
         if (!isValid(hx)) return false;
 
         if (hieuXeDAO.getById(hx.getMaHieuXe()) == null) {
+            return false;
+        }
+
+        HieuXe sameName = hieuXeDAO.getByName(hx.getTenHieuXe().trim());
+
+        if (sameName != null
+                && !sameName.getMaHieuXe().trim().equalsIgnoreCase(hx.getMaHieuXe().trim())) {
             return false;
         }
 

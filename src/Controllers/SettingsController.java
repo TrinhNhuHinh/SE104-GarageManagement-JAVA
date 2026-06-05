@@ -19,12 +19,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -43,6 +45,7 @@ public class SettingsController implements Initializable {
     @FXML private Button btnRefreshProfile;
     @FXML private Button btnLogout;
     @FXML private TabPane settingsTabPane;
+    @FXML private Tab tabUsers;
     @FXML private Tab tabLabor;
     @FXML private Tab tabSuppliers;
     @FXML private Tab tabBrands;
@@ -52,6 +55,19 @@ public class SettingsController implements Initializable {
     @FXML private PasswordField txtConfirmPassword;
     @FXML private Button btnChangePassword;
     @FXML private Button btnResetPasswordForm;
+
+    @FXML private TextField txtUserId;
+    @FXML private TextField txtUserName;
+    @FXML private PasswordField txtUserPassword;
+    @FXML private ComboBox<String> cbbUserRole;
+    @FXML private Button btnAddUser;
+    @FXML private Button btnUpdateUser;
+    @FXML private Button btnDeleteUser;
+    @FXML private Button btnClearUser;
+    @FXML private TableView<NguoiDung> tblUsers;
+    @FXML private TableColumn<NguoiDung, String> colUserId;
+    @FXML private TableColumn<NguoiDung, String> colUserName;
+    @FXML private TableColumn<NguoiDung, String> colUserRole;
 
     @FXML private TextField txtMaTienCong;
     @FXML private TextField txtNoiDungTienCong;
@@ -106,6 +122,7 @@ public class SettingsController implements Initializable {
 
         loadProfile();
         if (AuthorizationService.isAdmin(currentUser)) {
+            loadUserTable();
             loadLaborTable();
             loadSupplierTable();
             loadBrandTable();
@@ -124,6 +141,12 @@ public class SettingsController implements Initializable {
 
         colBrandId.setCellValueFactory(new PropertyValueFactory<>("maHieuXe"));
         colBrandName.setCellValueFactory(new PropertyValueFactory<>("tenHieuXe"));
+
+        colUserId.setCellValueFactory(new PropertyValueFactory<>("maNguoiDung"));
+        colUserName.setCellValueFactory(new PropertyValueFactory<>("tenTaiKhoan"));
+        colUserRole.setCellValueFactory(cellData ->
+                new SimpleStringProperty(AuthorizationService.getRoleName(cellData.getValue()))
+        );
     }
 
     private void setupEvents() {
@@ -132,6 +155,12 @@ public class SettingsController implements Initializable {
         btnLogout.setOnAction(e -> handleLogout(e));
         btnChangePassword.setOnAction(e -> handleChangePassword());
         btnResetPasswordForm.setOnAction(e -> clearPasswordForm());
+
+        cbbUserRole.getItems().setAll("Quản trị viên", "Nhân viên");
+        btnAddUser.setOnAction(e -> handleAddUser());
+        btnUpdateUser.setOnAction(e -> handleUpdateUser());
+        btnDeleteUser.setOnAction(e -> handleDeleteUser());
+        btnClearUser.setOnAction(e -> clearUserForm());
 
         btnAddLabor.setOnAction(e -> handleAddLabor());
         btnUpdateLabor.setOnAction(e -> handleUpdateLabor());
@@ -158,6 +187,10 @@ public class SettingsController implements Initializable {
 
         tblBrand.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
             if (selected != null) fillBrandForm(selected);
+        });
+
+        tblUsers.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
+            if (selected != null) fillUserForm(selected);
         });
     }
 
@@ -211,6 +244,7 @@ public class SettingsController implements Initializable {
         boolean admin = AuthorizationService.isAdmin(currentUser);
 
         if (settingsTabPane != null && !admin) {
+            settingsTabPane.getTabs().remove(tabUsers);
             settingsTabPane.getTabs().remove(tabLabor);
             settingsTabPane.getTabs().remove(tabSuppliers);
             settingsTabPane.getTabs().remove(tabBrands);
@@ -218,9 +252,11 @@ public class SettingsController implements Initializable {
 
         setAdminControlsEnabled(admin,
                 btnAddLabor, btnUpdateLabor, btnDeleteLabor, btnClearLabor,
+                btnAddUser, btnUpdateUser, btnDeleteUser, btnClearUser,
                 btnAddSupplier, btnUpdateSupplier, btnDeleteSupplier, btnClearSupplier,
                 btnAddBrand, btnUpdateBrand, btnDeleteBrand, btnClearBrand,
                 txtMaTienCong, txtNoiDungTienCong, txtSoTienCong,
+                txtUserId, txtUserName, txtUserPassword, cbbUserRole,
                 txtMaNhaCungCap, txtTenNhaCungCap, txtSdtNhaCungCap, txtEmailNhaCungCap,
                 txtMaHieuXe, txtTenHieuXe
         );
@@ -308,6 +344,189 @@ public class SettingsController implements Initializable {
         txtOldPassword.clear();
         txtNewPassword.clear();
         txtConfirmPassword.clear();
+    }
+
+    private void loadUserTable() {
+        tblUsers.setItems(FXCollections.observableArrayList(nguoiDungDAO.getAll()));
+    }
+
+    private void handleAddUser() {
+        if (!requireAdmin()) return;
+
+        NguoiDung user = getUserForm(true);
+
+        if (user == null) return;
+
+        if (nguoiDungDAO.checkTaiKhoanTonTai(user.getTenTaiKhoan())) {
+            showAlert(Alert.AlertType.WARNING, "Trùng tài khoản", "Tên tài khoản này đã tồn tại!");
+            return;
+        }
+
+        boolean result = nguoiDungDAO.insert(user);
+
+        if (result) {
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm tài khoản thành công!");
+            loadUserTable();
+            clearUserForm();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm tài khoản!");
+        }
+    }
+
+    private void handleUpdateUser() {
+        if (!requireAdmin()) return;
+
+        NguoiDung selected = tblUsers.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn tài khoản cần sửa!");
+            return;
+        }
+
+        NguoiDung user = getUserForm(false);
+
+        if (user == null) return;
+
+        if (isUsernameUsedByAnotherUser(user.getTenTaiKhoan(), user.getMaNguoiDung())) {
+            showAlert(Alert.AlertType.WARNING, "Trùng tài khoản", "Tên tài khoản này đã tồn tại!");
+            return;
+        }
+
+        if (user.getMatKhau().trim().isEmpty()) {
+            user.setMatKhau(selected.getMatKhau());
+        }
+
+        boolean result = nguoiDungDAO.update(user);
+
+        if (result) {
+            if (currentUser != null && currentUser.getMaNguoiDung().trim().equals(user.getMaNguoiDung().trim())) {
+                AuthService.currentUser = user;
+                currentUser = user;
+                loadProfile();
+            }
+
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật tài khoản thành công!");
+            loadUserTable();
+            clearUserForm();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật tài khoản!");
+        }
+    }
+
+    private void handleDeleteUser() {
+        if (!requireAdmin()) return;
+
+        NguoiDung selected = tblUsers.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn tài khoản cần xóa!");
+            return;
+        }
+
+        if (currentUser != null
+                && currentUser.getMaNguoiDung().trim().equals(selected.getMaNguoiDung().trim())) {
+            showAlert(Alert.AlertType.WARNING, "Không thể xóa", "Không thể xóa tài khoản đang đăng nhập!");
+            return;
+        }
+
+        if (!confirmDelete("Bạn có chắc muốn xóa tài khoản " + selected.getTenTaiKhoan() + "?")) {
+            return;
+        }
+
+        boolean result = nguoiDungDAO.delete(selected.getMaNguoiDung());
+
+        if (result) {
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa tài khoản thành công!");
+            loadUserTable();
+            clearUserForm();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa tài khoản!");
+        }
+    }
+
+    private NguoiDung getUserForm(boolean requirePassword) {
+        String id = txtUserId.getText().trim();
+        String username = txtUserName.getText().trim();
+        String password = txtUserPassword.getText();
+        String role = toRoleId(cbbUserRole.getValue());
+
+        if (id.isEmpty()) {
+            id = nguoiDungDAO.getMaNguoiDungTiepTheo();
+        }
+
+        if (username.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Tên tài khoản không được rỗng!");
+            return null;
+        }
+
+        if (requirePassword && password.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mật khẩu không được rỗng!");
+            return null;
+        }
+
+        if (!password.trim().isEmpty() && password.length() < 6) {
+            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Mật khẩu phải có ít nhất 6 ký tự!");
+            return null;
+        }
+
+        if (role == null) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Vui lòng chọn vai trò!");
+            return null;
+        }
+
+        return new NguoiDung(id, username, password, role);
+    }
+
+    private boolean isUsernameUsedByAnotherUser(String username, String userId) {
+        for (NguoiDung user : nguoiDungDAO.getAll()) {
+            if (user.getTenTaiKhoan().trim().equalsIgnoreCase(username.trim())
+                    && !user.getMaNguoiDung().trim().equalsIgnoreCase(userId.trim())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void fillUserForm(NguoiDung user) {
+        txtUserId.setText(user.getMaNguoiDung());
+        txtUserId.setDisable(true);
+        txtUserName.setText(user.getTenTaiKhoan());
+        txtUserPassword.clear();
+        cbbUserRole.setValue(toRoleName(user.getMaChucVu()));
+    }
+
+    private void clearUserForm() {
+        txtUserId.setDisable(false);
+        txtUserId.clear();
+        txtUserName.clear();
+        txtUserPassword.clear();
+        cbbUserRole.setValue(null);
+        tblUsers.getSelectionModel().clearSelection();
+    }
+
+    private String toRoleId(String roleName) {
+        if ("Quản trị viên".equals(roleName)) {
+            return AuthorizationService.ROLE_ADMIN;
+        }
+
+        if ("Nhân viên".equals(roleName)) {
+            return AuthorizationService.ROLE_STAFF;
+        }
+
+        return null;
+    }
+
+    private String toRoleName(String roleId) {
+        if (AuthorizationService.ROLE_ADMIN.equals(roleId == null ? "" : roleId.trim())) {
+            return "Quản trị viên";
+        }
+
+        if (AuthorizationService.ROLE_STAFF.equals(roleId == null ? "" : roleId.trim())) {
+            return "Nhân viên";
+        }
+
+        return null;
     }
 
     private void loadLaborTable() {

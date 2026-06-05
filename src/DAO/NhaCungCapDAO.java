@@ -68,6 +68,29 @@ public class NhaCungCapDAO {
         }
         return null;
     }
+
+    public NhaCungCap getByName(String tenNhaCungCap) {
+        String sql = "SELECT * FROM NHACUNGCAP WHERE TenNhaCungCap = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenNhaCungCap);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                NhaCungCap ncc = new NhaCungCap();
+                ncc.setMaNhaCungCap(rs.getString("MaNhaCungCap"));
+                ncc.setTenNhaCungCap(rs.getString("TenNhaCungCap"));
+                ncc.setSoDienThoaiNhaCungCap(rs.getString("SoDienThoaiNhaCungCap"));
+                ncc.setEmailNhaCungCap(rs.getString("EmailNhaCungCap"));
+                return ncc;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
     
     //update
     public boolean update(NhaCungCap ncc) {

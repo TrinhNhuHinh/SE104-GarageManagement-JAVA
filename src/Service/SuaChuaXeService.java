@@ -34,6 +34,10 @@ public class SuaChuaXeService {
         return vatTuDAO.getAllIds();
     }
 
+    public List<VatTuPhuTung> getAllParts() {
+        return vatTuDAO.getAll();
+    }
+
     public List<String> getAllLaborIds() {
         return tienCongDAO.getAllIds();
     }

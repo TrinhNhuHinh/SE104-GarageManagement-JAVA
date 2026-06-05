@@ -77,6 +77,27 @@ public class HieuXeDAO {
     }
         return null;
     }
+
+    public HieuXe getByName(String tenHieuXe) {
+        String sql = "SELECT * FROM HIEUXE WHERE TenHieuXe = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenHieuXe);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                HieuXe hx = new HieuXe();
+                hx.setMaHieuXe(rs.getString("MaHieuXe"));
+                hx.setTenHieuXe(rs.getString("TenHieuXe"));
+                return hx;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
     
     //Update
     public boolean update(HieuXe hx){
