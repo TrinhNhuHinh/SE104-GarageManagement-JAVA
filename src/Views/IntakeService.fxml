@@ -74,7 +74,8 @@
                     <TableColumn fx:id="colBienSoXe" text="Biển số xe" prefWidth="160.0" />
                     <TableColumn fx:id="colMaHieuXe" text="Hiệu xe" prefWidth="150.0" />
                     <TableColumn fx:id="colNgayTiepNhan" text="Ngày tiếp nhận" prefWidth="160.0" />
-                    <TableColumn fx:id="colTienNo" text="Tiền nợ" prefWidth="175.0" />
+                    <TableColumn fx:id="colTienNo" text="Tiền nợ" prefWidth="130.0" />
+                    <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="145.0" />
                 </columns>
             </TableView>
         </VBox>

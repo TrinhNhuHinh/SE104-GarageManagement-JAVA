@@ -56,6 +56,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
     @FXML private TableColumn<TiepNhanXe, String> colMaHieuXe;
     @FXML private TableColumn<TiepNhanXe, Date> colNgayTiepNhan;
     @FXML private TableColumn<TiepNhanXe, Double> colTienNo;
+    @FXML private TableColumn<TiepNhanXe, String> colTrangThai;
 
     private final TiepNhanXeService tiepNhanXeService = new TiepNhanXeService();
     private final HieuXeDAO hieuXeDAO = new HieuXeDAO();
@@ -89,6 +90,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
         );
         colNgayTiepNhan.setCellValueFactory(new PropertyValueFactory<>("ngayTiepNhan"));
         colTienNo.setCellValueFactory(new PropertyValueFactory<>("tienNo"));
+        colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThaiHienThi"));
     }
 
     private void setupEvents() {

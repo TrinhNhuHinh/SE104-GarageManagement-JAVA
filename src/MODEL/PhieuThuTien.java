@@ -12,6 +12,8 @@ public class PhieuThuTien {
     private String email;
     private String soDienThoai;
     private double soTienThu;
+    private double vatPercent;
+    private double priceIncreasePercent;
 
     public PhieuThuTien() {
     }
@@ -30,6 +32,14 @@ public class PhieuThuTien {
     public PhieuThuTien(String maPhieuThuTien, String maTiepNhanXe, String maSuaChuaXe,
                         Date ngayThuTien, String bienSoXe, String email,
                         String soDienThoai, double soTienThu) {
+        this(maPhieuThuTien, maTiepNhanXe, maSuaChuaXe, ngayThuTien,
+                bienSoXe, email, soDienThoai, soTienThu, 0, 0);
+    }
+
+    public PhieuThuTien(String maPhieuThuTien, String maTiepNhanXe, String maSuaChuaXe,
+                        Date ngayThuTien, String bienSoXe, String email,
+                        String soDienThoai, double soTienThu,
+                        double vatPercent, double priceIncreasePercent) {
         this.maPhieuThuTien = maPhieuThuTien;
         this.maTiepNhanXe = maTiepNhanXe;
         this.maSuaChuaXe = maSuaChuaXe;
@@ -38,6 +48,8 @@ public class PhieuThuTien {
         this.email = email;
         this.soDienThoai = soDienThoai;
         this.soTienThu = soTienThu;
+        this.vatPercent = vatPercent;
+        this.priceIncreasePercent = priceIncreasePercent;
     }
 
     public String getMaPhieuThuTien() {
@@ -102,5 +114,21 @@ public class PhieuThuTien {
 
     public void setSoTienThu(double soTienThu) {
         this.soTienThu = soTienThu;
+    }
+
+    public double getVatPercent() {
+        return vatPercent;
+    }
+
+    public void setVatPercent(double vatPercent) {
+        this.vatPercent = vatPercent;
+    }
+
+    public double getPriceIncreasePercent() {
+        return priceIncreasePercent;
+    }
+
+    public void setPriceIncreasePercent(double priceIncreasePercent) {
+        this.priceIncreasePercent = priceIncreasePercent;
     }
 }

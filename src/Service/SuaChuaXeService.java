@@ -148,6 +148,10 @@ public class SuaChuaXeService {
             return false;
         }
 
+        if (TiepNhanXe.STATUS_RETURNED.equals(TiepNhanXe.normalizeStatus(tnx.getTrangThai()))) {
+            return false;
+        }
+
         if (vt.getSoLuongVatTuPhuTung() < soLuong) {
             return false;
         }
@@ -185,8 +189,9 @@ public class SuaChuaXeService {
 
         boolean updateStock = vatTuDAO.updateSoLuong(maVatTu, vt.getSoLuongVatTuPhuTung() - soLuong);
         boolean updateDebt = tiepNhanXeDAO.updateTienNo(maTiepNhanXe, tnx.getTienNo() + thanhTien);
+        boolean updateStatus = tiepNhanXeDAO.updateTrangThai(maTiepNhanXe, TiepNhanXe.STATUS_REPAIRING);
 
-        return updateStock && updateDebt;
+        return updateStock && updateDebt && updateStatus;
     }
 
     public boolean update(String maSuaChuaXe, String maTiepNhanXe, Date ngaySuaChua,

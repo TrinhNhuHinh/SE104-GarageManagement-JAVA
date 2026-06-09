@@ -41,6 +41,13 @@ public class TiepNhanXeService {
             return false;
         }
 
+        // Bien so chi duoc tiep nhan lai sau khi ho so cu da o trang thai DA_TRA.
+        if (tiepNhanXeDAO.existsActivePlate(tnx.getBienSoXe(), null)) {
+            return false;
+        }
+
+        tnx.setTrangThai(TiepNhanXe.STATUS_RECEIVED);
+
         KhachHang khachHangDaCo = khachHangDAO.getById(tnx.getMaKhachHang());
 
         if (khachHangDaCo == null) {
@@ -54,7 +61,20 @@ public class TiepNhanXeService {
                 return false;
             }
         }
+        if (tiepNhanXeDAO.getById(tnx.getMaTiepNhanXe()) != null) {
+            System.out.println("TRUNG MA TIEP NHAN");
+            return false;
+        }
 
+        if (isOverDailyLimit(tnx)) {
+            System.out.println("VUOT GIOI HAN XE");
+            return false;
+        }
+
+        if (tiepNhanXeDAO.existsActivePlate(tnx.getBienSoXe(), null)) {
+            System.out.println("TRUNG BIEN SO");
+            return false;
+        }
         return tiepNhanXeDAO.insert(tnx);
     }
 
@@ -66,6 +86,13 @@ public class TiepNhanXeService {
         if (tiepNhanXeDAO.getById(tnx.getMaTiepNhanXe()) == null) {
             return false;
         }
+
+        if (tiepNhanXeDAO.existsActivePlate(tnx.getBienSoXe(), tnx.getMaTiepNhanXe())) {
+            return false;
+        }
+
+        TiepNhanXe old = tiepNhanXeDAO.getById(tnx.getMaTiepNhanXe());
+        tnx.setTrangThai(TiepNhanXe.normalizeStatus(old.getTrangThai()));
 
         return tiepNhanXeDAO.update(tnx);
     }

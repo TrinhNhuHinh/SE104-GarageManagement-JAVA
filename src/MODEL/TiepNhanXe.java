@@ -1,94 +1,121 @@
-    /*
-     * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-     * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
-     */
-    package MODEL;
+package MODEL;
 
-    import java.sql.Date;
+import java.sql.Date;
 
-    /**
-     *
-     * @author hinh
-     */
-    public class TiepNhanXe {
-        //Thuộc tính
-        private String maTiepNhanXe;
-        private String maKhachHang; //Khóa ngoại tham chiếu KhachHang
-        private String bienSoXe;
-        private String maHieuXe; //Khóa ngoại tham chiếu HieuXe
-        private Date ngayTiepNhan;
-        private double tienNo;
+public class TiepNhanXe {
 
-        //Constructor 
-        public TiepNhanXe(){
+    public static final String STATUS_RECEIVED = "DA_TIEP_NHAN";
+    public static final String STATUS_REPAIRING = "DANG_SUA";
+    public static final String STATUS_RETURNED = "DA_TRA";
 
-        }
+    private String maTiepNhanXe;
+    private String maKhachHang;
+    private String bienSoXe;
+    private String maHieuXe;
+    private Date ngayTiepNhan;
+    private double tienNo;
+    private String trangThai;
 
-        //Constructor 
-        public TiepNhanXe(String maTiepNhanXe, String maKhachHang, String bienSoXe, String maHieuXe, Date ngayTiepNhan, double tienNo){
-            this.maTiepNhanXe = maTiepNhanXe;
-            this.maKhachHang = maKhachHang;
-            this.maHieuXe = maHieuXe;
-            this.bienSoXe = bienSoXe;
-            this.ngayTiepNhan = ngayTiepNhan;
-            this.tienNo = tienNo;
-        }
+    public TiepNhanXe() {
+    }
 
-        //Getter
-        public String getMaTiepNhanXe() {
-            return maTiepNhanXe;
-        }
+    public TiepNhanXe(String maTiepNhanXe, String maKhachHang, String bienSoXe,
+                     String maHieuXe, Date ngayTiepNhan, double tienNo) {
+        this(maTiepNhanXe, maKhachHang, bienSoXe, maHieuXe, ngayTiepNhan, tienNo, STATUS_RECEIVED);
+    }
 
-        public String getMaKhachHang() {
-            return maKhachHang;
-        }
+    public TiepNhanXe(String maTiepNhanXe, String maKhachHang, String bienSoXe,
+                     String maHieuXe, Date ngayTiepNhan, double tienNo, String trangThai) {
+        this.maTiepNhanXe = maTiepNhanXe;
+        this.maKhachHang = maKhachHang;
+        this.bienSoXe = bienSoXe;
+        this.maHieuXe = maHieuXe;
+        this.ngayTiepNhan = ngayTiepNhan;
+        this.tienNo = tienNo;
+        this.trangThai = trangThai;
+    }
 
-        public String getBienSoXe() {
-            return bienSoXe;
-        }
+    public String getMaTiepNhanXe() {
+        return maTiepNhanXe;
+    }
 
-        public String getMaHieuXe() {
-            return maHieuXe;
-        }
+    public String getMaKhachHang() {
+        return maKhachHang;
+    }
 
-        public Date getNgayTiepNhan() {
-            return ngayTiepNhan;
-        }
+    public String getBienSoXe() {
+        return bienSoXe;
+    }
+
+    public String getMaHieuXe() {
+        return maHieuXe;
+    }
+
+    public Date getNgayTiepNhan() {
+        return ngayTiepNhan;
+    }
 
     public double getTienNo() {
         return tienNo;
     }
 
-        //Setter
-        public void setMaTiepNhanXe(String maTiepNhanXe) {
-            this.maTiepNhanXe = maTiepNhanXe;
-        }
+    public String getTrangThai() {
+        return trangThai;
+    }
 
-        public void setMaKhachHang(String maKhachHang) {
-            this.maKhachHang = maKhachHang;
-        }
+    public String getTrangThaiHienThi() {
+        return switch (normalizeStatus(trangThai)) {
+            case STATUS_REPAIRING -> "Dang sua";
+            case STATUS_RETURNED -> "Da tra";
+            default -> "Da tiep nhan";
+        };
+    }
 
-        public void setBienSoXe(String bienSoXe) {
-            this.bienSoXe = bienSoXe;
-        }
+    public void setMaTiepNhanXe(String maTiepNhanXe) {
+        this.maTiepNhanXe = maTiepNhanXe;
+    }
 
-        public void setMaHieuXe(String maHieuXe) {
-            this.maHieuXe = maHieuXe;
-        }
+    public void setMaKhachHang(String maKhachHang) {
+        this.maKhachHang = maKhachHang;
+    }
 
-        public void setNgayTiepNhan(Date ngayTiepNhan) {
-            this.ngayTiepNhan = ngayTiepNhan;
-        }
+    public void setBienSoXe(String bienSoXe) {
+        this.bienSoXe = bienSoXe;
+    }
+
+    public void setMaHieuXe(String maHieuXe) {
+        this.maHieuXe = maHieuXe;
+    }
+
+    public void setNgayTiepNhan(Date ngayTiepNhan) {
+        this.ngayTiepNhan = ngayTiepNhan;
+    }
 
     public void setTienNo(double tienNo) {
         this.tienNo = tienNo;
     }
 
-        //toString
-        @Override
-        public String toString() {
-            return "TiepNhanXe{" + "maTiepNhanXe=" + maTiepNhanXe + ", maKhachHang=" + maKhachHang + ", bienSoXe=" + bienSoXe + ", maHieuXe=" + maHieuXe + ", ngayTiepNhan=" + ngayTiepNhan + '}';
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    public static String normalizeStatus(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return STATUS_RECEIVED;
         }
 
-
+        return status.trim();
     }
+
+    @Override
+    public String toString() {
+        return "TiepNhanXe{"
+                + "maTiepNhanXe=" + maTiepNhanXe
+                + ", maKhachHang=" + maKhachHang
+                + ", bienSoXe=" + bienSoXe
+                + ", maHieuXe=" + maHieuXe
+                + ", ngayTiepNhan=" + ngayTiepNhan
+                + ", trangThai=" + trangThai
+                + '}';
+    }
+}

@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -246,6 +247,84 @@
                                         <TableColumn fx:id="colBrandName" text="Tên hiệu xe" prefWidth="650.0" />
                                     </columns>
                                 </TableView>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
+                </Tab>
+
+                <Tab fx:id="tabRoles" text="Vai tro">
+                    <AnchorPane prefWidth="975.0" prefHeight="610.0" styleClass="pageRoot">
+                        <children>
+                            <VBox layoutX="15.0" layoutY="15.0" prefWidth="940.0" prefHeight="205.0" spacing="14.0" styleClass="card">
+                                <Label text="Quan ly vai tro" styleClass="sectionTitle" />
+
+                                <GridPane hgap="20.0" vgap="14.0">
+                                    <Label text="Ma vai tro" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtRoleId" promptText="Tu dong" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                    <Label text="Ten vai tro" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtRoleName" promptText="Ke toan, tho sua..." styleClass="inputField" prefWidth="260.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                </GridPane>
+
+                                <HBox spacing="12.0">
+                                    <Button fx:id="btnAddRole" text="Them" styleClass="primaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnUpdateRole" text="Sua" styleClass="secondaryBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnDeleteRole" text="Xoa" styleClass="dangerBtn" prefWidth="90.0" />
+                                    <Button fx:id="btnClearRole" text="Lam moi" styleClass="secondaryBtn" prefWidth="100.0" />
+                                </HBox>
+                            </VBox>
+
+                            <HBox layoutX="15.0" layoutY="245.0" prefWidth="940.0" prefHeight="345.0" spacing="16.0">
+                                <VBox prefWidth="470.0" prefHeight="345.0" spacing="12.0" styleClass="card">
+                                    <Label text="Danh sach vai tro" styleClass="sectionTitle" />
+                                    <TableView fx:id="tblRoles" prefWidth="430.0" prefHeight="275.0" styleClass="dataTable">
+                                        <columns>
+                                            <TableColumn fx:id="colRoleId" text="Ma vai tro" prefWidth="150.0" />
+                                            <TableColumn fx:id="colRoleName" text="Ten vai tro" prefWidth="270.0" />
+                                        </columns>
+                                    </TableView>
+                                </VBox>
+
+                                <VBox prefWidth="454.0" prefHeight="345.0" spacing="12.0" styleClass="card">
+                                    <Label text="Quyen han" styleClass="sectionTitle" />
+                                    <ListView fx:id="lstPermissions" prefWidth="414.0" prefHeight="275.0" styleClass="dataTable" />
+                                </VBox>
+                            </HBox>
+                        </children>
+                    </AnchorPane>
+                </Tab>
+
+                <Tab fx:id="tabRegulations" text="Quy dinh">
+                    <AnchorPane prefWidth="975.0" prefHeight="610.0" styleClass="pageRoot">
+                        <children>
+                            <VBox layoutX="15.0" layoutY="15.0" prefWidth="940.0" prefHeight="310.0" spacing="16.0" styleClass="card">
+                                <Label text="Thiet lap quy dinh" styleClass="sectionTitle" />
+
+                                <GridPane hgap="22.0" vgap="16.0">
+                                    <Label text="So xe toi da moi ngay" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtMaxCarsPerDay" promptText="30" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                    <Label text="So hieu xe toi da" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtMaxBrands" promptText="10" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                                    <Label text="So loai vat tu toi da" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <TextField fx:id="txtMaxParts" promptText="200" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                    <Label text="So loai tien cong toi da" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <TextField fx:id="txtMaxLabors" promptText="100" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                                    <Label text="VAT (%)" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtVatPercent" promptText="10" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                    <Label text="Tang gia (%)" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <TextField fx:id="txtPriceIncreasePercent" promptText="5" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                </GridPane>
+
+                                <HBox spacing="12.0">
+                                    <Button fx:id="btnUpdateRegulations" text="Cap nhat" styleClass="primaryBtn" prefWidth="120.0" />
+                                    <Button fx:id="btnResetRegulations" text="Ve mac dinh" styleClass="secondaryBtn" prefWidth="130.0" />
+                                    <Button fx:id="btnRefreshRegulations" text="Tai lai" styleClass="secondaryBtn" prefWidth="100.0" />
+                                </HBox>
                             </VBox>
                         </children>
                     </AnchorPane>
