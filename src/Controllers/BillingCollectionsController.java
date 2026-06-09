@@ -66,6 +66,7 @@ public class BillingCollectionsController implements Initializable, Refreshable 
     public void initialize(URL url, ResourceBundle rb) {
         setupTableColumns();
         setupInitialState();
+        restrictDatePickerToToday(dpNgayThuTien);
         loadComboBox();
         loadTableData();
         setupEvents();
@@ -150,6 +151,11 @@ public class BillingCollectionsController implements Initializable, Refreshable 
             return;
         }
 
+        if (!isToday(localDate)) {
+            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày thu tiền chỉ được chọn ngày hôm nay!");
+            return;
+        }
+
         double amount = phieuThuService.getRemainingByRepairId(maSuaChuaXe);
         double currentDebt = phieuThuService.getCurrentDebtByRepairId(maSuaChuaXe);
 
@@ -199,6 +205,11 @@ public class BillingCollectionsController implements Initializable, Refreshable 
 
         if (localDate == null) {
             showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Ngày thu tiền không được rỗng!");
+            return;
+        }
+
+        if (!isToday(localDate)) {
+            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày thu tiền chỉ được chọn ngày hôm nay!");
             return;
         }
 
@@ -282,12 +293,28 @@ public class BillingCollectionsController implements Initializable, Refreshable 
         txtMaPhieuThu.clear();
         cbbMaSuaChuaXe.setValue(null);
         txtMaTiepNhanXe.clear();
-        dpNgayThuTien.setValue(null);
+        dpNgayThuTien.setValue(LocalDate.now());
         txtSoTienThu.clear();
         txtSearchReceipt.clear();
 
         tblReceipts.getSelectionModel().clearSelection();
         updateRepairCards();
+    }
+
+    private void restrictDatePickerToToday(DatePicker datePicker) {
+        datePicker.setEditable(false);
+        datePicker.setValue(LocalDate.now());
+        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !isToday(date));
+            }
+        });
+    }
+
+    private boolean isToday(LocalDate date) {
+        return LocalDate.now().equals(date);
     }
 
     private void updateRepairCards() {

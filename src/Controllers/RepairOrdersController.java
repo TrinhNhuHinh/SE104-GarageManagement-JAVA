@@ -67,6 +67,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupTableColumns();
+        restrictDatePickerToToday(dpNgaySuaChua);
         loadComboBoxes();
         loadTableData();
         setupEvents();
@@ -263,7 +264,7 @@ public class RepairOrdersController implements Initializable, Refreshable {
         txtMaSuaChua.setDisable(false);
         txtMaSuaChua.clear();
         cbbMaTiepNhanXe.setValue(null);
-        dpNgaySuaChua.setValue(null);
+        dpNgaySuaChua.setValue(LocalDate.now());
         cbbMaVatTu.setValue(null);
         txtSoLuong.clear();
         cbbMaTienCong.setValue(null);
@@ -281,7 +282,28 @@ public class RepairOrdersController implements Initializable, Refreshable {
             return null;
         }
 
+        if (!isToday(localDate)) {
+            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày sửa chữa chỉ được chọn ngày hôm nay!");
+            return null;
+        }
+
         return Date.valueOf(localDate);
+    }
+
+    private void restrictDatePickerToToday(DatePicker datePicker) {
+        datePicker.setEditable(false);
+        datePicker.setValue(LocalDate.now());
+        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !isToday(date));
+            }
+        });
+    }
+
+    private boolean isToday(LocalDate date) {
+        return LocalDate.now().equals(date);
     }
 
     private Integer getQuantity() {

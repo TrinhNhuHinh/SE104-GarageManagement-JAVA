@@ -128,6 +128,7 @@ public class PartsManagementController implements Initializable, Refreshable {
     public void initialize(URL url, ResourceBundle rb) {
         setupComboBoxes();
         setupTableColumns();
+        restrictDatePickersToToday();
         setupEvents();
         loadInitialData();
         updateTotalLabels();
@@ -771,7 +772,7 @@ public class PartsManagementController implements Initializable, Refreshable {
     private void clearImportForm() {
         txtMaNhapVatTu.clear();
         cbbMaNhaCungCap.setValue(null);
-        dpNgayNhap.setValue(null);
+        dpNgayNhap.setValue(LocalDate.now());
         cbbImportMaVatTu.setValue(null);
         txtImportSoLuong.clear();
         txtImportDonGia.clear();
@@ -781,7 +782,7 @@ public class PartsManagementController implements Initializable, Refreshable {
     private void clearSaleForm() {
         txtMaBanVatTu.clear();
         cbbMaKhachHang.setValue(null);
-        dpNgayBan.setValue(null);
+        dpNgayBan.setValue(LocalDate.now());
         cbbSaleMaVatTu.setValue(null);
         txtSaleSoLuong.clear();
         txtSaleDonGia.clear();
@@ -842,7 +843,33 @@ public class PartsManagementController implements Initializable, Refreshable {
             return null;
         }
 
+        if (!isToday(localDate)) {
+            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày lập phiếu chỉ được chọn ngày hôm nay!");
+            return null;
+        }
+
         return Date.valueOf(localDate);
+    }
+
+    private void restrictDatePickersToToday() {
+        restrictDatePickerToToday(dpNgayNhap);
+        restrictDatePickerToToday(dpNgayBan);
+    }
+
+    private void restrictDatePickerToToday(DatePicker datePicker) {
+        datePicker.setEditable(false);
+        datePicker.setValue(LocalDate.now());
+        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !isToday(date));
+            }
+        });
+    }
+
+    private boolean isToday(LocalDate date) {
+        return LocalDate.now().equals(date);
     }
 
     private Integer getPositiveInteger(TextField field, String message) {

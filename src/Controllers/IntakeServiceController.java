@@ -67,6 +67,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupTableColumns();
+        restrictDatePickerToToday(dpNgayTiepNhan);
         loadHieuXeComboBox();
         loadTableData();
         setupEvents();
@@ -319,6 +320,11 @@ public class IntakeServiceController implements Initializable, Refreshable {
             return null;
         }
 
+        if (!isToday(ngayTiepNhanLocal)) {
+            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày tiếp nhận chỉ được chọn ngày hôm nay!");
+            return null;
+        }
+
         double tienNo;
 
         try {
@@ -366,11 +372,27 @@ public class IntakeServiceController implements Initializable, Refreshable {
         txtMaKhachHang.clear();
         txtBienSoXe.clear();
         cbbMaHieuXe.setValue(null);
-        dpNgayTiepNhan.setValue(null);
+        dpNgayTiepNhan.setValue(LocalDate.now());
         txtTienNo.clear();
         txtSearch.clear();
 
         tblTiepNhanXe.getSelectionModel().clearSelection();
+    }
+
+    private void restrictDatePickerToToday(DatePicker datePicker) {
+        datePicker.setEditable(false);
+        datePicker.setValue(LocalDate.now());
+        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !isToday(date));
+            }
+        });
+    }
+
+    private boolean isToday(LocalDate date) {
+        return LocalDate.now().equals(date);
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
