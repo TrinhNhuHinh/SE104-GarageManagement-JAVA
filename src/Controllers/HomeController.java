@@ -78,12 +78,10 @@ public class HomeController implements Initializable {
             loadPage("Settings.fxml");
         });
 
-        if (btnRegulations != null) {
-            btnRegulations.setOnAction(e -> {
-                setActive(btnSettings);
-                loadPage("Settings.fxml");
-            });
-        }
+        btnRegulations.setOnAction(e -> {
+            setActive(btnRegulations);
+            loadPage("Regulations.fxml");
+        });
     }
 
     private void loadPage(String fxmlFile) {
@@ -128,9 +126,10 @@ public class HomeController implements Initializable {
     }
 
     private void applyRolePermissions() {
-        setButtonVisible(btnReports, AuthorizationService.hasPermission(AuthorizationService.PERMISSION_REPORTS));
-        setButtonVisible(btnSettings, AuthorizationService.hasPermission(AuthorizationService.PERMISSION_SETTINGS));
-        setButtonVisible(btnRegulations, false);
+        boolean admin = AuthorizationService.isAdmin();
+
+        setButtonVisible(btnReports, admin);
+        setButtonVisible(btnRegulations, admin);
     }
 
     private void setButtonVisible(Button button, boolean visible) {

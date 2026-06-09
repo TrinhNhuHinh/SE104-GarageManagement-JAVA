@@ -31,9 +31,8 @@ public class ThongTinGarageDAO {
     public boolean insert(ThongTinGarage tt) {
         String sql = """
             INSERT INTO THONGTINGARAGE
-            (Id, SoLuongXeToiDa, TongSoHieuXe, SoTienThuSoVoiSoTienNo,
-             SoLuongVatTuToiDa, SoLuongTienCongToiDa, VatPercent, PriceIncreasePercent)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (Id, SoLuongXeToiDa, TongSoHieuXe, SoTienThuSoVoiSoTienNo, SoLuongVatTuToiDa, SoLuongTienCongToiDa)
+            VALUES (?, ?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -45,8 +44,6 @@ public class ThongTinGarageDAO {
             ps.setDouble(4, tt.getSoTienThuSoVoiSoTienNo());
             ps.setInt(5, tt.getSoLuongVatTuToiDa());
             ps.setInt(6, tt.getSoLuongTienCongToiDa());
-            ps.setDouble(7, tt.getVatPercent());
-            ps.setDouble(8, tt.getPriceIncreasePercent());
 
             return ps.executeUpdate() > 0;
 
@@ -64,9 +61,7 @@ public class ThongTinGarageDAO {
                 TongSoHieuXe = ?,
                 SoTienThuSoVoiSoTienNo = ?,
                 SoLuongVatTuToiDa = ?,
-                SoLuongTienCongToiDa = ?,
-                VatPercent = ?,
-                PriceIncreasePercent = ?
+                SoLuongTienCongToiDa = ?
             WHERE Id = ?
         """;
 
@@ -78,9 +73,7 @@ public class ThongTinGarageDAO {
             ps.setDouble(3, tt.getSoTienThuSoVoiSoTienNo());
             ps.setInt(4, tt.getSoLuongVatTuToiDa());
             ps.setInt(5, tt.getSoLuongTienCongToiDa());
-            ps.setDouble(6, tt.getVatPercent());
-            ps.setDouble(7, tt.getPriceIncreasePercent());
-            ps.setString(8, tt.getId());
+            ps.setString(6, tt.getId());
 
             return ps.executeUpdate() > 0;
 
@@ -100,18 +93,8 @@ public class ThongTinGarageDAO {
         tt.setSoTienThuSoVoiSoTienNo(rs.getDouble("SoTienThuSoVoiSoTienNo"));
         tt.setSoLuongVatTuToiDa(rs.getInt("SoLuongVatTuToiDa"));
         tt.setSoLuongTienCongToiDa(rs.getInt("SoLuongTienCongToiDa"));
-        tt.setVatPercent(getDoubleIfPresent(rs, "VatPercent"));
-        tt.setPriceIncreasePercent(getDoubleIfPresent(rs, "PriceIncreasePercent"));
 
         return tt;
-    }
-
-    private double getDoubleIfPresent(ResultSet rs, String columnName) {
-        try {
-            return rs.getDouble(columnName);
-        } catch (SQLException e) {
-            return 0;
-        }
     }
 
     private void printSqlError(SQLException e) {

@@ -2,8 +2,6 @@ package DAO;
 
 import Config.DBConnection;
 import MODEL.PhieuThuTien;
-import MODEL.ThongTinGarage;
-import MODEL.TiepNhanXe;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PhieuThuTienDAO {
-
-    private final ThongTinGarageDAO thongTinGarageDAO = new ThongTinGarageDAO();
 
     public boolean insert(PhieuThuTien pt) {
         return insertAndReduceDebt(pt);
@@ -149,21 +145,15 @@ public class PhieuThuTienDAO {
 
         String insertSql = """
             INSERT INTO PHIEUTHUTIEN
-            (MaPhieuThuTien, Ma_TiepNhanXe, Ma_SuaChuaXe, NgayThuTien, BienSoXe, Email,
-             SoDienThoai, SoTienThu, VatPercent, PriceIncreasePercent)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (MaPhieuThuTien, Ma_TiepNhanXe, Ma_SuaChuaXe, NgayThuTien, BienSoXe, Email, SoDienThoai, SoTienThu)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
         String updateDebtSql = """
             UPDATE TIEPNHANXE
-            SET TienNo = CASE WHEN TienNo - ? < 0 THEN 0 ELSE TienNo - ? END
+            SET TienNo = TienNo - ?
             WHERE MaTiepNhanXe = ?
-        """;
-
-        String updateStatusSql = """
-            UPDATE TIEPNHANXE
-            SET TrangThai = ?
-            WHERE MaTiepNhanXe = ?
+              AND TienNo >= ?
         """;
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -172,8 +162,7 @@ public class PhieuThuTienDAO {
             try (PreparedStatement psRepair = conn.prepareStatement(repairInfoSql);
                  PreparedStatement psPaid = conn.prepareStatement(paidSql);
                  PreparedStatement psInsert = conn.prepareStatement(insertSql);
-                 PreparedStatement psDebt = conn.prepareStatement(updateDebtSql);
-                 PreparedStatement psStatus = conn.prepareStatement(updateStatusSql)) {
+                 PreparedStatement psDebt = conn.prepareStatement(updateDebtSql)) {
 
                 psRepair.setString(1, pt.getMaSuaChuaXe());
                 ResultSet repairRs = psRepair.executeQuery();
@@ -185,7 +174,7 @@ public class PhieuThuTienDAO {
 
                 String maTiepNhanXe = repairRs.getString("Ma_TiepNhanXe");
                 String bienSoXe = repairRs.getString("BienSoXe");
-                double repairTotal = applyVatAndIncrease(repairRs.getDouble("ThanhTien"));
+                double repairTotal = repairRs.getDouble("ThanhTien");
                 double currentDebt = repairRs.getDouble("TienNo");
 
                 psPaid.setString(1, pt.getMaSuaChuaXe());
@@ -209,6 +198,11 @@ public class PhieuThuTienDAO {
                     return false;
                 }
 
+                if (pt.getSoTienThu() > currentDebt) {
+                    conn.rollback();
+                    return false;
+                }
+
                 psInsert.setString(1, pt.getMaPhieuThuTien());
                 psInsert.setString(2, maTiepNhanXe);
                 psInsert.setString(3, pt.getMaSuaChuaXe());
@@ -217,26 +211,17 @@ public class PhieuThuTienDAO {
                 psInsert.setString(6, pt.getEmail());
                 psInsert.setString(7, pt.getSoDienThoai());
                 psInsert.setDouble(8, pt.getSoTienThu());
-                psInsert.setDouble(9, pt.getVatPercent());
-                psInsert.setDouble(10, pt.getPriceIncreasePercent());
                 psInsert.executeUpdate();
 
-                double debtReduction = Math.min(pt.getSoTienThu(), currentDebt);
-                psDebt.setDouble(1, debtReduction);
-                psDebt.setDouble(2, debtReduction);
-                psDebt.setString(3, maTiepNhanXe);
+                psDebt.setDouble(1, pt.getSoTienThu());
+                psDebt.setString(2, maTiepNhanXe);
+                psDebt.setDouble(3, pt.getSoTienThu());
 
                 int affectedRows = psDebt.executeUpdate();
 
                 if (affectedRows == 0) {
                     conn.rollback();
                     return false;
-                }
-
-                if (remainingRepairAmount - pt.getSoTienThu() <= 0.01) {
-                    psStatus.setString(1, TiepNhanXe.STATUS_RETURNED);
-                    psStatus.setString(2, maTiepNhanXe);
-                    psStatus.executeUpdate();
                 }
 
                 conn.commit();
@@ -428,29 +413,8 @@ public class PhieuThuTienDAO {
         pt.setEmail(rs.getString("Email"));
         pt.setSoDienThoai(rs.getString("SoDienThoai"));
         pt.setSoTienThu(rs.getDouble("SoTienThu"));
-        pt.setVatPercent(getDoubleIfPresent(rs, "VatPercent"));
-        pt.setPriceIncreasePercent(getDoubleIfPresent(rs, "PriceIncreasePercent"));
 
         return pt;
-    }
-
-    private double applyVatAndIncrease(double baseAmount) {
-        ThongTinGarage settings = thongTinGarageDAO.get();
-
-        if (settings == null) {
-            return baseAmount;
-        }
-
-        double afterIncrease = baseAmount * (1 + settings.getPriceIncreasePercent() / 100.0);
-        return afterIncrease * (1 + settings.getVatPercent() / 100.0);
-    }
-
-    private double getDoubleIfPresent(ResultSet rs, String columnName) {
-        try {
-            return rs.getDouble(columnName);
-        } catch (SQLException e) {
-            return 0;
-        }
     }
 
     private void printSqlError(SQLException e) {

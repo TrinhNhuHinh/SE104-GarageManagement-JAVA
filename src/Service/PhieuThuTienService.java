@@ -3,12 +3,10 @@ package Service;
 import DAO.KhachHangDAO;
 import DAO.PhieuThuTienDAO;
 import DAO.SuaChuaXeDAO;
-import DAO.ThongTinGarageDAO;
 import DAO.TiepNhanXeDAO;
 import MODEL.KhachHang;
 import MODEL.PhieuThuTien;
 import MODEL.SuaChuaXe;
-import MODEL.ThongTinGarage;
 import MODEL.TiepNhanXe;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ public class PhieuThuTienService {
     private final TiepNhanXeDAO tiepNhanXeDAO = new TiepNhanXeDAO();
     private final SuaChuaXeDAO suaChuaXeDAO = new SuaChuaXeDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
-    private final ThongTinGarageDAO thongTinGarageDAO = new ThongTinGarageDAO();
 
     public List<PhieuThuTien> getAll() {
         return phieuThuDAO.getAll();
@@ -69,7 +66,7 @@ public class PhieuThuTienService {
             return 0;
         }
 
-        return applyVatAndIncrease(sc.getThanhTien());
+        return sc.getThanhTien();
     }
 
     public double getPaidByRepairId(String maSuaChuaXe) {
@@ -136,6 +133,10 @@ public class PhieuThuTienService {
             return false;
         }
 
+        if (soTienThu > tnx.getTienNo()) {
+            return false;
+        }
+
         KhachHang kh = khachHangDAO.getById(tnx.getMaKhachHang());
 
         String phone = "";
@@ -152,9 +153,7 @@ public class PhieuThuTienService {
                 tnx.getBienSoXe(),
                 "",
                 phone,
-                soTienThu,
-                getVatPercent(),
-                getPriceIncreasePercent()
+                soTienThu
         );
 
         return phieuThuDAO.insert(pt);
@@ -207,26 +206,5 @@ public class PhieuThuTienService {
         if (soTienThu <= 0) return false;
 
         return true;
-    }
-
-    private double applyVatAndIncrease(double baseAmount) {
-        ThongTinGarage settings = thongTinGarageDAO.get();
-
-        if (settings == null) {
-            return baseAmount;
-        }
-
-        double afterIncrease = baseAmount * (1 + settings.getPriceIncreasePercent() / 100.0);
-        return afterIncrease * (1 + settings.getVatPercent() / 100.0);
-    }
-
-    private double getVatPercent() {
-        ThongTinGarage settings = thongTinGarageDAO.get();
-        return settings == null ? 0 : settings.getVatPercent();
-    }
-
-    private double getPriceIncreasePercent() {
-        ThongTinGarage settings = thongTinGarageDAO.get();
-        return settings == null ? 0 : settings.getPriceIncreasePercent();
     }
 }

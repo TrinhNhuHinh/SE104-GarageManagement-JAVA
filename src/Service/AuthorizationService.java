@@ -1,10 +1,8 @@
 package Service;
 
-import DAO.ChucVuDAO;
-import MODEL.ChucVu;
 import MODEL.NguoiDung;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AuthorizationService {
@@ -12,20 +10,10 @@ public class AuthorizationService {
     public static final String ROLE_ADMIN = "CV01";
     public static final String ROLE_STAFF = "CV02";
 
-    public static final String PERMISSION_ALL = "QH01";
-    public static final String PERMISSION_BASIC = "QH02";
-    public static final String PERMISSION_REPORTS = "QH03";
-    public static final String PERMISSION_SETTINGS = "QH04";
-    public static final String PERMISSION_ROLE_MANAGEMENT = "QH05";
-
-    private static final ChucVuDAO chucVuDAO = new ChucVuDAO();
-    private static final Map<String, String> PAGE_PERMISSIONS = new HashMap<>();
-
-    static {
-        PAGE_PERMISSIONS.put("StatisticalReports.fxml", PERMISSION_REPORTS);
-        PAGE_PERMISSIONS.put("Settings.fxml", PERMISSION_SETTINGS);
-        PAGE_PERMISSIONS.put("Regulations.fxml", PERMISSION_SETTINGS);
-    }
+    private static final Set<String> ADMIN_ONLY_PAGES = new HashSet<>(Arrays.asList(
+            "StatisticalReports.fxml",
+            "Regulations.fxml"
+    ));
 
     private AuthorizationService() {
     }
@@ -47,39 +35,23 @@ public class AuthorizationService {
             return false;
         }
 
-        String requiredPermission = PAGE_PERMISSIONS.get(fxmlFile);
-        return requiredPermission == null || hasPermission(AuthService.currentUser, requiredPermission);
-    }
-
-    public static boolean hasPermission(String permissionId) {
-        return hasPermission(AuthService.currentUser, permissionId);
-    }
-
-    public static boolean hasPermission(NguoiDung user, String permissionId) {
-        if (user == null || permissionId == null || permissionId.trim().isEmpty()) {
-            return false;
+        if (ADMIN_ONLY_PAGES.contains(fxmlFile)) {
+            return isAdmin();
         }
 
-        if (isAdmin(user)) {
-            return true;
-        }
-
-        Set<String> permissions = chucVuDAO.getPermissionIdsByRole(normalizeRole(user.getMaChucVu()));
-        return permissions.contains(PERMISSION_ALL) || permissions.contains(permissionId.trim());
+        return true;
     }
 
     public static String getRoleName(NguoiDung user) {
-        if (user == null) {
-            return "Khong xac dinh";
+        if (isAdmin(user)) {
+            return "Quản trị viên";
         }
 
-        ChucVu role = chucVuDAO.getRoleById(user.getMaChucVu());
-
-        if (role != null && role.getTenChucVu() != null) {
-            return role.getTenChucVu().trim();
+        if (isStaff(user)) {
+            return "Nhân viên";
         }
 
-        return "Khong xac dinh";
+        return "Không xác định";
     }
 
     private static String normalizeRole(String role) {

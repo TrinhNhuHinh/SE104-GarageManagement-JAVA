@@ -19,26 +19,11 @@ public class ThongTinGarageService {
 
     public boolean updateSettings(int soLuongXeToiDa, int tongSoHieuXe,
                                   int soLuongVatTuToiDa, int soLuongTienCongToiDa) {
-        ThongTinGarage current = getSettings();
-        return updateSettings(
-                soLuongXeToiDa,
-                tongSoHieuXe,
-                soLuongVatTuToiDa,
-                soLuongTienCongToiDa,
-                current.getVatPercent(),
-                current.getPriceIncreasePercent()
-        );
-    }
-
-    public boolean updateSettings(int soLuongXeToiDa, int tongSoHieuXe,
-                                  int soLuongVatTuToiDa, int soLuongTienCongToiDa,
-                                  double vatPercent, double priceIncreasePercent) {
 
         if (soLuongXeToiDa <= 0) return false;
         if (tongSoHieuXe <= 0) return false;
         if (soLuongVatTuToiDa <= 0) return false;
         if (soLuongTienCongToiDa <= 0) return false;
-        if (vatPercent < 0 || priceIncreasePercent < 0) return false;
 
         ThongTinGarage tt = new ThongTinGarage(
                 "GARAGE",
@@ -46,9 +31,7 @@ public class ThongTinGarageService {
                 tongSoHieuXe,
                 0,
                 soLuongVatTuToiDa,
-                soLuongTienCongToiDa,
-                vatPercent,
-                priceIncreasePercent
+                soLuongTienCongToiDa
         );
 
         return thongTinGarageDAO.update(tt);
@@ -66,9 +49,7 @@ public class ThongTinGarageService {
                 10,
                 0,
                 200,
-                100,
-                0,
-                0
+                100
         );
     }
 }

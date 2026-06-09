@@ -1,27 +1,19 @@
 package Controllers;
 
-import DAO.ChucVuDAO;
 import DAO.NguoiDungDAO;
-import MODEL.ChucVu;
 import MODEL.HieuXe;
 import MODEL.NguoiDung;
 import MODEL.NhaCungCap;
-import MODEL.QuyenHan;
 import MODEL.TienCong;
-import MODEL.ThongTinGarage;
 import Service.AuthService;
 import Service.AuthorizationService;
 import Service.DataRefreshService;
 import Service.HieuXeService;
 import Service.NhaCungCapService;
 import Service.TienCongService;
-import Service.ThongTinGarageService;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,9 +27,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -59,8 +49,6 @@ public class SettingsController implements Initializable {
     @FXML private Tab tabLabor;
     @FXML private Tab tabSuppliers;
     @FXML private Tab tabBrands;
-    @FXML private Tab tabRoles;
-    @FXML private Tab tabRegulations;
 
     @FXML private PasswordField txtOldPassword;
     @FXML private PasswordField txtNewPassword;
@@ -71,7 +59,7 @@ public class SettingsController implements Initializable {
     @FXML private TextField txtUserId;
     @FXML private TextField txtUserName;
     @FXML private PasswordField txtUserPassword;
-    @FXML private ComboBox<ChucVu> cbbUserRole;
+    @FXML private ComboBox<String> cbbUserRole;
     @FXML private Button btnAddUser;
     @FXML private Button btnUpdateUser;
     @FXML private Button btnDeleteUser;
@@ -80,27 +68,6 @@ public class SettingsController implements Initializable {
     @FXML private TableColumn<NguoiDung, String> colUserId;
     @FXML private TableColumn<NguoiDung, String> colUserName;
     @FXML private TableColumn<NguoiDung, String> colUserRole;
-
-    @FXML private TextField txtRoleId;
-    @FXML private TextField txtRoleName;
-    @FXML private Button btnAddRole;
-    @FXML private Button btnUpdateRole;
-    @FXML private Button btnDeleteRole;
-    @FXML private Button btnClearRole;
-    @FXML private TableView<ChucVu> tblRoles;
-    @FXML private TableColumn<ChucVu, String> colRoleId;
-    @FXML private TableColumn<ChucVu, String> colRoleName;
-    @FXML private ListView<QuyenHan> lstPermissions;
-
-    @FXML private TextField txtMaxCarsPerDay;
-    @FXML private TextField txtMaxBrands;
-    @FXML private TextField txtMaxParts;
-    @FXML private TextField txtMaxLabors;
-    @FXML private TextField txtVatPercent;
-    @FXML private TextField txtPriceIncreasePercent;
-    @FXML private Button btnUpdateRegulations;
-    @FXML private Button btnResetRegulations;
-    @FXML private Button btnRefreshRegulations;
 
     @FXML private TextField txtMaTienCong;
     @FXML private TextField txtNoiDungTienCong;
@@ -139,11 +106,9 @@ public class SettingsController implements Initializable {
     @FXML private TableColumn<HieuXe, String> colBrandName;
 
     private final NguoiDungDAO nguoiDungDAO = new NguoiDungDAO();
-    private final ChucVuDAO chucVuDAO = new ChucVuDAO();
     private final TienCongService tienCongService = new TienCongService();
     private final NhaCungCapService nhaCungCapService = new NhaCungCapService();
     private final HieuXeService hieuXeService = new HieuXeService();
-    private final ThongTinGarageService thongTinGarageService = new ThongTinGarageService();
 
     private NguoiDung currentUser;
 
@@ -161,13 +126,7 @@ public class SettingsController implements Initializable {
             loadLaborTable();
             loadSupplierTable();
             loadBrandTable();
-            loadRoleTable();
-            loadPermissionList();
-            loadRegulationSettings();
         }
-        System.out.println("Current User = " + currentUser.getTenTaiKhoan());
-        System.out.println("Role = " + currentUser.getMaChucVu());
-        System.out.println("IsAdmin = " + AuthorizationService.isAdmin(currentUser));
     }
 
     private void setupTables() {
@@ -188,13 +147,6 @@ public class SettingsController implements Initializable {
         colUserRole.setCellValueFactory(cellData ->
                 new SimpleStringProperty(AuthorizationService.getRoleName(cellData.getValue()))
         );
-
-        colRoleId.setCellValueFactory(new PropertyValueFactory<>("maChucVu"));
-        colRoleName.setCellValueFactory(new PropertyValueFactory<>("tenChucVu"));
-
-        if (lstPermissions != null) {
-            lstPermissions.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        }
     }
 
     private void setupEvents() {
@@ -204,20 +156,11 @@ public class SettingsController implements Initializable {
         btnChangePassword.setOnAction(e -> handleChangePassword());
         btnResetPasswordForm.setOnAction(e -> clearPasswordForm());
 
-        loadRoleComboBox();
+        cbbUserRole.getItems().setAll("Quản trị viên", "Nhân viên");
         btnAddUser.setOnAction(e -> handleAddUser());
         btnUpdateUser.setOnAction(e -> handleUpdateUser());
         btnDeleteUser.setOnAction(e -> handleDeleteUser());
         btnClearUser.setOnAction(e -> clearUserForm());
-
-        btnAddRole.setOnAction(e -> handleAddRole());
-        btnUpdateRole.setOnAction(e -> handleUpdateRole());
-        btnDeleteRole.setOnAction(e -> handleDeleteRole());
-        btnClearRole.setOnAction(e -> clearRoleForm());
-
-        btnUpdateRegulations.setOnAction(e -> handleUpdateRegulations());
-        btnResetRegulations.setOnAction(e -> handleResetRegulations());
-        btnRefreshRegulations.setOnAction(e -> loadRegulationSettings());
 
         btnAddLabor.setOnAction(e -> handleAddLabor());
         btnUpdateLabor.setOnAction(e -> handleUpdateLabor());
@@ -248,10 +191,6 @@ public class SettingsController implements Initializable {
 
         tblUsers.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
             if (selected != null) fillUserForm(selected);
-        });
-
-        tblRoles.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
-            if (selected != null) fillRoleForm(selected);
         });
     }
 
@@ -302,38 +241,24 @@ public class SettingsController implements Initializable {
     }
 
     private void applyRolePermissions() {
-        boolean canManageSettings = AuthorizationService.hasPermission(currentUser, AuthorizationService.PERMISSION_SETTINGS);
-        boolean canManageRoles = AuthorizationService.hasPermission(currentUser, AuthorizationService.PERMISSION_ROLE_MANAGEMENT);
+        boolean admin = AuthorizationService.isAdmin(currentUser);
 
-        if (settingsTabPane != null && !canManageSettings) {
+        if (settingsTabPane != null && !admin) {
             settingsTabPane.getTabs().remove(tabUsers);
             settingsTabPane.getTabs().remove(tabLabor);
             settingsTabPane.getTabs().remove(tabSuppliers);
             settingsTabPane.getTabs().remove(tabBrands);
-            settingsTabPane.getTabs().remove(tabRegulations);
         }
 
-        if (settingsTabPane != null && !canManageRoles) {
-            settingsTabPane.getTabs().remove(tabRoles);
-        }
-
-        setAdminControlsEnabled(canManageSettings,
+        setAdminControlsEnabled(admin,
                 btnAddLabor, btnUpdateLabor, btnDeleteLabor, btnClearLabor,
                 btnAddUser, btnUpdateUser, btnDeleteUser, btnClearUser,
                 btnAddSupplier, btnUpdateSupplier, btnDeleteSupplier, btnClearSupplier,
                 btnAddBrand, btnUpdateBrand, btnDeleteBrand, btnClearBrand,
-                btnUpdateRegulations, btnResetRegulations, btnRefreshRegulations,
                 txtMaTienCong, txtNoiDungTienCong, txtSoTienCong,
                 txtUserId, txtUserName, txtUserPassword, cbbUserRole,
                 txtMaNhaCungCap, txtTenNhaCungCap, txtSdtNhaCungCap, txtEmailNhaCungCap,
-                txtMaHieuXe, txtTenHieuXe,
-                txtMaxCarsPerDay, txtMaxBrands, txtMaxParts, txtMaxLabors,
-                txtVatPercent, txtPriceIncreasePercent
-        );
-
-        setAdminControlsEnabled(canManageRoles,
-                btnAddRole, btnUpdateRole, btnDeleteRole, btnClearRole,
-                txtRoleId, txtRoleName, tblRoles, lstPermissions
+                txtMaHieuXe, txtTenHieuXe
         );
     }
 
@@ -346,7 +271,7 @@ public class SettingsController implements Initializable {
     }
 
     private boolean requireAdmin() {
-        if (AuthorizationService.hasPermission(currentUser, AuthorizationService.PERMISSION_SETTINGS)) {
+        if (AuthorizationService.isAdmin(currentUser)) {
             return true;
         }
 
@@ -523,8 +448,7 @@ public class SettingsController implements Initializable {
         String id = txtUserId.getText().trim();
         String username = txtUserName.getText().trim();
         String password = txtUserPassword.getText();
-        ChucVu selectedRole = cbbUserRole.getValue();
-        String role = selectedRole == null ? null : selectedRole.getMaChucVu();
+        String role = toRoleId(cbbUserRole.getValue());
 
         if (id.isEmpty()) {
             id = nguoiDungDAO.getMaNguoiDungTiepTheo();
@@ -569,7 +493,7 @@ public class SettingsController implements Initializable {
         txtUserId.setDisable(true);
         txtUserName.setText(user.getTenTaiKhoan());
         txtUserPassword.clear();
-        cbbUserRole.setValue(findRoleById(user.getMaChucVu()));
+        cbbUserRole.setValue(toRoleName(user.getMaChucVu()));
     }
 
     private void clearUserForm() {
@@ -581,242 +505,28 @@ public class SettingsController implements Initializable {
         tblUsers.getSelectionModel().clearSelection();
     }
 
-    private void loadRoleComboBox() {
-        ChucVu selected = cbbUserRole.getValue();
-        List<ChucVu> roles = chucVuDAO.getAllRoles();
-        cbbUserRole.setItems(FXCollections.observableArrayList(roles));
-
-        if (selected != null) {
-            cbbUserRole.setValue(findRoleById(selected.getMaChucVu()));
+    private String toRoleId(String roleName) {
+        if ("Quản trị viên".equals(roleName)) {
+            return AuthorizationService.ROLE_ADMIN;
         }
+
+        if ("Nhân viên".equals(roleName)) {
+            return AuthorizationService.ROLE_STAFF;
+        }
+
+        return null;
     }
 
-    private ChucVu findRoleById(String roleId) {
-        if (roleId == null) {
-            return null;
+    private String toRoleName(String roleId) {
+        if (AuthorizationService.ROLE_ADMIN.equals(roleId == null ? "" : roleId.trim())) {
+            return "Quản trị viên";
         }
 
-        for (ChucVu role : cbbUserRole.getItems()) {
-            if (roleId.trim().equalsIgnoreCase(role.getMaChucVu().trim())) {
-                return role;
-            }
+        if (AuthorizationService.ROLE_STAFF.equals(roleId == null ? "" : roleId.trim())) {
+            return "Nhân viên";
         }
 
-        return chucVuDAO.getRoleById(roleId.trim());
-    }
-
-    private boolean requireRoleManagement() {
-        if (AuthorizationService.hasPermission(currentUser, AuthorizationService.PERMISSION_ROLE_MANAGEMENT)) {
-            return true;
-        }
-
-        showAlert(Alert.AlertType.WARNING, "Khong co quyen", "Tai khoan hien tai khong co quyen quan ly vai tro va phan quyen.");
-        return false;
-    }
-
-    private void loadRoleTable() {
-        tblRoles.setItems(FXCollections.observableArrayList(chucVuDAO.getAllRoles()));
-        loadRoleComboBox();
-    }
-
-    private void loadPermissionList() {
-        lstPermissions.setItems(FXCollections.observableArrayList(chucVuDAO.getAllPermissions()));
-    }
-
-    private void handleAddRole() {
-        if (!requireRoleManagement()) return;
-
-        ChucVu role = getRoleForm();
-
-        if (role == null) return;
-
-        if (chucVuDAO.insertRole(role) && chucVuDAO.updateRolePermissions(role.getMaChucVu(), getSelectedPermissionIds())) {
-            showAlert(Alert.AlertType.INFORMATION, "Thanh cong", "Them vai tro va phan quyen thanh cong!");
-            loadRoleTable();
-            clearRoleForm();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong the them vai tro. Kiem tra ma vai tro co bi trung hay khong.");
-        }
-    }
-
-    private void handleUpdateRole() {
-        if (!requireRoleManagement()) return;
-
-        if (tblRoles.getSelectionModel().getSelectedItem() == null) {
-            showAlert(Alert.AlertType.WARNING, "Canh bao", "Vui long chon vai tro can sua!");
-            return;
-        }
-
-        ChucVu role = getRoleForm();
-
-        if (role == null) return;
-
-        if (chucVuDAO.updateRole(role) && chucVuDAO.updateRolePermissions(role.getMaChucVu(), getSelectedPermissionIds())) {
-            showAlert(Alert.AlertType.INFORMATION, "Thanh cong", "Cap nhat vai tro thanh cong!");
-            loadRoleTable();
-            clearRoleForm();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong the cap nhat vai tro!");
-        }
-    }
-
-    private void handleDeleteRole() {
-        if (!requireRoleManagement()) return;
-
-        ChucVu selected = tblRoles.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Canh bao", "Vui long chon vai tro can xoa!");
-            return;
-        }
-
-        if (AuthorizationService.ROLE_ADMIN.equals(selected.getMaChucVu().trim())
-                || AuthorizationService.ROLE_STAFF.equals(selected.getMaChucVu().trim())) {
-            showAlert(Alert.AlertType.WARNING, "Khong the xoa", "Khong xoa hai vai tro mac dinh cua he thong.");
-            return;
-        }
-
-        if (!confirmDelete("Ban co chac muon xoa vai tro " + selected.getTenChucVu() + "?")) {
-            return;
-        }
-
-        if (chucVuDAO.deleteRole(selected.getMaChucVu())) {
-            showAlert(Alert.AlertType.INFORMATION, "Thanh cong", "Xoa vai tro thanh cong!");
-            loadRoleTable();
-            clearRoleForm();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong the xoa vai tro. Vai tro co the dang duoc gan cho tai khoan.");
-        }
-    }
-
-    private ChucVu getRoleForm() {
-        String id = txtRoleId.getText().trim();
-        String name = txtRoleName.getText().trim();
-
-        if (id.isEmpty()) {
-            id = chucVuDAO.getNextRoleId();
-        }
-
-        if (name.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thieu du lieu", "Ten vai tro khong duoc rong!");
-            return null;
-        }
-
-        return new ChucVu(id, name);
-    }
-
-    private Set<String> getSelectedPermissionIds() {
-        Set<String> permissionIds = new HashSet<>();
-
-        for (QuyenHan permission : lstPermissions.getSelectionModel().getSelectedItems()) {
-            permissionIds.add(permission.getMaQuyenHan().trim());
-        }
-
-        return permissionIds;
-    }
-
-    private void fillRoleForm(ChucVu role) {
-        txtRoleId.setText(role.getMaChucVu());
-        txtRoleId.setDisable(true);
-        txtRoleName.setText(role.getTenChucVu());
-
-        lstPermissions.getSelectionModel().clearSelection();
-        Set<String> rolePermissionIds = chucVuDAO.getPermissionIdsByRole(role.getMaChucVu());
-
-        for (QuyenHan permission : lstPermissions.getItems()) {
-            if (rolePermissionIds.contains(permission.getMaQuyenHan().trim())) {
-                lstPermissions.getSelectionModel().select(permission);
-            }
-        }
-    }
-
-    private void clearRoleForm() {
-        txtRoleId.setDisable(false);
-        txtRoleId.clear();
-        txtRoleName.clear();
-        tblRoles.getSelectionModel().clearSelection();
-        lstPermissions.getSelectionModel().clearSelection();
-    }
-
-    private void loadRegulationSettings() {
-        ThongTinGarage settings = thongTinGarageService.getSettings();
-
-        txtMaxCarsPerDay.setText(String.valueOf(settings.getSoLuongXeToiDa()));
-        txtMaxBrands.setText(String.valueOf(settings.getTongSoHieuXe()));
-        txtMaxParts.setText(String.valueOf(settings.getSoLuongVatTuToiDa()));
-        txtMaxLabors.setText(String.valueOf(settings.getSoLuongTienCongToiDa()));
-        txtVatPercent.setText(String.valueOf(settings.getVatPercent()));
-        txtPriceIncreasePercent.setText(String.valueOf(settings.getPriceIncreasePercent()));
-    }
-
-    private void handleUpdateRegulations() {
-        if (!requireAdmin()) return;
-
-        Integer maxCars = getPositiveInt(txtMaxCarsPerDay, "So xe toi da moi ngay phai la so nguyen duong!");
-        Integer maxBrands = getPositiveInt(txtMaxBrands, "So hieu xe toi da phai la so nguyen duong!");
-        Integer maxParts = getPositiveInt(txtMaxParts, "So loai vat tu toi da phai la so nguyen duong!");
-        Integer maxLabors = getPositiveInt(txtMaxLabors, "So loai tien cong toi da phai la so nguyen duong!");
-        Double vat = getNonNegativeDouble(txtVatPercent, "VAT phai la so khong am!");
-        Double increase = getNonNegativeDouble(txtPriceIncreasePercent, "Tang gia phai la so khong am!");
-
-        if (maxCars == null || maxBrands == null || maxParts == null || maxLabors == null
-                || vat == null || increase == null) {
-            return;
-        }
-
-        boolean result = thongTinGarageService.updateSettings(maxCars, maxBrands, maxParts, maxLabors, vat, increase);
-
-        if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thanh cong", "Cap nhat quy dinh thanh cong!");
-            loadRegulationSettings();
-            markSettingsDataChanged();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong the cap nhat quy dinh!");
-        }
-    }
-
-    private void handleResetRegulations() {
-        if (!requireAdmin()) return;
-
-        if (thongTinGarageService.resetDefault()) {
-            showAlert(Alert.AlertType.INFORMATION, "Thanh cong", "Da dua quy dinh ve mac dinh!");
-            loadRegulationSettings();
-            markSettingsDataChanged();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong the dua quy dinh ve mac dinh!");
-        }
-    }
-
-    private Integer getPositiveInt(TextField field, String message) {
-        try {
-            int value = Integer.parseInt(field.getText().trim());
-
-            if (value <= 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai du lieu", message);
-                return null;
-            }
-
-            return value;
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai du lieu", message);
-            return null;
-        }
-    }
-
-    private Double getNonNegativeDouble(TextField field, String message) {
-        try {
-            double value = Double.parseDouble(field.getText().trim());
-
-            if (value < 0) {
-                showAlert(Alert.AlertType.WARNING, "Sai du lieu", message);
-                return null;
-            }
-
-            return value;
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai du lieu", message);
-            return null;
-        }
+        return null;
     }
 
     private void loadLaborTable() {

@@ -8,8 +8,6 @@ public class ThongTinGarage {
     private double soTienThuSoVoiSoTienNo;
     private int soLuongVatTuToiDa;
     private int soLuongTienCongToiDa;
-    private double vatPercent;
-    private double priceIncreasePercent;
 
     public ThongTinGarage() {
     }
@@ -17,22 +15,12 @@ public class ThongTinGarage {
     public ThongTinGarage(String id, int soLuongXeToiDa, int tongSoHieuXe,
                           double soTienThuSoVoiSoTienNo,
                           int soLuongVatTuToiDa, int soLuongTienCongToiDa) {
-        this(id, soLuongXeToiDa, tongSoHieuXe, soTienThuSoVoiSoTienNo,
-                soLuongVatTuToiDa, soLuongTienCongToiDa, 0, 0);
-    }
-
-    public ThongTinGarage(String id, int soLuongXeToiDa, int tongSoHieuXe,
-                          double soTienThuSoVoiSoTienNo,
-                          int soLuongVatTuToiDa, int soLuongTienCongToiDa,
-                          double vatPercent, double priceIncreasePercent) {
         this.id = id;
         this.soLuongXeToiDa = soLuongXeToiDa;
         this.tongSoHieuXe = tongSoHieuXe;
         this.soTienThuSoVoiSoTienNo = soTienThuSoVoiSoTienNo;
         this.soLuongVatTuToiDa = soLuongVatTuToiDa;
         this.soLuongTienCongToiDa = soLuongTienCongToiDa;
-        this.vatPercent = vatPercent;
-        this.priceIncreasePercent = priceIncreasePercent;
     }
 
     public String getId() {
@@ -59,14 +47,6 @@ public class ThongTinGarage {
         return soLuongTienCongToiDa;
     }
 
-    public double getVatPercent() {
-        return vatPercent;
-    }
-
-    public double getPriceIncreasePercent() {
-        return priceIncreasePercent;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -89,13 +69,5 @@ public class ThongTinGarage {
 
     public void setSoLuongTienCongToiDa(int soLuongTienCongToiDa) {
         this.soLuongTienCongToiDa = soLuongTienCongToiDa;
-    }
-
-    public void setVatPercent(double vatPercent) {
-        this.vatPercent = vatPercent;
-    }
-
-    public void setPriceIncreasePercent(double priceIncreasePercent) {
-        this.priceIncreasePercent = priceIncreasePercent;
     }
 }
