@@ -1,29 +1,100 @@
 # Garage Management System
 
-Ứng dụng desktop JavaFX hỗ trợ quản lý hoạt động của gara ô tô: tiếp nhận xe, lập phiếu sửa chữa, thu tiền, quản lý vật tư, tra cứu nhanh, báo cáo thống kê, cài đặt quy định và phân quyền người dùng.
+## Giới thiệu
+
+**Garage Management System** là ứng dụng desktop JavaFX hỗ trợ quản lý hoạt động của một gara ô tô. Ứng dụng tập trung vào các nghiệp vụ chính như tiếp nhận xe, lập phiếu sửa chữa, quản lý vật tư phụ tùng, thu tiền, tra cứu và lập báo cáo.
 
 Dự án được thực hiện cho môn **SE104 - Nhập môn Công nghệ phần mềm**.
 
 ## Công nghệ sử dụng
 
-- Java 21
-- JavaFX 21.0.11
-- FXML, CSS
-- Microsoft SQL Server
-- JDBC SQL Server
-- NetBeans/Ant project
+* Java
+* JavaFX, FXML, CSS
+* Microsoft SQL Server
+* JDBC SQL Server
+* NetBeans/Ant project
 
-## Chức năng chính
+## Chức năng đã hoàn thành
 
-- Đăng nhập và phân quyền theo vai trò quản trị viên/nhân viên.
-- Tổng quan hoạt động gara, doanh thu, công nợ và tình trạng tồn kho.
-- Quản lý tiếp nhận xe.
-- Quản lý phiếu sửa chữa.
-- Quản lý phiếu thu tiền.
-- Quản lý vật tư, phiếu nhập vật tư và hóa đơn bán vật tư.
-- Tra cứu nhanh khách hàng, xe, vật tư và phiếu sửa chữa.
-- Báo cáo doanh thu theo tháng/năm và báo cáo vật tư tồn.
-- Cài đặt tài khoản, tiền công, nhà cung cấp, hiệu xe và quy định gara.
+### Đăng nhập và phân quyền
+
+Ứng dụng hỗ trợ đăng nhập bằng tài khoản người dùng và phân quyền theo vai trò:
+
+* **Quản trị viên:** được sử dụng đầy đủ chức năng.
+* **Nhân viên:** được sử dụng các nghiệp vụ cơ bản như tiếp nhận xe, sửa chữa, thu tiền, tra cứu và cập nhật hồ sơ cá nhân.
+
+### Tổng quan
+
+Màn hình tổng quan hiển thị các số liệu chính của gara:
+
+* Tổng khách hàng.
+* Tổng xe đã tiếp nhận.
+* Tổng phiếu sửa chữa.
+* Doanh thu.
+* Công nợ còn lại.
+* Trạng thái vật tư tồn kho.
+* Các hoạt động gần đây.
+
+### Tiếp nhận xe
+
+Quản lý hồ sơ tiếp nhận xe của khách hàng:
+
+* Thêm, cập nhật, xóa phiếu tiếp nhận.
+* Tìm kiếm phiếu tiếp nhận.
+* Lưu thông tin khách hàng, biển số, hiệu xe, ngày tiếp nhận và tiền nợ.
+
+### Phiếu sửa chữa
+
+Quản lý thông tin sửa chữa xe:
+
+* Lập phiếu sửa chữa theo xe đã tiếp nhận.
+* Chọn vật tư phụ tùng và tiền công.
+* Tính thành tiền sửa chữa.
+* Cập nhật số lượng tồn kho khi sử dụng vật tư.
+
+### Thu tiền
+
+Quản lý phiếu thu tiền sửa chữa:
+
+* Tạo phiếu thu dựa trên phiếu sửa chữa.
+* Theo dõi tổng tiền, số tiền đã thu và số tiền còn lại.
+* Cập nhật công nợ sau khi thu tiền.
+
+### Tra cứu nhanh
+
+Tra cứu thông tin trong hệ thống:
+
+* Xe đã tiếp nhận.
+* Khách hàng.
+* Vật tư phụ tùng.
+* Phiếu sửa chữa.
+
+### Quản lý vật tư
+
+Quản lý vật tư phụ tùng trong gara:
+
+* Thêm, sửa, xóa vật tư.
+* Nhập vật tư từ nhà cung cấp.
+* Bán vật tư trực tiếp.
+* Theo dõi tồn kho.
+
+### Báo cáo thống kê
+
+Hệ thống hỗ trợ 2 loại báo cáo:
+
+* Báo cáo doanh thu theo tháng và năm.
+* Báo cáo vật tư tồn.
+
+### Cài đặt và quy định
+
+Ứng dụng hỗ trợ:
+
+* Cập nhật hồ sơ người dùng.
+* Đổi mật khẩu.
+* Quản lý tiền công.
+* Quản lý nhà cung cấp.
+* Quản lý hiệu xe.
+* Thay đổi một số quy định hoạt động của gara.
 
 ## Tài khoản demo
 
@@ -40,106 +111,116 @@ GarageManagement/
 │   ├── table.sql
 │   ├── Trigger.sql
 │   └── insertData.sql
-├── lib/
-│   ├── mssql-jdbc-13.4.0.jre11.jar
-│   └── javafx-sdk-21.0.11/
-├── nbproject/
 ├── src/
+│   ├── Assets/
+│   ├── Config/
+│   ├── Controllers/
+│   ├── DAO/
+│   ├── MODEL/
+│   ├── Service/
+│   ├── Views/
+│   └── garagemanagement/
+├── dist/
+├── nbproject/
 ├── build.xml
-├── manifest.mf
 └── README.md
 ```
 
-## Yêu cầu môi trường
+## Hướng dẫn cài đặt database
 
-- Windows.
-- JDK 21.
-- SQL Server và SQL Server Management Studio.
-- NetBeans hoặc IntelliJ IDEA.
+### Bước 1: Tạo database và bảng
 
-Thư viện JavaFX và JDBC đã được đặt sẵn trong thư mục `lib/`, nên khi clone project về không cần chỉnh đường dẫn JavaFX theo máy cá nhân.
-
-Nếu chạy trên macOS/Linux, cần thay thư mục `lib/javafx-sdk-21.0.11` bằng JavaFX SDK đúng hệ điều hành.
-
-## Cài đặt database
-
-Mở SQL Server Management Studio và chạy lần lượt:
+Mở SQL Server Management Studio và chạy file:
 
 ```text
 DATABASE/table.sql
+```
+
+### Bước 2: Tạo trigger
+
+Chạy file:
+
+```text
 DATABASE/Trigger.sql
+```
+
+### Bước 3: Thêm dữ liệu mẫu
+
+Chạy file:
+
+```text
 DATABASE/insertData.sql
 ```
 
-Database mặc định:
+File dữ liệu mẫu tạo sẵn các danh mục, phiếu nghiệp vụ và tài khoản demo để kiểm thử ứng dụng.
+
+## Cấu hình kết nối database
+
+Mặc định ứng dụng kết nối SQL Server với thông tin:
 
 ```text
+Server: localhost
+Port: 1433
 Database: Garage
 User: sa
 Password: 123456
 ```
 
-Cấu hình kết nối nằm tại:
+Cấu hình nằm trong:
 
 ```text
 src/Config/DBConnection.java
 ```
 
-Nếu máy dùng tài khoản SQL Server khác, chỉnh lại `user` và `password` trong file này trước khi chạy app.
+Nếu máy sử dụng tài khoản hoặc mật khẩu SQL Server khác, hãy chỉnh lại cấu hình kết nối trước khi chạy ứng dụng.
 
-## Chạy bằng NetBeans
+## Hướng dẫn chạy ứng dụng
 
-1. Mở NetBeans.
-2. Chọn `File > Open Project`.
-3. Chọn thư mục `GarageManagement`.
-4. Kiểm tra project đang dùng JDK 21.
-5. Bấm `Run Project`.
+### Chạy bằng NetBeans
 
-Main class:
+1. Mở project bằng NetBeans.
+2. Kiểm tra JavaFX SDK và JDBC driver đã được cấu hình trong project.
+3. Chạy file main:
 
 ```text
 garagemanagement.AppLauncher
 ```
 
-## Chạy bằng IntelliJ IDEA
+### VM Options cho JavaFX
 
-1. Mở IntelliJ IDEA.
-2. Chọn `Open` và trỏ tới thư mục `GarageManagement`.
-3. Chọn Project SDK là JDK 21.
-4. Tạo Run Configuration dạng Application:
+Nếu IDE yêu cầu cấu hình JavaFX, thêm VM Options:
 
-```text
-Main class: garagemanagement.AppLauncher
-Working directory: <đường dẫn tới GarageManagement>
+```bash
+--module-path "PATH_TO_JAVAFX_SDK/lib" --add-modules javafx.controls,javafx.fxml
 ```
 
-VM options:
+Ví dụ:
 
-```text
--Djava.library.path="$PROJECT_DIR$/lib/javafx-sdk-21.0.11/bin" --module-path "$PROJECT_DIR$/lib/javafx-sdk-21.0.11/lib" --add-modules javafx.controls,javafx.fxml --enable-native-access=ALL-UNNAMED
+```bash
+--module-path "C:\javafx-sdk-21\lib" --add-modules javafx.controls,javafx.fxml
 ```
 
-Classpath/module dependencies cần có:
+## Luồng demo đề xuất
 
-```text
-lib/mssql-jdbc-13.4.0.jre11.jar
-lib/javafx-sdk-21.0.11/lib/javafx.base.jar
-lib/javafx-sdk-21.0.11/lib/javafx.controls.jar
-lib/javafx-sdk-21.0.11/lib/javafx.fxml.jar
-lib/javafx-sdk-21.0.11/lib/javafx.graphics.jar
-```
-
-## Chạy bằng CMD/PowerShell
-
-Sau khi build project bằng NetBeans:
-
-```powershell
-cd C:\path\to\GarageManagement
-java -Djava.library.path=".\lib\javafx-sdk-21.0.11\bin" --module-path ".\lib\javafx-sdk-21.0.11\lib" --add-modules javafx.controls,javafx.fxml --enable-native-access=ALL-UNNAMED -cp ".\dist\GarageManagement.jar;.\lib\mssql-jdbc-13.4.0.jre11.jar" garagemanagement.AppLauncher
-```
+1. Đăng nhập bằng tài khoản `admin`.
+2. Xem màn hình tổng quan.
+3. Thêm phiếu tiếp nhận xe.
+4. Lập phiếu sửa chữa cho xe đã tiếp nhận.
+5. Tạo phiếu thu.
+6. Kiểm tra tồn kho vật tư.
+7. Xem báo cáo doanh thu và báo cáo vật tư tồn.
+8. Đăng xuất và đăng nhập bằng tài khoản `staff` để kiểm tra phân quyền.
 
 ## Ghi chú
 
-- Nên dùng JDK 21 để tương thích với JavaFX 21.
-- Không commit thư mục `build/`, `dist/`, `.idea/`, `out/` hoặc file `.iml`.
-- Dữ liệu mẫu chỉ phục vụ kiểm thử và demo đồ án.
+* Database sử dụng SQL Server.
+* Mật khẩu demo được lưu dạng đơn giản để phục vụ đồ án.
+* Khi chuyển sang máy khác, cần kiểm tra lại đường dẫn JavaFX SDK, JDBC driver và thông tin kết nối SQL Server.
+
+## Thành viên thực hiện
+
+* Trình Như Hinh
+* Nguyễn Ngọc Huy Hoàng
+* Nguyễn Đức Kiên
+* Bùi Minh Khôi
+* Nguyễn Ngọc Đăng Khoa
