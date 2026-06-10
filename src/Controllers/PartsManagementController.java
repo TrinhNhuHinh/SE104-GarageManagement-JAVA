@@ -51,6 +51,7 @@ public class PartsManagementController implements Initializable, Refreshable {
     @FXML private Button btnAddPart;
     @FXML private Button btnUpdatePart;
     @FXML private Button btnDeletePart;
+    @FXML private Button btnClearPart;
     @FXML private TextField txtSearchPart;
     @FXML private Button btnSearchPart;
     @FXML private Button btnRefreshPart;
@@ -188,6 +189,7 @@ public class PartsManagementController implements Initializable, Refreshable {
         btnAddPart.setOnAction(e -> handleAdd());
         btnUpdatePart.setOnAction(e -> handleUpdate());
         btnDeletePart.setOnAction(e -> handleDelete());
+        btnClearPart.setOnAction(e -> clearForm());
         btnSearchPart.setOnAction(e -> handleSearch());
         btnRefreshPart.setOnAction(e -> {
             txtSearchPart.clear();
