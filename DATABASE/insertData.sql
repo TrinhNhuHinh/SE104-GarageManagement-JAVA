@@ -31,9 +31,14 @@ GO
 INSERT INTO HIEUXE (MaHieuXe, TenHieuXe) VALUES
 ('HX01', N'Toyota'),
 ('HX02', N'Honda'),
-('HX03', N'Ford'),
-('HX04', N'Hyundai'),
-('HX05', N'VinFast');
+('HX03', N'Suzuki'),
+('HX04', N'Ford'),
+('HX05', N'Hyundai'),
+('HX06', N'Kia'),
+('HX07', N'Mazda'),
+('HX08', N'Mitsubishi'),
+('HX09', N'Nissan'),
+('HX10', N'VinFast');
 GO
 
 -- 2. Khach hang demo
@@ -64,17 +69,17 @@ GO
 
 -- 5. Thong tin garage
 INSERT INTO THONGTINGARAGE
-    (Id, SoLuongXeToiDa, TongSoHieuXe, SoTienThuSoVoiSoTienNo, SoLuongVatTuToiDa, SoLuongTienCongToiDa)
+    (Id, SoLuongXeToiDa)
 VALUES
-    ('GARAGE', 30, 5, 0, 200, 100);
+    ('GARAGE', 30);
 GO
 
 -- 6. Tiep nhan xe
 INSERT INTO TIEPNHANXE (MaTiepNhanXe, Ma_KhachHang, BienSoXe, Ma_HieuXe, NgayTiepNhan, TienNo) VALUES
 ('TN01', 'KH01', '51A12345', 'HX01', '2026-06-01', 0),
 ('TN02', 'KH02', '51B23456', 'HX02', '2026-06-01', 0),
-('TN03', 'KH03', '51C34567', 'HX03', '2026-06-02', 1150000),
-('TN04', 'KH04', '51D45678', 'HX05', '2026-06-03', 0);
+('TN03', 'KH03', '51C34567', 'HX04', '2026-06-02', 1150000),
+('TN04', 'KH04', '51D45678', 'HX10', '2026-06-03', 0);
 GO
 
 -- 7. Phieu sua chua
@@ -103,13 +108,13 @@ GO
 
 -- 10. Ban vat tu demo
 INSERT INTO BANVATTU (MaBanVatTu, Ma_KhachHang, NgayBan, TongTien) VALUES
-('BVT01', 'KH01', '2026-06-01', 0),
-('BVT02', 'KH02', '2026-06-02', 0);
+('BVT01', 'KH01', '2026-06-01', 120000),
+('BVT02', 'KH02', '2026-06-02', 180000);
 GO
 
 INSERT INTO CHITIETBANVATTU (Ma_BanVatTu, Ma_VatTuPhuTung, SoLuong, DonGia, ThanhTien) VALUES
-('BVT01', 'VT02', 1, 120000, 0),
-('BVT02', 'VT03', 2, 90000, 0);
+('BVT01', 'VT02', 1, 120000, 120000),
+('BVT02', 'VT03', 2, 90000, 180000);
 GO
 
 -- 11. Chi tiet sua chua
@@ -131,12 +136,13 @@ GO
 
 -- 13. Bao cao demo
 INSERT INTO BAOCAODOANHSO (MaBaoCaoDoanhSo, Thang, TongDoanhThu) VALUES
-('BCDS01', '2026-06-01', 780000);
+('BCDS01', '2026-06-01', 1930000);
 GO
 
 INSERT INTO CHITIETBAOCAODOANHSO (Ma_BaoCaoDoanhSo, Ma_HieuXe, SoLuotSua, ThanhTien, TiLe) VALUES
-('BCDS01', 'HX01', 1, 630000, 80.77),
-('BCDS01', 'HX02', 1, 150000, 19.23);
+('BCDS01', 'HX01', 1, 630000, 32.64),
+('BCDS01', 'HX02', 1, 150000, 7.77),
+('BCDS01', 'HX04', 1, 1150000, 59.59);
 GO
 
 INSERT INTO BAOCAOTON (MaBaoCaoTon, Thang) VALUES
@@ -144,10 +150,10 @@ INSERT INTO BAOCAOTON (MaBaoCaoTon, Thang) VALUES
 GO
 
 INSERT INTO CHITIETBAOCAOTON (Ma_BaoCaoTon, Ma_VatTuPhuTung, TonDau, TonCuoi, PhatSinh) VALUES
-('BCT01', 'VT01', 24, 33, 9),
-('BCT01', 'VT02', 18, 27, 9),
-('BCT01', 'VT03', 40, 58, 18),
-('BCT01', 'VT04', 4, 6, 2),
+('BCT01', 'VT01', 34, 33, -1),
+('BCT01', 'VT02', 28, 27, -1),
+('BCT01', 'VT03', 40, 38, -2),
+('BCT01', 'VT04', 4, 2, -2),
 ('BCT01', 'VT05', 0, 0, 0);
 GO
 

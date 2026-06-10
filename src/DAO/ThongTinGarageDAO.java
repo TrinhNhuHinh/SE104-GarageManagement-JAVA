@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class ThongTinGarageDAO {
 
     public ThongTinGarage get() {
-        String sql = "SELECT * FROM THONGTINGARAGE WHERE Id = 'GARAGE'";
+        String sql = "SELECT Id, SoLuongXeToiDa FROM THONGTINGARAGE WHERE Id = 'GARAGE'";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -30,9 +30,8 @@ public class ThongTinGarageDAO {
 
     public boolean insert(ThongTinGarage tt) {
         String sql = """
-            INSERT INTO THONGTINGARAGE
-            (Id, SoLuongXeToiDa, TongSoHieuXe, SoTienThuSoVoiSoTienNo, SoLuongVatTuToiDa, SoLuongTienCongToiDa)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO THONGTINGARAGE (Id, SoLuongXeToiDa)
+            VALUES (?, ?)
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -40,10 +39,6 @@ public class ThongTinGarageDAO {
 
             ps.setString(1, tt.getId());
             ps.setInt(2, tt.getSoLuongXeToiDa());
-            ps.setInt(3, tt.getTongSoHieuXe());
-            ps.setDouble(4, tt.getSoTienThuSoVoiSoTienNo());
-            ps.setInt(5, tt.getSoLuongVatTuToiDa());
-            ps.setInt(6, tt.getSoLuongTienCongToiDa());
 
             return ps.executeUpdate() > 0;
 
@@ -57,11 +52,7 @@ public class ThongTinGarageDAO {
     public boolean update(ThongTinGarage tt) {
         String sql = """
             UPDATE THONGTINGARAGE
-            SET SoLuongXeToiDa = ?,
-                TongSoHieuXe = ?,
-                SoTienThuSoVoiSoTienNo = ?,
-                SoLuongVatTuToiDa = ?,
-                SoLuongTienCongToiDa = ?
+            SET SoLuongXeToiDa = ?
             WHERE Id = ?
         """;
 
@@ -69,11 +60,7 @@ public class ThongTinGarageDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, tt.getSoLuongXeToiDa());
-            ps.setInt(2, tt.getTongSoHieuXe());
-            ps.setDouble(3, tt.getSoTienThuSoVoiSoTienNo());
-            ps.setInt(4, tt.getSoLuongVatTuToiDa());
-            ps.setInt(5, tt.getSoLuongTienCongToiDa());
-            ps.setString(6, tt.getId());
+            ps.setString(2, tt.getId());
 
             return ps.executeUpdate() > 0;
 
@@ -89,10 +76,6 @@ public class ThongTinGarageDAO {
 
         tt.setId(rs.getString("Id"));
         tt.setSoLuongXeToiDa(rs.getInt("SoLuongXeToiDa"));
-        tt.setTongSoHieuXe(rs.getInt("TongSoHieuXe"));
-        tt.setSoTienThuSoVoiSoTienNo(rs.getDouble("SoTienThuSoVoiSoTienNo"));
-        tt.setSoLuongVatTuToiDa(rs.getInt("SoLuongVatTuToiDa"));
-        tt.setSoLuongTienCongToiDa(rs.getInt("SoLuongTienCongToiDa"));
 
         return tt;
     }

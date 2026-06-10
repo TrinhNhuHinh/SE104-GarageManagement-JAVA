@@ -16,12 +16,10 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -104,7 +102,7 @@ public class DashboardController implements Initializable, Refreshable {
 
         task.setOnFailed(e -> refreshing = false);
 
-        Thread thread = new Thread(task);
+        Thread thread = new Thread(task, "dashboard-refresh");
         thread.setDaemon(true);
         thread.start();
     }
@@ -145,10 +143,6 @@ public class DashboardController implements Initializable, Refreshable {
         setLabel(lblRevenue, formatMoney(revenue));
     }
 
-    /*
-     * Dùng tổng toàn hệ thống thay vì "today".
-     * Như vậy dashboard không bị toàn số 0 khi data mẫu nằm ở ngày khác.
-     */
     private void loadSystemSummary(List<KhachHang> customers, List<TiepNhanXe> intakes,
             List<SuaChuaXe> repairs, List<PhieuThuTien> receipts, List<VatTuPhuTung> parts) {
         int lowStockCount = 0;
@@ -191,8 +185,7 @@ public class DashboardController implements Initializable, Refreshable {
         }
 
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
-        Map<String, SuaChuaXe> repairByIntakeId = buildRepairByIntakeId(repairs);
-        Set<String> paidRepairIds = buildPaidRepairIds(receipts);
+        Map<String, Double> paidByRepairId = buildPaidAmountByRepairId(receipts);
 
         int count = 0;
 
@@ -207,7 +200,7 @@ public class DashboardController implements Initializable, Refreshable {
                     safeDate(tnx.getNgayTiepNhan()),
                     "Tiếp nhận",
                     "Tiếp nhận xe " + safeText(tnx.getBienSoXe()) + " - " + safeText(tnx.getMaTiepNhanXe()),
-                    buildIntakeStatus(tnx, repairByIntakeId, paidRepairIds)
+                    "Đã tiếp nhận"
             ));
 
             count++;
@@ -224,7 +217,7 @@ public class DashboardController implements Initializable, Refreshable {
                     safeDate(sc.getNgaySuaChua()),
                     "Sửa chữa",
                     "Phiếu sửa chữa " + safeText(sc.getMaSuaChuaXe()) + " - " + formatMoney(sc.getThanhTien()),
-                    buildRepairStatus(sc, paidRepairIds)
+                    buildRepairStatus(sc, paidByRepairId)
             ));
 
             count++;
@@ -282,47 +275,29 @@ public class DashboardController implements Initializable, Refreshable {
         return "Ổn định";
     }
 
-    private Map<String, SuaChuaXe> buildRepairByIntakeId(List<SuaChuaXe> repairs) {
-        Map<String, SuaChuaXe> repairByIntakeId = new HashMap<>();
-
-        for (SuaChuaXe repair : repairs) {
-            if (repair != null) {
-                repairByIntakeId.put(safeKey(repair.getMaTiepNhanXe()), repair);
-            }
-        }
-
-        return repairByIntakeId;
-    }
-
-    private Set<String> buildPaidRepairIds(List<PhieuThuTien> receipts) {
-        Set<String> paidRepairIds = new HashSet<>();
+    private Map<String, Double> buildPaidAmountByRepairId(List<PhieuThuTien> receipts) {
+        Map<String, Double> paidByRepairId = new HashMap<>();
 
         for (PhieuThuTien receipt : receipts) {
-            if (receipt != null) {
-                paidRepairIds.add(safeKey(receipt.getMaSuaChuaXe()));
+            if (receipt == null) {
+                continue;
             }
+
+            String repairId = safeKey(receipt.getMaSuaChuaXe());
+            paidByRepairId.put(repairId, paidByRepairId.getOrDefault(repairId, 0.0) + receipt.getSoTienThu());
         }
 
-        return paidRepairIds;
+        return paidByRepairId;
     }
 
-    private String buildIntakeStatus(TiepNhanXe intake, Map<String, SuaChuaXe> repairByIntakeId,
-            Set<String> paidRepairIds) {
-        if (intake == null) {
-            return "Đang tiếp nhận";
+    private String buildRepairStatus(SuaChuaXe repair, Map<String, Double> paidByRepairId) {
+        if (repair == null) {
+            return "Đang sửa chữa";
         }
 
-        SuaChuaXe repair = repairByIntakeId.get(safeKey(intake.getMaTiepNhanXe()));
+        double paid = paidByRepairId.getOrDefault(safeKey(repair.getMaSuaChuaXe()), 0.0);
 
-        if (repair != null && paidRepairIds.contains(safeKey(repair.getMaSuaChuaXe()))) {
-            return "Hoàn tất tiếp nhận";
-        }
-
-        return "Đang tiếp nhận";
-    }
-
-    private String buildRepairStatus(SuaChuaXe repair, Set<String> paidRepairIds) {
-        if (repair != null && paidRepairIds.contains(safeKey(repair.getMaSuaChuaXe()))) {
+        if (paid + 0.01 >= repair.getThanhTien()) {
             return "Đã sửa chữa";
         }
 

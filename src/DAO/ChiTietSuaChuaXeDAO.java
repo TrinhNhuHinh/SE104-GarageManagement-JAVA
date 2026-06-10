@@ -25,7 +25,11 @@ public class ChiTietSuaChuaXeDAO {
             ps.setString(1, ct.getMaChiTietSuaChuaXe());
             ps.setString(2, ct.getMaSuaChuaXe());
             ps.setString(3, ct.getNoiDung());
-            ps.setString(4, ct.getMaVatTuPhuTung());
+            if (ct.getMaVatTuPhuTung() == null || ct.getMaVatTuPhuTung().trim().isEmpty()) {
+                ps.setNull(4, Types.CHAR);
+            } else {
+                ps.setString(4, ct.getMaVatTuPhuTung());
+            }
             ps.setInt(5, ct.getSoLuong());
             ps.setDouble(6, ct.getDonGia());
 
@@ -50,7 +54,7 @@ public class ChiTietSuaChuaXeDAO {
     public List<ChiTietSuaChuaXe> getAll() {
         List<ChiTietSuaChuaXe> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM CHITIETSUACHUAXE";
+        String sql = "SELECT * FROM CHITIETSUACHUAXE ORDER BY Ma_SuaChuaXe, MaChiTietSuaChuaXe";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -92,7 +96,7 @@ public class ChiTietSuaChuaXeDAO {
     public List<ChiTietSuaChuaXe> getByMaSuaChua(String maSuaChuaXe) {
         List<ChiTietSuaChuaXe> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM CHITIETSUACHUAXE WHERE Ma_SuaChuaXe = ?";
+        String sql = "SELECT * FROM CHITIETSUACHUAXE WHERE Ma_SuaChuaXe = ? ORDER BY MaChiTietSuaChuaXe";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -129,7 +133,11 @@ public class ChiTietSuaChuaXeDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, ct.getNoiDung());
-            ps.setString(2, ct.getMaVatTuPhuTung());
+            if (ct.getMaVatTuPhuTung() == null || ct.getMaVatTuPhuTung().trim().isEmpty()) {
+                ps.setNull(2, Types.CHAR);
+            } else {
+                ps.setString(2, ct.getMaVatTuPhuTung());
+            }
             ps.setInt(3, ct.getSoLuong());
             ps.setDouble(4, ct.getDonGia());
 

@@ -37,6 +37,10 @@ public class TiepNhanXeService {
             return false;
         }
 
+        if (licensePlateExistsForAnother(tnx.getBienSoXe(), null)) {
+            return false;
+        }
+
         if (isOverDailyLimit(tnx)) {
             return false;
         }
@@ -64,6 +68,10 @@ public class TiepNhanXeService {
         }
 
         if (tiepNhanXeDAO.getById(tnx.getMaTiepNhanXe()) == null) {
+            return false;
+        }
+
+        if (licensePlateExistsForAnother(tnx.getBienSoXe(), tnx.getMaTiepNhanXe())) {
             return false;
         }
 
@@ -120,5 +128,19 @@ public class TiepNhanXeService {
         if (kh.getSoDienThoaiKhachHang() == null || kh.getSoDienThoaiKhachHang().trim().isEmpty()) return false;
 
         return true;
+    }
+
+    private boolean licensePlateExistsForAnother(String bienSoXe, String currentIntakeId) {
+        TiepNhanXe existing = tiepNhanXeDAO.getByLicensePlate(bienSoXe);
+
+        if (existing == null) {
+            return false;
+        }
+
+        if (currentIntakeId == null || currentIntakeId.trim().isEmpty()) {
+            return true;
+        }
+
+        return !existing.getMaTiepNhanXe().trim().equalsIgnoreCase(currentIntakeId.trim());
     }
 }

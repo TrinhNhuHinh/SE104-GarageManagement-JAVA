@@ -1,12 +1,15 @@
 package Controllers;
 
-import DAO.PhieuThuTienDAO;
-import DAO.VatTuPhuTungDAO;
-import MODEL.PhieuThuTien;
-import MODEL.VatTuPhuTung;
+import Config.DBConnection;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -55,8 +58,6 @@ public class StatisticalReportsController implements Initializable, Refreshable 
     @FXML private TableColumn<ObservableList<String>, String> colReportRate;
     @FXML private TableColumn<ObservableList<String>, String> colReportNote;
 
-    private final PhieuThuTienDAO phieuThuTienDAO = new PhieuThuTienDAO();
-    private final VatTuPhuTungDAO vatTuPhuTungDAO = new VatTuPhuTungDAO();
     private final NumberFormat currencyFormat =
             NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
@@ -66,14 +67,12 @@ public class StatisticalReportsController implements Initializable, Refreshable 
         setupTableColumns();
         setupChart();
         setupEvents();
-        loadSummaryCards();
-        loadReport();
+        reloadReportScreen();
     }
 
     @Override
     public void refreshData() {
-        loadSummaryCards();
-        loadReport();
+        reloadReportScreen();
     }
 
     private void setupComboBoxes() {
@@ -111,10 +110,7 @@ public class StatisticalReportsController implements Initializable, Refreshable 
     }
 
     private void setupEvents() {
-        btnViewReport.setOnAction(e -> {
-            loadSummaryCards();
-            loadReport();
-        });
+        btnViewReport.setOnAction(e -> reloadReportScreen());
 
         btnExportReport.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -124,37 +120,46 @@ public class StatisticalReportsController implements Initializable, Refreshable 
             alert.showAndWait();
         });
 
-        cbbReportType.setOnAction(e -> loadReport());
+        cbbReportType.setOnAction(e -> reloadReportScreen());
+        cbbMonth.setOnAction(e -> reloadReportScreen());
+        cbbYear.setOnAction(e -> reloadReportScreen());
+    }
+
+    private void reloadReportScreen() {
+        if (cbbMonth.getValue() == null || cbbYear.getValue() == null || cbbReportType.getValue() == null) {
+            return;
+        }
+
+        loadSummaryCards();
+        loadReport();
     }
 
     private void loadSummaryCards() {
-        int month = Integer.parseInt(cbbMonth.getValue());
-        int year = Integer.parseInt(cbbYear.getValue());
+        int month = getSelectedMonth();
+        int year = getSelectedYear();
 
-        List<PhieuThuTien> receipts = phieuThuTienDAO.getAll();
-        List<VatTuPhuTung> parts = vatTuPhuTungDAO.getAll();
+        List<RevenueReportRow> revenueRows = loadRevenueRows(month, year);
+        List<InventoryReportRow> inventoryRows = loadInventoryRows(month, year);
 
         double revenue = 0;
-        int receiptCount = 0;
+        int repairCount = 0;
         int warningParts = 0;
         double inventoryValue = 0;
 
-        for (PhieuThuTien receipt : receipts) {
-            if (isSameMonth(receipt.getNgayThuTien(), month, year)) {
-                revenue += receipt.getSoTienThu();
-                receiptCount++;
-            }
+        for (RevenueReportRow row : revenueRows) {
+            revenue += row.amount();
+            repairCount += row.repairCount();
         }
 
-        for (VatTuPhuTung part : parts) {
-            inventoryValue += part.getSoLuongVatTuPhuTung() * part.getDonGiaVatTuPhuTung();
-            if (part.getSoLuongVatTuPhuTung() <= 5) {
+        for (InventoryReportRow row : inventoryRows) {
+            inventoryValue += row.endingValue();
+            if (row.endingStock() <= 5) {
                 warningParts++;
             }
         }
 
         lblMonthlyRevenue.setText(formatMoney(revenue));
-        lblReportRepairOrders.setText(String.valueOf(receiptCount));
+        lblReportRepairOrders.setText(String.valueOf(repairCount));
         lblReportCarsReceived.setText(formatMoney(inventoryValue));
         lblLowStockParts.setText(String.valueOf(warningParts));
     }
@@ -169,68 +174,256 @@ public class StatisticalReportsController implements Initializable, Refreshable 
     }
 
     private void loadRevenueReport() {
-        int month = Integer.parseInt(cbbMonth.getValue());
-        int year = Integer.parseInt(cbbYear.getValue());
+        int month = getSelectedMonth();
+        int year = getSelectedYear();
+
+        setRevenueTableHeaders();
 
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        List<PhieuThuTien> receipts = phieuThuTienDAO.getAll();
+        List<RevenueReportRow> reportRows = loadRevenueRows(month, year);
 
         int index = 1;
-        double total = 0;
+        int totalRepairCount = 0;
+        double totalRevenue = 0;
 
-        for (PhieuThuTien receipt : receipts) {
-            if (isSameMonth(receipt.getNgayThuTien(), month, year)) {
-                total += receipt.getSoTienThu();
-
-                rows.add(row(
-                        String.valueOf(index++),
-                        "Phiếu thu " + receipt.getMaPhieuThuTien(),
-                        "1",
-                        formatMoney(receipt.getSoTienThu()),
-                        "-",
-                        "Mã tiếp nhận: " + receipt.getMaTiepNhanXe()
-                ));
-
-                series.getData().add(new XYChart.Data<>(
-                        receipt.getMaPhieuThuTien(),
-                        receipt.getSoTienThu()
-                ));
-            }
+        for (RevenueReportRow reportRow : reportRows) {
+            totalRepairCount += reportRow.repairCount();
+            totalRevenue += reportRow.amount();
         }
 
-        rows.add(row("", "Tổng doanh thu", String.valueOf(index - 1), formatMoney(total), "100%", "Phiếu thu trong kỳ"));
+        for (RevenueReportRow reportRow : reportRows) {
+            rows.add(row(
+                    String.valueOf(index++),
+                    reportRow.brandName(),
+                    String.valueOf(reportRow.repairCount()),
+                    formatMoney(reportRow.amount()),
+                    formatPercent(reportRow.amount(), totalRevenue),
+                    "Mã hiệu xe: " + reportRow.brandId()
+            ));
+
+            series.getData().add(new XYChart.Data<>(reportRow.brandName(), reportRow.amount()));
+        }
+
+        if (rows.isEmpty()) {
+            rows.add(row("", "Không có dữ liệu", "0", formatMoney(0), "0%", "Không có phiếu sửa chữa trong kỳ"));
+        } else {
+            rows.add(row("", "Tổng doanh thu", String.valueOf(totalRepairCount), formatMoney(totalRevenue), "100%", "Theo hiệu xe"));
+        }
+
         tblReports.setItems(rows);
-        updateBarChart("Báo cáo doanh thu tháng " + month + "/" + year, "Phiếu thu", "Số tiền", series);
+        updateBarChart("Báo cáo doanh thu tháng " + month + "/" + year, "Hiệu xe", "Doanh thu", series);
     }
 
     private void loadInventoryReport() {
+        int month = getSelectedMonth();
+        int year = getSelectedYear();
+
+        setInventoryTableHeaders();
+
         ObservableList<ObservableList<String>> rows = FXCollections.observableArrayList();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        List<VatTuPhuTung> parts = vatTuPhuTungDAO.getAll();
+        List<InventoryReportRow> reportRows = loadInventoryRows(month, year);
 
         int index = 1;
-        double totalValue = 0;
+        int totalBeginning = 0;
+        int totalMovement = 0;
+        int totalEnding = 0;
 
-        for (VatTuPhuTung part : parts) {
-            double value = part.getSoLuongVatTuPhuTung() * part.getDonGiaVatTuPhuTung();
-            totalValue += value;
+        for (InventoryReportRow reportRow : reportRows) {
+            totalBeginning += reportRow.beginningStock();
+            totalMovement += reportRow.movement();
+            totalEnding += reportRow.endingStock();
 
             rows.add(row(
                     String.valueOf(index++),
-                    part.getTenVatTuPhuTung(),
-                    String.valueOf(part.getSoLuongVatTuPhuTung()),
-                    formatMoney(value),
-                    "-",
-                    getInventoryStatus(part)
+                    reportRow.partName(),
+                    String.valueOf(reportRow.beginningStock()),
+                    formatSignedQuantity(reportRow.movement()),
+                    String.valueOf(reportRow.endingStock()),
+                    buildInventoryNote(reportRow)
             ));
 
-            series.getData().add(new XYChart.Data<>(part.getMaVatTuPhuTung(), value));
+            series.getData().add(new XYChart.Data<>(reportRow.partName(), reportRow.endingStock()));
         }
 
-        rows.add(row("", "Tổng giá trị tồn", String.valueOf(parts.size()), formatMoney(totalValue), "100%", "Tồn kho hiện tại"));
+        rows.add(row(
+                "",
+                "Tổng tồn",
+                String.valueOf(totalBeginning),
+                formatSignedQuantity(totalMovement),
+                String.valueOf(totalEnding),
+                "Tồn cuối kỳ"
+        ));
+
         tblReports.setItems(rows);
-        updateBarChart("Báo cáo vật tư tồn", "Vật tư", "Giá trị tồn", series);
+        updateBarChart("Báo cáo vật tư tồn tháng " + month + "/" + year, "Vật tư", "Tồn cuối", series);
+    }
+
+    private List<RevenueReportRow> loadRevenueRows(int month, int year) {
+        List<RevenueReportRow> rows = new ArrayList<>();
+
+        String sql = """
+            SELECT hx.MaHieuXe,
+                   hx.TenHieuXe,
+                   COUNT(sc.MaSuaChuaXe) AS SoPhieu,
+                   ISNULL(SUM(sc.ThanhTien), 0) AS DoanhThu
+            FROM HIEUXE hx
+            LEFT JOIN TIEPNHANXE tn
+                ON tn.Ma_HieuXe = hx.MaHieuXe
+            LEFT JOIN SUACHUAXE sc
+                ON sc.Ma_TiepNhanXe = tn.MaTiepNhanXe
+               AND MONTH(sc.NgaySuaChua) = ?
+               AND YEAR(sc.NgaySuaChua) = ?
+            GROUP BY hx.MaHieuXe, hx.TenHieuXe
+            HAVING COUNT(sc.MaSuaChuaXe) > 0
+            ORDER BY DoanhThu DESC, hx.TenHieuXe
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, month);
+            ps.setInt(2, year);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                rows.add(new RevenueReportRow(
+                        trim(rs.getString("MaHieuXe")),
+                        trim(rs.getString("TenHieuXe")),
+                        rs.getInt("SoPhieu"),
+                        rs.getDouble("DoanhThu")
+                ));
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+            showLoadError("Không thể tải báo cáo doanh thu!");
+        }
+
+        return rows;
+    }
+
+    private List<InventoryReportRow> loadInventoryRows(int month, int year) {
+        List<InventoryReportRow> rows = new ArrayList<>();
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.plusMonths(1);
+
+        String sql = """
+            WITH Movements AS (
+                SELECT ctn.Ma_VatTuPhuTung,
+                       nv.NgayNhap AS Ngay,
+                       ctn.SoLuong AS Nhap,
+                       0 AS Ban,
+                       0 AS SuaChua,
+                       ctn.SoLuong AS PhatSinh
+                FROM CHITIETNHAPVATTU ctn
+                JOIN NHAPVATTU nv
+                    ON nv.MaNhapVatTu = ctn.Ma_NhapVatTu
+
+                UNION ALL
+
+                SELECT ctb.Ma_VatTuPhuTung,
+                       bv.NgayBan AS Ngay,
+                       0 AS Nhap,
+                       ctb.SoLuong AS Ban,
+                       0 AS SuaChua,
+                       -ctb.SoLuong AS PhatSinh
+                FROM CHITIETBANVATTU ctb
+                JOIN BANVATTU bv
+                    ON bv.MaBanVatTu = ctb.Ma_BanVatTu
+
+                UNION ALL
+
+                SELECT cts.Ma_VatTuPhuTung,
+                       sc.NgaySuaChua AS Ngay,
+                       0 AS Nhap,
+                       0 AS Ban,
+                       cts.SoLuong AS SuaChua,
+                       -cts.SoLuong AS PhatSinh
+                FROM CHITIETSUACHUAXE cts
+                JOIN SUACHUAXE sc
+                    ON sc.MaSuaChuaXe = cts.Ma_SuaChuaXe
+                WHERE cts.Ma_VatTuPhuTung IS NOT NULL
+            )
+            SELECT vt.MaVatTuPhuTung,
+                   vt.TenVatTuPhuTung,
+                   vt.SoLuongVatTuPhuTung AS TonHienTai,
+                   vt.DonGiaVatTuPhuTung,
+                   ISNULL(SUM(CASE WHEN m.Ngay >= ? AND m.Ngay < ? THEN m.PhatSinh ELSE 0 END), 0) AS PhatSinhTrongKy,
+                   ISNULL(SUM(CASE WHEN m.Ngay >= ? THEN m.PhatSinh ELSE 0 END), 0) AS PhatSinhSauKy,
+                   ISNULL(SUM(CASE WHEN m.Ngay >= ? AND m.Ngay < ? THEN m.Nhap ELSE 0 END), 0) AS NhapTrongKy,
+                   ISNULL(SUM(CASE WHEN m.Ngay >= ? AND m.Ngay < ? THEN m.Ban ELSE 0 END), 0) AS BanTrongKy,
+                   ISNULL(SUM(CASE WHEN m.Ngay >= ? AND m.Ngay < ? THEN m.SuaChua ELSE 0 END), 0) AS SuaChuaTrongKy
+            FROM VATTUPHUTUNG vt
+            LEFT JOIN Movements m
+                ON m.Ma_VatTuPhuTung = vt.MaVatTuPhuTung
+            GROUP BY vt.MaVatTuPhuTung, vt.TenVatTuPhuTung, vt.SoLuongVatTuPhuTung, vt.DonGiaVatTuPhuTung
+            ORDER BY vt.MaVatTuPhuTung
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            Date start = Date.valueOf(startDate);
+            Date end = Date.valueOf(endDate);
+
+            ps.setDate(1, start);
+            ps.setDate(2, end);
+            ps.setDate(3, end);
+            ps.setDate(4, start);
+            ps.setDate(5, end);
+            ps.setDate(6, start);
+            ps.setDate(7, end);
+            ps.setDate(8, start);
+            ps.setDate(9, end);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int currentStock = rs.getInt("TonHienTai");
+                int movement = rs.getInt("PhatSinhTrongKy");
+                int movementAfterPeriod = rs.getInt("PhatSinhSauKy");
+                int endingStock = currentStock - movementAfterPeriod;
+                int beginningStock = endingStock - movement;
+                double unitPrice = rs.getDouble("DonGiaVatTuPhuTung");
+
+                rows.add(new InventoryReportRow(
+                        trim(rs.getString("MaVatTuPhuTung")),
+                        trim(rs.getString("TenVatTuPhuTung")),
+                        beginningStock,
+                        movement,
+                        endingStock,
+                        rs.getInt("NhapTrongKy"),
+                        rs.getInt("BanTrongKy"),
+                        rs.getInt("SuaChuaTrongKy"),
+                        endingStock * unitPrice
+                ));
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+            showLoadError("Không thể tải báo cáo vật tư tồn!");
+        }
+
+        return rows;
+    }
+
+    private void setRevenueTableHeaders() {
+        colReportNo.setText("STT");
+        colReportName.setText("Hiệu xe");
+        colReportQuantity.setText("Số phiếu");
+        colReportAmount.setText("Doanh thu");
+        colReportRate.setText("Tỷ lệ");
+        colReportNote.setText("Ghi chú");
+    }
+
+    private void setInventoryTableHeaders() {
+        colReportNo.setText("STT");
+        colReportName.setText("Vật tư");
+        colReportQuantity.setText("Tồn đầu");
+        colReportAmount.setText("Phát sinh");
+        colReportRate.setText("Tồn cuối");
+        colReportNote.setText("Ghi chú");
     }
 
     private void updateBarChart(String title, String xLabel, String yLabel, XYChart.Series<String, Number> series) {
@@ -246,16 +439,10 @@ public class StatisticalReportsController implements Initializable, Refreshable 
         barReportChart.getData().add(series);
     }
 
-    private String getInventoryStatus(VatTuPhuTung part) {
-        if (part.getSoLuongVatTuPhuTung() <= 0) {
-            return "Hết hàng";
-        }
-
-        if (part.getSoLuongVatTuPhuTung() <= 5) {
-            return "Sắp hết";
-        }
-
-        return "Còn hàng";
+    private String buildInventoryNote(InventoryReportRow row) {
+        return "Nhập: " + row.imported()
+                + ", bán: " + row.sold()
+                + ", sửa chữa: " + row.usedForRepair();
     }
 
     private ObservableList<String> row(String no, String name, String quantity, String amount, String rate, String note) {
@@ -270,16 +457,66 @@ public class StatisticalReportsController implements Initializable, Refreshable 
         return row.get(index);
     }
 
-    private boolean isSameMonth(java.sql.Date date, int month, int year) {
-        if (date == null) {
-            return false;
-        }
+    private int getSelectedMonth() {
+        return Integer.parseInt(cbbMonth.getValue());
+    }
 
-        LocalDate localDate = date.toLocalDate();
-        return localDate.getMonthValue() == month && localDate.getYear() == year;
+    private int getSelectedYear() {
+        return Integer.parseInt(cbbYear.getValue());
     }
 
     private String formatMoney(double value) {
         return currencyFormat.format(value);
+    }
+
+    private String formatPercent(double value, double total) {
+        if (total <= 0) {
+            return "0%";
+        }
+
+        return String.format(Locale.US, "%.2f%%", (value * 100) / total);
+    }
+
+    private String formatSignedQuantity(int value) {
+        if (value > 0) {
+            return "+" + value;
+        }
+
+        return String.valueOf(value);
+    }
+
+    private String trim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private void showLoadError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void printSqlError(SQLException e) {
+        System.out.println("SQL ERROR CODE: " + e.getErrorCode());
+        System.out.println("SQL STATE: " + e.getSQLState());
+        System.out.println("SQL MESSAGE: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    private record RevenueReportRow(String brandId, String brandName, int repairCount, double amount) {
+    }
+
+    private record InventoryReportRow(
+            String partId,
+            String partName,
+            int beginningStock,
+            int movement,
+            int endingStock,
+            int imported,
+            int sold,
+            int usedForRepair,
+            double endingValue
+    ) {
     }
 }

@@ -40,7 +40,7 @@ public class TiepNhanXeDAO {
     public List<TiepNhanXe> getALL() {
         List<TiepNhanXe> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM TIEPNHANXE";
+        String sql = "SELECT * FROM TIEPNHANXE ORDER BY MaTiepNhanXe";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,6 +74,35 @@ public class TiepNhanXeDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maTiepNhanXe);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                TiepNhanXe tnx = new TiepNhanXe();
+
+                tnx.setMaTiepNhanXe(rs.getString("MaTiepNhanXe"));
+                tnx.setMaKhachHang(rs.getString("Ma_KhachHang"));
+                tnx.setBienSoXe(rs.getString("BienSoXe"));
+                tnx.setMaHieuXe(rs.getString("Ma_HieuXe"));
+                tnx.setNgayTiepNhan(rs.getDate("NgayTiepNhan"));
+                tnx.setTienNo(rs.getDouble("TienNo"));
+
+                return tnx;
+            }
+
+        } catch (SQLException e) {
+            printSqlError(e);
+        }
+
+        return null;
+    }
+
+    public TiepNhanXe getByLicensePlate(String bienSoXe) {
+        String sql = "SELECT * FROM TIEPNHANXE WHERE BienSoXe = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, bienSoXe);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {

@@ -17,8 +17,6 @@ import MODEL.VatTuPhuTung;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import DAO.ThongTinGarageDAO;
-import MODEL.ThongTinGarage;
 
 public class VatTuPhuTungService {
 
@@ -29,7 +27,6 @@ public class VatTuPhuTungService {
     private final ChiTietBanVatTuDAO chiTietBanDAO = new ChiTietBanVatTuDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
-    private final ThongTinGarageDAO thongTinGarageDAO = new ThongTinGarageDAO();
 
     private static final int LOW_STOCK_LIMIT = 5;
 
@@ -129,20 +126,16 @@ public class VatTuPhuTungService {
         if (vatTuDAO.getById(vt.getMaVatTuPhuTung()) != null) {
             return false;
         }
-        
-        ThongTinGarage tt = thongTinGarageDAO.get();
 
-        int maxVatTu = 200;
+        VatTuPhuTung newPart = new VatTuPhuTung(
+                vt.getMaVatTuPhuTung().trim(),
+                vt.getTenVatTuPhuTung().trim(),
+                0,
+                0,
+                vt.getDonViTinh().trim()
+        );
 
-        if (tt != null) {
-        maxVatTu = tt.getSoLuongVatTuToiDa();
-        }
-
-        if (vatTuDAO.countAll() >= maxVatTu) {
-        return false;
-        }
-
-        return vatTuDAO.insert(vt);
+        return vatTuDAO.insert(newPart);
     }
 
     public boolean update(VatTuPhuTung vt) {
@@ -150,11 +143,21 @@ public class VatTuPhuTungService {
             return false;
         }
 
-        if (vatTuDAO.getById(vt.getMaVatTuPhuTung()) == null) {
+        VatTuPhuTung current = vatTuDAO.getById(vt.getMaVatTuPhuTung());
+
+        if (current == null) {
             return false;
         }
 
-        return vatTuDAO.update(vt);
+        VatTuPhuTung updated = new VatTuPhuTung(
+                current.getMaVatTuPhuTung(),
+                vt.getTenVatTuPhuTung().trim(),
+                current.getDonGiaVatTuPhuTung(),
+                current.getSoLuongVatTuPhuTung(),
+                vt.getDonViTinh().trim()
+        );
+
+        return vatTuDAO.update(updated);
     }
 
     public boolean delete(String maVatTuPhuTung) {
@@ -212,10 +215,15 @@ public class VatTuPhuTungService {
             return false;
         }
 
-        boolean updatedStock = vatTuDAO.updateSoLuong(
-                maVatTu,
-                vt.getSoLuongVatTuPhuTung() + soLuong
+        VatTuPhuTung updatedPart = new VatTuPhuTung(
+                vt.getMaVatTuPhuTung(),
+                vt.getTenVatTuPhuTung(),
+                donGia,
+                vt.getSoLuongVatTuPhuTung() + soLuong,
+                vt.getDonViTinh()
         );
+
+        boolean updatedStock = vatTuDAO.update(updatedPart);
 
         if (!updatedStock) {
             chiTietNhapDAO.delete(maNhapVatTu, maVatTu);

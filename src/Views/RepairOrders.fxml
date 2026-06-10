@@ -27,18 +27,18 @@
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
             <Label text="Phiếu sửa chữa" styleClass="pageTitle" />
-            <Label text="Lập và quản lý phiếu sửa chữa, vật tư sử dụng và tiền công." styleClass="pageSubtitle" />
+            <Label text="Lập phiếu sửa chữa theo nhiều dòng chi tiết vật tư và tiền công." styleClass="pageSubtitle" />
         </VBox>
 
-        <VBox layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="285.0" spacing="14.0" styleClass="card">
-            <Label text="Thông tin phiếu sửa chữa" styleClass="sectionTitle" />
+        <VBox layoutX="35.0" layoutY="100.0" prefWidth="975.0" prefHeight="300.0" spacing="12.0" styleClass="card">
+            <Label text="Thông tin phiếu và chi tiết sửa chữa" styleClass="sectionTitle" />
 
-            <GridPane hgap="18.0" vgap="12.0">
+            <GridPane hgap="18.0" vgap="10.0">
                 <Label text="Mã sửa chữa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="txtMaSuaChua" promptText="SC06" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <TextField fx:id="txtMaSuaChua" promptText="SC04" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Mã tiếp nhận" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                <ComboBox fx:id="cbbMaTiepNhanXe" promptText="Chọn mã tiếp nhận" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                <Label text="Mã hồ sơ xe" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                <ComboBox fx:id="cbbMaTiepNhanXe" promptText="Chọn hồ sơ xe" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                 <Label text="Ngày sửa chữa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                 <DatePicker fx:id="dpNgaySuaChua" styleClass="datePicker" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -49,38 +49,52 @@
                 <Label text="Số lượng" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <TextField fx:id="txtSoLuong" promptText="1" styleClass="inputField" prefWidth="180.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label text="Loại tiền công" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <Label text="Tiền công" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                 <ComboBox fx:id="cbbMaTienCong" promptText="Chọn tiền công" styleClass="comboBox" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
                 <Label text="Nội dung" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <TextArea fx:id="txtNoiDungSuaChua" promptText="Nhập nội dung sửa chữa..." styleClass="textArea" prefWidth="690.0" prefHeight="65.0" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" />
+                <TextArea fx:id="txtNoiDungSuaChua" promptText="Nhập nội dung sửa chữa..." styleClass="textArea" prefWidth="690.0" prefHeight="58.0" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" />
             </GridPane>
 
             <HBox spacing="12.0">
-                <Button fx:id="btnAddRepair" text="Thêm" styleClass="primaryBtn" prefWidth="100.0" />
-                <Button fx:id="btnUpdateRepair" text="Cập nhật" styleClass="secondaryBtn" prefWidth="100.0" />
-                <Button fx:id="btnDeleteRepair" text="Xóa" styleClass="dangerBtn" prefWidth="100.0" />
+                <Button fx:id="btnAddRepair" text="Tạo phiếu" styleClass="primaryBtn" prefWidth="110.0" />
+                <Button fx:id="btnUpdateRepair" text="Cập nhật phiếu" styleClass="secondaryBtn" prefWidth="130.0" />
+                <Button fx:id="btnAddDetail" text="Thêm chi tiết" styleClass="primaryBtn" prefWidth="125.0" />
+                <Button fx:id="btnDeleteDetail" text="Xóa chi tiết" styleClass="dangerBtn" prefWidth="115.0" />
+                <Button fx:id="btnDeleteRepair" text="Xóa phiếu" styleClass="dangerBtn" prefWidth="100.0" />
                 <Button fx:id="btnClearRepair" text="Làm mới" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
         </VBox>
 
-        <VBox layoutX="35.0" layoutY="415.0" prefWidth="975.0" prefHeight="340.0" spacing="12.0" styleClass="card">
+        <VBox layoutX="35.0" layoutY="420.0" prefWidth="975.0" prefHeight="165.0" spacing="10.0" styleClass="card">
             <HBox spacing="12.0">
-                <TextField fx:id="txtSearchRepair" promptText="Tìm theo mã sửa chữa, mã tiếp nhận, biển số..." styleClass="inputField" prefWidth="735.0" />
+                <TextField fx:id="txtSearchRepair" promptText="Tìm theo mã sửa chữa, mã hồ sơ, biển số, nội dung..." styleClass="inputField" prefWidth="735.0" />
                 <Button fx:id="btnSearchRepair" text="Tìm kiếm" styleClass="primaryBtn" prefWidth="100.0" />
                 <Button fx:id="btnRefreshRepair" text="Tải lại" styleClass="secondaryBtn" prefWidth="100.0" />
             </HBox>
 
-            <TableView fx:id="tblRepairOrders" prefWidth="935.0" prefHeight="265.0" styleClass="dataTable">
+            <TableView fx:id="tblRepairOrders" prefWidth="935.0" prefHeight="95.0" styleClass="dataTable">
                 <columns>
-                    <TableColumn fx:id="colMaSuaChua" text="Mã sửa chữa" prefWidth="110.0" />
-                    <TableColumn fx:id="colMaTiepNhanXe" text="Mã tiếp nhận" prefWidth="120.0" />
-                    <TableColumn fx:id="colBienSoXe" text="Biển số xe" prefWidth="130.0" />
-                    <TableColumn fx:id="colNgaySuaChua" text="Ngày sửa" prefWidth="120.0" />
-                    <TableColumn fx:id="colNoiDungSuaChua" text="Nội dung" prefWidth="210.0" />
-                    <TableColumn fx:id="colMaVatTu" text="Vật tư" prefWidth="95.0" />
-                    <TableColumn fx:id="colSoLuong" text="SL" prefWidth="70.0" />
-                    <TableColumn fx:id="colThanhTien" text="Thành tiền" prefWidth="80.0" />
+                    <TableColumn fx:id="colMaSuaChua" text="Mã sửa chữa" prefWidth="160.0" />
+                    <TableColumn fx:id="colMaTiepNhanXe" text="Mã hồ sơ" prefWidth="160.0" />
+                    <TableColumn fx:id="colBienSoXe" text="Biển số xe" prefWidth="180.0" />
+                    <TableColumn fx:id="colNgaySuaChua" text="Ngày sửa" prefWidth="180.0" />
+                    <TableColumn fx:id="colThanhTien" text="Tổng tiền" prefWidth="245.0" />
+                </columns>
+            </TableView>
+        </VBox>
+
+        <VBox layoutX="35.0" layoutY="605.0" prefWidth="975.0" prefHeight="160.0" spacing="10.0" styleClass="card">
+            <Label text="Chi tiết phiếu sửa chữa" styleClass="sectionTitle" />
+
+            <TableView fx:id="tblRepairDetails" prefWidth="935.0" prefHeight="105.0" styleClass="dataTable">
+                <columns>
+                    <TableColumn fx:id="colDetailContent" text="Nội dung" prefWidth="245.0" />
+                    <TableColumn fx:id="colDetailPart" text="Vật tư" prefWidth="180.0" />
+                    <TableColumn fx:id="colDetailQuantity" text="SL" prefWidth="70.0" />
+                    <TableColumn fx:id="colDetailUnitPrice" text="Đơn giá" prefWidth="130.0" />
+                    <TableColumn fx:id="colDetailLabor" text="Tiền công" prefWidth="120.0" />
+                    <TableColumn fx:id="colDetailTotal" text="Thành tiền" prefWidth="180.0" />
                 </columns>
             </TableView>
         </VBox>

@@ -26,23 +26,23 @@
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
             <Label text="Báo cáo thống kê" styleClass="pageTitle" />
-            <Label text="Xem báo cáo doanh thu theo tháng/năm và báo cáo vật tư tồn." styleClass="pageSubtitle" />
+            <Label text="Xem báo cáo doanh thu theo hiệu xe và báo cáo vật tư tồn theo tháng/năm." styleClass="pageSubtitle" />
         </VBox>
 
         <HBox layoutX="35.0" layoutY="100.0" spacing="18.0">
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
                 <Label text="Doanh thu kỳ chọn" styleClass="cardLabel" />
-                <Label fx:id="lblMonthlyRevenue" text="0đ" styleClass="cardValue" />
+                <Label fx:id="lblMonthlyRevenue" text="0 đ" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Số phiếu thu" styleClass="cardLabel" />
+                <Label text="Phiếu sửa chữa" styleClass="cardLabel" />
                 <Label fx:id="lblReportRepairOrders" text="0" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">
-                <Label text="Giá trị tồn kho" styleClass="cardLabel" />
-                <Label fx:id="lblReportCarsReceived" text="0đ" styleClass="cardValue" />
+                <Label text="Giá trị tồn cuối" styleClass="cardLabel" />
+                <Label fx:id="lblReportCarsReceived" text="0 đ" styleClass="cardValue" />
             </VBox>
 
             <VBox prefWidth="225.0" prefHeight="105.0" spacing="8.0" styleClass="smallCard">

@@ -66,43 +66,8 @@ create table CHITIETSUACHUAXE(
 
 create table THONGTINGARAGE(
     Id char(10) primary key,
-    SoLuongXeToiDa int,
-	TongSoHieuXe int,
-	SoTienThuSoVoiSoTienNo money
+    SoLuongXeToiDa int
 );
-
-ALTER TABLE THONGTINGARAGE
-ADD SoLuongVatTuToiDa INT DEFAULT 200,
-    SoLuongTienCongToiDa INT DEFAULT 100;
-
-UPDATE THONGTINGARAGE
-SET SoLuongVatTuToiDa = 200,
-    SoLuongTienCongToiDa = 100
-WHERE Id = 'GARAGE';
-
-IF COL_LENGTH('THONGTINGARAGE', 'SoLuongVatTuToiDa') IS NULL
-BEGIN
-    ALTER TABLE THONGTINGARAGE
-    ADD SoLuongVatTuToiDa INT NULL;
-END
-GO
-
-IF COL_LENGTH('THONGTINGARAGE', 'SoLuongTienCongToiDa') IS NULL
-BEGIN
-    ALTER TABLE THONGTINGARAGE
-    ADD SoLuongTienCongToiDa INT NULL;
-END
-GO
-
-UPDATE THONGTINGARAGE
-SET SoLuongVatTuToiDa = ISNULL(SoLuongVatTuToiDa, 200),
-    SoLuongTienCongToiDa = ISNULL(SoLuongTienCongToiDa, 100)
-WHERE Id = 'GARAGE';
-GO
-
-SELECT *
-FROM THONGTINGARAGE;
-GO
 
 create table BAOCAODOANHSO(
     MaBaoCaoDoanhSo char(10) primary key,

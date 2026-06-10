@@ -28,7 +28,7 @@
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
             <Label text="Quản lý vật tư" styleClass="pageTitle" />
-            <Label text="Quản lý tồn kho, phiếu nhập vật tư và hóa đơn bán vật tư." styleClass="pageSubtitle" />
+            <Label text="Khai báo danh mục vật tư, nhập kho và bán vật tư." styleClass="pageSubtitle" />
         </VBox>
 
         <HBox layoutX="35.0" layoutY="100.0" spacing="24.0">
@@ -44,67 +44,56 @@
 
             <VBox prefWidth="305.0" prefHeight="95.0" spacing="8.0" styleClass="smallCard">
                 <Label text="Giá trị tồn" styleClass="cardLabel" />
-                <Label fx:id="lblInventoryValue" text="0đ" styleClass="cardValue" />
+                <Label fx:id="lblInventoryValue" text="0 đ" styleClass="cardValue" />
             </VBox>
         </HBox>
 
         <TabPane fx:id="partsTabPane" layoutX="35.0" layoutY="220.0" prefWidth="975.0" prefHeight="540.0"
-         styleClass="partsTabPane"
-         tabClosingPolicy="UNAVAILABLE"
-         tabMinWidth="145.0"
-         tabMaxWidth="145.0"
-         tabMinHeight="36.0"
-         tabMaxHeight="36.0">
+                 styleClass="partsTabPane"
+                 tabClosingPolicy="UNAVAILABLE"
+                 tabMinWidth="145.0"
+                 tabMaxWidth="145.0"
+                 tabMinHeight="36.0"
+                 tabMaxHeight="36.0">
             <tabs>
-
-                <Tab fx:id="tabInventory" text="Tồn kho">
+                <Tab text="Tồn kho">
                     <AnchorPane prefWidth="975.0" prefHeight="510.0" styleClass="pageRoot">
                         <children>
-                            <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="185.0" spacing="12.0" styleClass="card">
-                                <Label text="Thông tin vật tư" styleClass="sectionTitle" />
+                            <VBox layoutX="10.0" layoutY="10.0" prefWidth="940.0" prefHeight="155.0" spacing="12.0" styleClass="card">
+                                <Label text="Danh mục vật tư" styleClass="sectionTitle" />
 
                                 <GridPane hgap="18.0" vgap="12.0">
                                     <Label text="Mã vật tư" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <TextField fx:id="txtMaVatTu" promptText="VT001" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    <TextField fx:id="txtMaVatTu" promptText="VT06" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                                     <Label text="Tên vật tư" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtTenVatTu" promptText="Dầu nhớt, má phanh..." styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                                     <Label text="Đơn vị tính" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <ComboBox fx:id="cbbDonViTinh" promptText="Chọn đơn vị" styleClass="comboBox" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                                    <Label text="Số lượng" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                    <TextField fx:id="txtSoLuongTon" promptText="0" styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-
-                                    <Label text="Đơn giá" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                    <TextField fx:id="txtGiaNhap" promptText="0" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                                    <Label text="Giá hiển thị" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                    <TextField fx:id="txtGiaBan" promptText="0" styleClass="inputField" prefWidth="240.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                                 </GridPane>
 
                                 <HBox spacing="12.0">
-                                    <Button fx:id="btnAddPart" text="Thêm vật tư" styleClass="primaryBtn" prefWidth="105.0" />
+                                    <Button fx:id="btnAddPart" text="Thêm vật tư" styleClass="primaryBtn" prefWidth="115.0" />
                                     <Button fx:id="btnUpdatePart" text="Cập nhật" styleClass="secondaryBtn" prefWidth="95.0" />
                                     <Button fx:id="btnDeletePart" text="Xóa" styleClass="dangerBtn" prefWidth="95.0" />
                                 </HBox>
                             </VBox>
 
-                            <VBox layoutX="10.0" layoutY="215.0" prefWidth="940.0" prefHeight="285.0" spacing="12.0" styleClass="card">
+                            <VBox layoutX="10.0" layoutY="185.0" prefWidth="940.0" prefHeight="315.0" spacing="12.0" styleClass="card">
                                 <HBox spacing="12.0">
                                     <TextField fx:id="txtSearchPart" promptText="Tìm theo mã hoặc tên vật tư..." styleClass="inputField" prefWidth="710.0" />
                                     <Button fx:id="btnSearchPart" text="Tìm kiếm" styleClass="primaryBtn" prefWidth="100.0" />
                                     <Button fx:id="btnRefreshPart" text="Tải lại" styleClass="secondaryBtn" prefWidth="100.0" />
                                 </HBox>
 
-                                <TableView fx:id="tblParts" prefWidth="900.0" prefHeight="210.0" styleClass="dataTable">
+                                <TableView fx:id="tblParts" prefWidth="900.0" prefHeight="240.0" styleClass="dataTable">
                                     <columns>
-                                        <TableColumn fx:id="colMaVatTu" text="Mã vật tư" prefWidth="120.0" />
-                                        <TableColumn fx:id="colTenVatTu" text="Tên vật tư" prefWidth="250.0" />
+                                        <TableColumn fx:id="colMaVatTu" text="Mã vật tư" prefWidth="130.0" />
+                                        <TableColumn fx:id="colTenVatTu" text="Tên vật tư" prefWidth="300.0" />
                                         <TableColumn fx:id="colDonViTinh" text="ĐVT" prefWidth="110.0" />
-                                        <TableColumn fx:id="colSoLuongTon" text="Số lượng" prefWidth="130.0" />
-                                        <TableColumn fx:id="colGiaNhap" text="Đơn giá" prefWidth="160.0" />
-                                        <TableColumn fx:id="colGiaBan" text="Giá hiển thị" prefWidth="160.0" />
+                                        <TableColumn fx:id="colSoLuongTon" text="Tồn kho" prefWidth="140.0" />
+                                        <TableColumn fx:id="colGiaNhap" text="Đơn giá hiện tại" prefWidth="210.0" />
                                     </columns>
                                 </TableView>
                             </VBox>
@@ -134,7 +123,7 @@
                                     <Label text="Số lượng" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     <TextField fx:id="txtImportSoLuong" promptText="10" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                    <Label text="Đơn giá" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <Label text="Đơn giá nhập" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                     <TextField fx:id="txtImportDonGia" promptText="120000" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                                 </GridPane>
 
@@ -142,7 +131,7 @@
                                     <Button fx:id="btnCreateImport" text="Tạo phiếu nhập" styleClass="primaryBtn" prefWidth="130.0" />
                                     <Button fx:id="btnClearImport" text="Làm mới" styleClass="secondaryBtn" prefWidth="95.0" />
                                     <Label text="Tổng tiền:" styleClass="formLabel" />
-                                    <Label fx:id="lblImportTotal" text="0đ" styleClass="cardValue" />
+                                    <Label fx:id="lblImportTotal" text="0 đ" styleClass="cardValue" />
                                 </HBox>
                             </VBox>
 
@@ -152,12 +141,12 @@
                                 <TableView fx:id="tblImportDetails" prefWidth="900.0" prefHeight="225.0" styleClass="dataTable">
                                     <columns>
                                         <TableColumn fx:id="colImportId" text="Mã nhập" prefWidth="115.0" />
-                                        <TableColumn fx:id="colImportSupplier" text="Nhà cung cấp" prefWidth="115.0" />
+                                        <TableColumn fx:id="colImportSupplier" text="Nhà cung cấp" prefWidth="145.0" />
                                         <TableColumn fx:id="colImportDate" text="Ngày" prefWidth="120.0" />
-                                        <TableColumn fx:id="colImportPartId" text="Vật tư" prefWidth="115.0" />
-                                        <TableColumn fx:id="colImportQuantity" text="SL" prefWidth="95.0" />
-                                        <TableColumn fx:id="colImportUnitPrice" text="Đơn giá" prefWidth="160.0" />
-                                        <TableColumn fx:id="colImportTotal" text="Thành tiền" prefWidth="170.0" />
+                                        <TableColumn fx:id="colImportPartId" text="Vật tư" prefWidth="160.0" />
+                                        <TableColumn fx:id="colImportQuantity" text="SL" prefWidth="80.0" />
+                                        <TableColumn fx:id="colImportUnitPrice" text="Đơn giá" prefWidth="135.0" />
+                                        <TableColumn fx:id="colImportTotal" text="Thành tiền" prefWidth="135.0" />
                                     </columns>
                                 </TableView>
                             </VBox>
@@ -187,7 +176,7 @@
                                     <Label text="Số lượng" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     <TextField fx:id="txtSaleSoLuong" promptText="2" styleClass="inputField" prefWidth="170.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                    <Label text="Đơn giá" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <Label text="Đơn giá bán" styleClass="formLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                     <TextField fx:id="txtSaleDonGia" promptText="150000" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                                 </GridPane>
 
@@ -195,7 +184,7 @@
                                     <Button fx:id="btnCreateSale" text="Tạo hóa đơn" styleClass="primaryBtn" prefWidth="130.0" />
                                     <Button fx:id="btnClearSale" text="Làm mới" styleClass="secondaryBtn" prefWidth="95.0" />
                                     <Label text="Tổng tiền:" styleClass="formLabel" />
-                                    <Label fx:id="lblSaleTotal" text="0đ" styleClass="cardValue" />
+                                    <Label fx:id="lblSaleTotal" text="0 đ" styleClass="cardValue" />
                                 </HBox>
                             </VBox>
 
@@ -205,19 +194,18 @@
                                 <TableView fx:id="tblSaleDetails" prefWidth="900.0" prefHeight="225.0" styleClass="dataTable">
                                     <columns>
                                         <TableColumn fx:id="colSaleId" text="Mã hóa đơn" prefWidth="115.0" />
-                                        <TableColumn fx:id="colSaleCustomer" text="Khách hàng" prefWidth="115.0" />
+                                        <TableColumn fx:id="colSaleCustomer" text="Khách hàng" prefWidth="145.0" />
                                         <TableColumn fx:id="colSaleDate" text="Ngày" prefWidth="120.0" />
-                                        <TableColumn fx:id="colSalePartId" text="Vật tư" prefWidth="115.0" />
-                                        <TableColumn fx:id="colSaleQuantity" text="SL" prefWidth="95.0" />
-                                        <TableColumn fx:id="colSaleUnitPrice" text="Đơn giá" prefWidth="160.0" />
-                                        <TableColumn fx:id="colSaleTotal" text="Thành tiền" prefWidth="170.0" />
+                                        <TableColumn fx:id="colSalePartId" text="Vật tư" prefWidth="160.0" />
+                                        <TableColumn fx:id="colSaleQuantity" text="SL" prefWidth="80.0" />
+                                        <TableColumn fx:id="colSaleUnitPrice" text="Đơn giá" prefWidth="135.0" />
+                                        <TableColumn fx:id="colSaleTotal" text="Thành tiền" prefWidth="135.0" />
                                     </columns>
                                 </TableView>
                             </VBox>
                         </children>
                     </AnchorPane>
                 </Tab>
-
             </tabs>
         </TabPane>
     </children>

@@ -27,7 +27,9 @@ public class PhieuThuTienService {
         List<String> ids = new ArrayList<>();
 
         for (SuaChuaXe sc : suaChuaXeDAO.getAll()) {
-            ids.add(sc.getMaSuaChuaXe().trim());
+            if (sc != null && getRemainingByRepairId(sc.getMaSuaChuaXe()) > 0) {
+                ids.add(sc.getMaSuaChuaXe().trim());
+            }
         }
 
         return ids;

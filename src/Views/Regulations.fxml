@@ -22,24 +22,15 @@
     <children>
         <VBox layoutX="35.0" layoutY="30.0" spacing="6.0">
             <Label text="Quy định gara" styleClass="pageTitle" />
-            <Label text="Thay đổi các quy định hoạt động của gara." styleClass="pageSubtitle" />
+            <Label text="Điều chỉnh số xe tiếp nhận tối đa trong ngày." styleClass="pageSubtitle" />
         </VBox>
 
-        <VBox layoutX="35.0" layoutY="110.0" prefWidth="975.0" prefHeight="330.0" spacing="18.0" styleClass="card">
+        <VBox layoutX="35.0" layoutY="110.0" prefWidth="975.0" prefHeight="260.0" spacing="18.0" styleClass="card">
             <Label text="Thiết lập quy định" styleClass="sectionTitle" />
 
             <GridPane hgap="22.0" vgap="16.0">
                 <Label text="Số xe tối đa mỗi ngày" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                 <TextField fx:id="txtMaxCarsPerDay" promptText="30" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                <Label text="Số hiệu xe tối đa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <TextField fx:id="txtMaxBrands" promptText="10" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                <Label text="Số loại vật tư tối đa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextField fx:id="txtMaxParts" promptText="200" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                <Label text="Số loại tiền công tối đa" styleClass="formLabel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <TextField fx:id="txtMaxLabors" promptText="100" styleClass="inputField" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             </GridPane>
 
             <HBox spacing="12.0">

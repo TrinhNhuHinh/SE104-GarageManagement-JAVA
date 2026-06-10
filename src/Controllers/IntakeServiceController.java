@@ -1,7 +1,9 @@
 package Controllers;
 
 import DAO.HieuXeDAO;
+import DAO.KhachHangDAO;
 import MODEL.HieuXe;
+import MODEL.KhachHang;
 import MODEL.TiepNhanXe;
 import Service.DataRefreshService;
 import Service.TiepNhanXeService;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -22,14 +25,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import DAO.KhachHangDAO;
-import MODEL.KhachHang;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class IntakeServiceController implements Initializable, Refreshable {
 
@@ -38,7 +40,6 @@ public class IntakeServiceController implements Initializable, Refreshable {
     @FXML private TextField txtBienSoXe;
     @FXML private ComboBox<String> cbbMaHieuXe;
     @FXML private DatePicker dpNgayTiepNhan;
-    @FXML private TextField txtTienNo;
 
     @FXML private Button btnAdd;
     @FXML private Button btnUpdate;
@@ -82,11 +83,12 @@ public class IntakeServiceController implements Initializable, Refreshable {
         colMaTiepNhanXe.setCellValueFactory(new PropertyValueFactory<>("maTiepNhanXe"));
         colMaKhachHang.setCellValueFactory(new PropertyValueFactory<>("maKhachHang"));
         colBienSoXe.setCellValueFactory(new PropertyValueFactory<>("bienSoXe"));
-        colMaHieuXe.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(
-                        brandIdToName.getOrDefault(cellData.getValue().getMaHieuXe(), cellData.getValue().getMaHieuXe())
+        colMaHieuXe.setCellValueFactory(cellData -> new SimpleStringProperty(
+                brandIdToName.getOrDefault(
+                        safeTrim(cellData.getValue().getMaHieuXe()),
+                        safeTrim(cellData.getValue().getMaHieuXe())
                 )
-        );
+        ));
         colNgayTiepNhan.setCellValueFactory(new PropertyValueFactory<>("ngayTiepNhan"));
         colTienNo.setCellValueFactory(new PropertyValueFactory<>("tienNo"));
     }
@@ -96,16 +98,21 @@ public class IntakeServiceController implements Initializable, Refreshable {
         btnUpdate.setOnAction(e -> handleUpdate());
         btnDelete.setOnAction(e -> handleDelete());
         btnClear.setOnAction(e -> clearForm());
-        btnRefresh.setOnAction(e -> loadTableData());
+        btnRefresh.setOnAction(e -> reloadAll());
         btnSearch.setOnAction(e -> handleSearch());
 
         tblTiepNhanXe.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, selectedItem) -> {
-                if (selectedItem != null) {
-                    fillForm(selectedItem);
+                (observable, oldValue, selectedItem) -> {
+                    if (selectedItem != null) {
+                        fillForm(selectedItem);
+                    }
                 }
-            }
         );
+    }
+
+    private void reloadAll() {
+        loadHieuXeComboBox();
+        loadTableData();
     }
 
     private void loadTableData() {
@@ -115,18 +122,16 @@ public class IntakeServiceController implements Initializable, Refreshable {
             tblTiepNhanXe.setItems(data);
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể load dữ liệu tiếp nhận xe!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải dữ liệu tiếp nhận xe.");
         }
     }
 
     private void loadHieuXeComboBox() {
         try {
-            List<HieuXe> list = hieuXeDAO.getAll();
-            applyBrandComboBox(list);
-
+            applyBrandComboBox(hieuXeDAO.getAll());
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể load danh sách hiệu xe!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải danh sách hiệu xe.");
         }
     }
 
@@ -155,7 +160,7 @@ public class IntakeServiceController implements Initializable, Refreshable {
 
         task.setOnFailed(e -> refreshing = false);
 
-        Thread thread = new Thread(task);
+        Thread thread = new Thread(task, "intake-refresh");
         thread.setDaemon(true);
         thread.start();
     }
@@ -166,8 +171,8 @@ public class IntakeServiceController implements Initializable, Refreshable {
         brandIdToName.clear();
 
         for (HieuXe hx : list) {
-            String id = hx.getMaHieuXe().trim();
-            String name = hx.getTenHieuXe().trim();
+            String id = safeTrim(hx.getMaHieuXe());
+            String name = safeTrim(hx.getTenHieuXe());
             brandNameToId.put(name, id);
             brandIdToName.put(id, name);
             cbbMaHieuXe.getItems().add(name);
@@ -175,59 +180,58 @@ public class IntakeServiceController implements Initializable, Refreshable {
     }
 
     private void handleAdd() {
-    TiepNhanXe tnx = getFormData();
+        TiepNhanXe tnx = getFormData(0);
 
-    if (tnx == null) {
-        return;
-    }
-
-    KhachHang khachHangMoi = null;
-
-    KhachHang khachHangDaCo = khachHangDAO.getById(tnx.getMaKhachHang());
-
-    if (khachHangDaCo == null) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Khách hàng mới");
-        confirm.setHeaderText(null);
-        confirm.setContentText(
-                "Mã khách hàng " + tnx.getMaKhachHang() + " chưa tồn tại.\n"
-                + "Bạn có muốn tạo khách hàng mới không?"
-        );
-
-        Optional<ButtonType> option = confirm.showAndWait();
-
-        if (option.isEmpty() || option.get() != ButtonType.OK) {
+        if (tnx == null) {
             return;
         }
 
-        khachHangMoi = inputNewCustomer(tnx.getMaKhachHang());
+        KhachHang khachHangMoi = null;
+        KhachHang khachHangDaCo = khachHangDAO.getById(tnx.getMaKhachHang());
 
-        if (khachHangMoi == null) {
-            return;
+        if (khachHangDaCo == null) {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Khách hàng mới");
+            confirm.setHeaderText(null);
+            confirm.setContentText(
+                    "Mã khách hàng " + tnx.getMaKhachHang() + " chưa tồn tại.\n"
+                            + "Bạn có muốn tạo khách hàng mới không?"
+            );
+
+            Optional<ButtonType> option = confirm.showAndWait();
+
+            if (option.isEmpty() || option.get() != ButtonType.OK) {
+                return;
+            }
+
+            khachHangMoi = inputNewCustomer(tnx.getMaKhachHang());
+
+            if (khachHangMoi == null) {
+                return;
+            }
+        }
+
+        boolean result = tiepNhanXeService.addWithCustomer(tnx, khachHangMoi);
+
+        if (result) {
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo hồ sơ tiếp nhận xe thành công.");
+            loadTableData();
+            clearForm();
+            markIntakeDataChanged();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo hồ sơ. Kiểm tra mã hồ sơ, biển số, khách hàng, hiệu xe hoặc giới hạn tiếp nhận trong ngày.");
         }
     }
-
-    boolean result = tiepNhanXeService.addWithCustomer(tnx, khachHangMoi);
-
-    if (result) {
-        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm tiếp nhận xe thành công!");
-        loadTableData();
-        clearForm();
-        markIntakeDataChanged();
-    } else {
-        showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể thêm. Kiểm tra mã tiếp nhận, khách hàng, hiệu xe hoặc giới hạn tiếp nhận!");
-    }
-}
 
     private void handleUpdate() {
         TiepNhanXe selected = tblTiepNhanXe.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn dòng cần sửa!");
+            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn hồ sơ cần sửa.");
             return;
         }
 
-        TiepNhanXe tnx = getFormData();
+        TiepNhanXe tnx = getFormData(selected.getTienNo());
 
         if (tnx == null) {
             return;
@@ -236,12 +240,12 @@ public class IntakeServiceController implements Initializable, Refreshable {
         boolean result = tiepNhanXeService.update(tnx);
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật tiếp nhận xe thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật hồ sơ tiếp nhận xe thành công.");
             loadTableData();
             clearForm();
             markIntakeDataChanged();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật dữ liệu!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật. Biển số có thể đã thuộc hồ sơ khác hoặc dữ liệu đang được tham chiếu.");
         }
     }
 
@@ -249,14 +253,14 @@ public class IntakeServiceController implements Initializable, Refreshable {
         TiepNhanXe selected = tblTiepNhanXe.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn dòng cần xóa!");
+            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn hồ sơ cần xóa.");
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Xác nhận xóa");
         confirm.setHeaderText(null);
-        confirm.setContentText("Bạn có chắc muốn xóa tiếp nhận xe: " + selected.getMaTiepNhanXe() + "?");
+        confirm.setContentText("Bạn có chắc muốn xóa hồ sơ tiếp nhận xe " + selected.getMaTiepNhanXe() + "?");
 
         Optional<ButtonType> option = confirm.showAndWait();
 
@@ -264,98 +268,85 @@ public class IntakeServiceController implements Initializable, Refreshable {
             boolean result = tiepNhanXeService.delete(selected.getMaTiepNhanXe());
 
             if (result) {
-                showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa tiếp nhận xe thành công!");
+                showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xóa hồ sơ tiếp nhận xe thành công.");
                 loadTableData();
                 clearForm();
                 markIntakeDataChanged();
             } else {
-                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa. Dữ liệu có thể đang được tham chiếu ở bảng khác!");
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa vì hồ sơ đang được phiếu sửa chữa hoặc phiếu thu tham chiếu.");
             }
         }
     }
 
     private void handleSearch() {
-        String keyword = txtSearch.getText();
-
         try {
-            List<TiepNhanXe> list = tiepNhanXeService.search(keyword);
-            ObservableList<TiepNhanXe> data = FXCollections.observableArrayList(list);
-            tblTiepNhanXe.setItems(data);
+            List<TiepNhanXe> list = tiepNhanXeService.search(txtSearch.getText());
+            tblTiepNhanXe.setItems(FXCollections.observableArrayList(list));
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tìm kiếm dữ liệu!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tìm kiếm dữ liệu.");
         }
     }
 
-    private TiepNhanXe getFormData() {
-        String maTiepNhanXe = txtMaTiepNhanXe.getText().trim();
-        String maKhachHang = txtMaKhachHang.getText().trim();
-        String bienSoXe = txtBienSoXe.getText().trim();
+    private TiepNhanXe getFormData(double tienNo) {
+        String maTiepNhanXe = safeTrim(txtMaTiepNhanXe.getText());
+        String maKhachHang = safeTrim(txtMaKhachHang.getText());
+        String bienSoXe = normalizeLicensePlate(txtBienSoXe.getText());
         String maHieuXe = brandNameToId.get(cbbMaHieuXe.getValue());
         LocalDate ngayTiepNhanLocal = dpNgayTiepNhan.getValue();
-        String tienNoText = txtTienNo.getText().trim();
 
         if (maTiepNhanXe.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã tiếp nhận xe không được rỗng!");
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã hồ sơ không được rỗng.");
             return null;
         }
 
         if (maKhachHang.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã khách hàng không được rỗng!");
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Mã khách hàng không được rỗng.");
             return null;
         }
 
         if (bienSoXe.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Biển số xe không được rỗng!");
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Biển số xe không được rỗng.");
+            return null;
+        }
+
+        if (bienSoXe.length() > 10) {
+            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Biển số xe tối đa 10 ký tự sau khi bỏ khoảng trắng và dấu gạch.");
             return null;
         }
 
         if (maHieuXe == null || maHieuXe.trim().isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Vui lòng chọn hiệu xe!");
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Vui lòng chọn hiệu xe.");
             return null;
         }
 
         if (ngayTiepNhanLocal == null) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Ngày tiếp nhận không được rỗng!");
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Ngày tiếp nhận không được rỗng.");
             return null;
         }
 
         if (!isToday(ngayTiepNhanLocal)) {
-            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày tiếp nhận chỉ được chọn ngày hôm nay!");
+            showAlert(Alert.AlertType.WARNING, "Sai ngày", "Ngày tiếp nhận chỉ được chọn ngày hôm nay.");
             return null;
         }
-
-        double tienNo;
-
-        try {
-            tienNo = Double.parseDouble(tienNoText);
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Tiền nợ phải là số!");
-            return null;
-        }
-
-        if (tienNo < 0) {
-            showAlert(Alert.AlertType.WARNING, "Sai dữ liệu", "Tiền nợ không được âm!");
-            return null;
-        }
-
-        Date ngayTiepNhan = Date.valueOf(ngayTiepNhanLocal);
 
         return new TiepNhanXe(
-            maTiepNhanXe,
-            maKhachHang,
-            bienSoXe,
-            maHieuXe,
-            ngayTiepNhan,
-            tienNo
+                maTiepNhanXe,
+                maKhachHang,
+                bienSoXe,
+                maHieuXe,
+                Date.valueOf(ngayTiepNhanLocal),
+                tienNo
         );
     }
 
     private void fillForm(TiepNhanXe tnx) {
-        txtMaTiepNhanXe.setText(tnx.getMaTiepNhanXe());
-        txtMaKhachHang.setText(tnx.getMaKhachHang());
-        txtBienSoXe.setText(tnx.getBienSoXe());
-        String brandId = tnx.getMaHieuXe() == null ? "" : tnx.getMaHieuXe().trim();
+        txtMaTiepNhanXe.setDisable(true);
+        txtMaTiepNhanXe.setText(safeTrim(tnx.getMaTiepNhanXe()));
+        txtMaKhachHang.setText(safeTrim(tnx.getMaKhachHang()));
+        txtBienSoXe.setText(safeTrim(tnx.getBienSoXe()));
+
+        String brandId = safeTrim(tnx.getMaHieuXe());
         cbbMaHieuXe.setValue(brandIdToName.getOrDefault(brandId, brandId));
 
         if (tnx.getNgayTiepNhan() != null) {
@@ -363,26 +354,23 @@ public class IntakeServiceController implements Initializable, Refreshable {
         } else {
             dpNgayTiepNhan.setValue(null);
         }
-
-        txtTienNo.setText(String.valueOf(tnx.getTienNo()));
     }
 
     private void clearForm() {
+        txtMaTiepNhanXe.setDisable(false);
         txtMaTiepNhanXe.clear();
         txtMaKhachHang.clear();
         txtBienSoXe.clear();
         cbbMaHieuXe.setValue(null);
         dpNgayTiepNhan.setValue(LocalDate.now());
-        txtTienNo.clear();
         txtSearch.clear();
-
         tblTiepNhanXe.getSelectionModel().clearSelection();
     }
 
     private void restrictDatePickerToToday(DatePicker datePicker) {
         datePicker.setEditable(false);
         datePicker.setValue(LocalDate.now());
-        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+        datePicker.setDayCellFactory(picker -> new DateCell() {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
@@ -395,6 +383,14 @@ public class IntakeServiceController implements Initializable, Refreshable {
         return LocalDate.now().equals(date);
     }
 
+    private String normalizeLicensePlate(String value) {
+        return safeTrim(value).replace("-", "").replace(" ", "").toUpperCase();
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -402,80 +398,66 @@ public class IntakeServiceController implements Initializable, Refreshable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    
+
     private KhachHang inputNewCustomer(String maKhachHang) {
-    String tenKhachHang = askText(
-            "Tạo khách hàng mới",
-            "Nhập tên khách hàng:"
-    );
+        String tenKhachHang = askText("Tạo khách hàng mới", "Nhập tên khách hàng:");
 
-    if (tenKhachHang == null || tenKhachHang.trim().isEmpty()) {
-        showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Tên khách hàng không được rỗng!");
-        return null;
+        if (tenKhachHang == null || tenKhachHang.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Tên khách hàng không được rỗng.");
+            return null;
+        }
+
+        String soDienThoai = askText("Tạo khách hàng mới", "Nhập số điện thoại khách hàng:");
+
+        if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Số điện thoại không được rỗng.");
+            return null;
+        }
+
+        String diaChi = askText("Tạo khách hàng mới", "Nhập địa chỉ khách hàng:");
+
+        if (diaChi == null || diaChi.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Địa chỉ không được rỗng.");
+            return null;
+        }
+
+        return new KhachHang(
+                maKhachHang,
+                tenKhachHang.trim(),
+                diaChi.trim(),
+                soDienThoai.trim()
+        );
     }
 
-    String soDienThoai = askText(
-            "Tạo khách hàng mới",
-            "Nhập số điện thoại khách hàng:"
-    );
+    private String askText(String title, String content) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle(title);
+        dialog.setHeaderText(null);
+        dialog.setContentText(content);
 
-    if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
-        showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Số điện thoại không được rỗng!");
-        return null;
+        Optional<String> result = dialog.showAndWait();
+        return result.orElse(null);
     }
 
-    String diaChi = askText(
-            "Tạo khách hàng mới",
-            "Nhập địa chỉ khách hàng:"
-    );
-
-    if (diaChi == null || diaChi.trim().isEmpty()) {
-        showAlert(Alert.AlertType.WARNING, "Thiếu dữ liệu", "Địa chỉ không được rỗng!");
-        return null;
+    private void markIntakeDataChanged() {
+        DataRefreshService.markDirty(
+                DataRefreshService.DASHBOARD,
+                DataRefreshService.REPAIR,
+                DataRefreshService.BILLING,
+                DataRefreshService.LOOKUP,
+                DataRefreshService.REPORTS,
+                DataRefreshService.PARTS
+        );
     }
 
-    return new KhachHang(
-            maKhachHang,
-            tenKhachHang.trim(),
-            diaChi.trim(),
-            soDienThoai.trim()
-    );
-}
-
-private String askText(String title, String content) {
-    TextInputDialog dialog = new TextInputDialog();
-    dialog.setTitle(title);
-    dialog.setHeaderText(null);
-    dialog.setContentText(content);
-
-    Optional<String> result = dialog.showAndWait();
-
-    if (result.isEmpty()) {
-        return null;
+    private String getSelectedBrandId() {
+        String value = cbbMaHieuXe.getValue();
+        return value == null ? null : brandNameToId.getOrDefault(value, value).trim();
     }
 
-    return result.get();
-}
-
-private void markIntakeDataChanged() {
-    DataRefreshService.markDirty(
-            DataRefreshService.DASHBOARD,
-            DataRefreshService.REPAIR,
-            DataRefreshService.BILLING,
-            DataRefreshService.LOOKUP,
-            DataRefreshService.REPORTS,
-            DataRefreshService.PARTS
-    );
-}
-
-private String getSelectedBrandId() {
-    String value = cbbMaHieuXe.getValue();
-    return value == null ? null : brandNameToId.getOrDefault(value, value).trim();
-}
-
-private record IntakeRefreshData(
-        List<HieuXe> brands,
-        List<TiepNhanXe> intakes
-) {
-}
+    private record IntakeRefreshData(
+            List<HieuXe> brands,
+            List<TiepNhanXe> intakes
+    ) {
+    }
 }

@@ -1,15 +1,12 @@
 package Service;
 
-import DAO.ThongTinGarageDAO;
 import DAO.TienCongDAO;
-import MODEL.ThongTinGarage;
 import MODEL.TienCong;
 import java.util.List;
 
 public class TienCongService {
 
     private final TienCongDAO tienCongDAO = new TienCongDAO();
-    private final ThongTinGarageDAO thongTinGarageDAO = new ThongTinGarageDAO();
 
     public List<TienCong> getAll() {
         return tienCongDAO.getAll();
@@ -33,13 +30,6 @@ public class TienCongService {
         }
 
         if (tienCongDAO.getById(tc.getMaTienCong()) != null) {
-            return false;
-        }
-
-        ThongTinGarage tt = thongTinGarageDAO.get();
-        int maxTienCong = tt == null ? 100 : tt.getSoLuongTienCongToiDa();
-
-        if (tienCongDAO.countAll() >= maxTienCong) {
             return false;
         }
 

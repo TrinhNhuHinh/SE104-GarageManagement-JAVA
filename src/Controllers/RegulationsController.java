@@ -13,9 +13,6 @@ import javafx.scene.control.TextField;
 public class RegulationsController implements Initializable {
 
     @FXML private TextField txtMaxCarsPerDay;
-    @FXML private TextField txtMaxBrands;
-    @FXML private TextField txtMaxParts;
-    @FXML private TextField txtMaxLabors;
 
     @FXML private Button btnUpdateRegulations;
     @FXML private Button btnResetRegulations;
@@ -37,41 +34,34 @@ public class RegulationsController implements Initializable {
 
     private void loadSettings() {
         ThongTinGarage settings = thongTinGarageService.getSettings();
-
         txtMaxCarsPerDay.setText(String.valueOf(settings.getSoLuongXeToiDa()));
-        txtMaxBrands.setText(String.valueOf(settings.getTongSoHieuXe()));
-        txtMaxParts.setText(String.valueOf(settings.getSoLuongVatTuToiDa()));
-        txtMaxLabors.setText(String.valueOf(settings.getSoLuongTienCongToiDa()));
     }
 
     private void handleUpdate() {
-        Integer maxCars = getPositiveInt(txtMaxCarsPerDay, "Số xe tối đa mỗi ngày phải là số nguyên dương!");
-        Integer maxBrands = getPositiveInt(txtMaxBrands, "Số hiệu xe tối đa phải là số nguyên dương!");
-        Integer maxParts = getPositiveInt(txtMaxParts, "Số loại vật tư tối đa phải là số nguyên dương!");
-        Integer maxLabors = getPositiveInt(txtMaxLabors, "Số loại tiền công tối đa phải là số nguyên dương!");
+        Integer maxCars = getPositiveInt(txtMaxCarsPerDay, "Số xe tối đa mỗi ngày phải là số nguyên dương.");
 
-        if (maxCars == null || maxBrands == null || maxParts == null || maxLabors == null) {
+        if (maxCars == null) {
             return;
         }
 
-        boolean result = thongTinGarageService.updateSettings(maxCars, maxBrands, maxParts, maxLabors);
+        boolean result = thongTinGarageService.updateMaxCarsPerDay(maxCars);
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật quy định thành công!");
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Cập nhật quy định thành công.");
             loadSettings();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật quy định!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật quy định.");
         }
     }
 
     private void handleReset() {
-        boolean result = thongTinGarageService.resetDefault();
+        boolean result = thongTinGarageService.updateMaxCarsPerDay(30);
 
         if (result) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã đưa quy định về mặc định!");
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã đưa số xe tối đa mỗi ngày về mặc định.");
             loadSettings();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể đưa quy định về mặc định!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể đưa quy định về mặc định.");
         }
     }
 

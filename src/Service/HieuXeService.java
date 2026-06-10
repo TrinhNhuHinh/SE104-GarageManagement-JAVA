@@ -1,16 +1,13 @@
 package Service;
 
 import DAO.HieuXeDAO;
-import DAO.ThongTinGarageDAO;
 import MODEL.HieuXe;
-import MODEL.ThongTinGarage;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HieuXeService {
 
     private final HieuXeDAO hieuXeDAO = new HieuXeDAO();
-    private final ThongTinGarageDAO thongTinGarageDAO = new ThongTinGarageDAO();
 
     public List<HieuXe> getAll() {
         List<HieuXe> result = new ArrayList<>();
@@ -30,13 +27,6 @@ public class HieuXeService {
         }
 
         if (hieuXeDAO.getByName(hx.getTenHieuXe().trim()) != null) {
-            return false;
-        }
-
-        ThongTinGarage tt = thongTinGarageDAO.get();
-        int maxBrand = tt == null ? 10 : tt.getTongSoHieuXe();
-
-        if (getAll().size() >= maxBrand) {
             return false;
         }
 

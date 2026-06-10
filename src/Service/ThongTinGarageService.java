@@ -17,39 +17,25 @@ public class ThongTinGarageService {
         return tt;
     }
 
-    public boolean updateSettings(int soLuongXeToiDa, int tongSoHieuXe,
-                                  int soLuongVatTuToiDa, int soLuongTienCongToiDa) {
+    public boolean updateMaxCarsPerDay(int soLuongXeToiDa) {
+        if (soLuongXeToiDa <= 0) {
+            return false;
+        }
 
-        if (soLuongXeToiDa <= 0) return false;
-        if (tongSoHieuXe <= 0) return false;
-        if (soLuongVatTuToiDa <= 0) return false;
-        if (soLuongTienCongToiDa <= 0) return false;
+        ThongTinGarage tt = new ThongTinGarage("GARAGE", soLuongXeToiDa);
 
-        ThongTinGarage tt = new ThongTinGarage(
-                "GARAGE",
-                soLuongXeToiDa,
-                tongSoHieuXe,
-                0,
-                soLuongVatTuToiDa,
-                soLuongTienCongToiDa
-        );
+        if (thongTinGarageDAO.get() == null) {
+            return thongTinGarageDAO.insert(tt);
+        }
 
         return thongTinGarageDAO.update(tt);
     }
 
     public boolean resetDefault() {
-        ThongTinGarage tt = getDefaultSettings();
-        return thongTinGarageDAO.update(tt);
+        return updateMaxCarsPerDay(30);
     }
 
     private ThongTinGarage getDefaultSettings() {
-        return new ThongTinGarage(
-                "GARAGE",
-                30,
-                10,
-                0,
-                200,
-                100
-        );
+        return new ThongTinGarage("GARAGE", 30);
     }
 }
